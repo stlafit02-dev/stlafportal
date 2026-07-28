@@ -8,17 +8,26 @@ using STLAF.Api.Identity.Policies;
 using STLAF.Api.Identity.Services;
 using STLAF.Api.Announcements.Services;
 using STLAF.Api.Departments.IT.Services;
-using Microsoft.Extensions.Configuration.Json;
 
 DotNetEnv.Env.Load();
 
-var builder = WebApplication.CreateBuilder(args);
+var options = new WebApplicationOptions
+{
+    Args = args,
+    EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+        ?? Environments.Production
+};
 
-// Disable JSON configuration file watchers for Render/Linux containers
+var builder = WebApplication.CreateBuilder(options);
+
+// Remove configuration reload watchers
 builder.Configuration.Sources
-    .OfType<JsonConfigurationSource>()
+    .OfType<Microsoft.Extensions.Configuration.Json.JsonConfigurationSource>()
     .ToList()
-    .ForEach(source => source.ReloadOnChange = false);
+    .ForEach(source =>
+    {
+        source.ReloadOnChange = false;
+    });
 
 
 // Controllers + OpenAPI
@@ -95,9 +104,9 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                "http://localhost:5173"
+                "http://localhost:5173",
                 // Add Vercel URL here later:
-                // "https://your-app.vercel.app"
+                "https://stlafportal.vercel.app/"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
