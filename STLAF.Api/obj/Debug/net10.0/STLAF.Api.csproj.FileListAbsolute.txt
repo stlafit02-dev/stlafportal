@@ -135,3 +135,10 @@ C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\obj\Debug\net10.0\refint\STLAF
 C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\obj\Debug\net10.0\STLAF.Api.pdb
 C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\obj\Debug\net10.0\STLAF.Api.genruntimeconfig.cache
 C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\obj\Debug\net10.0\ref\STLAF.Api.dll
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\out\web.config
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\out\appsettings.Development.json
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\out\appsettings.json
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\out\STLAF.Api.deps.json
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\out\STLAF.Api.runtimeconfig.json
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\out\STLAF.Api.staticwebassets.endpoints.json
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\obj\Debug\net10.0\STLAF.Api.sourcelink.json
