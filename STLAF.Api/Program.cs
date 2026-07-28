@@ -106,7 +106,7 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:5173",
                 // Add Vercel URL here later:
-                "https://stlafportal.vercel.app/"
+                "https://stlafportal.vercel.app"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
