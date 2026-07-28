@@ -11,7 +11,16 @@ using STLAF.Api.Departments.IT.Services;
 
 DotNetEnv.Env.Load();
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    EnvironmentName = Environments.Production
+});
+
+builder.Configuration.Sources
+    .OfType<Microsoft.Extensions.Configuration.Json.JsonConfigurationSource>()
+    .ToList()
+    .ForEach(x => x.ReloadOnChange = false);
 
 // Controllers + OpenAPI
 builder.Services.AddControllers();
