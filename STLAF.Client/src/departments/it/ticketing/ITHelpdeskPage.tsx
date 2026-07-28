@@ -256,7 +256,7 @@ export function ITHelpdeskPage() {
             </div>
           ) : queue.length === 0 ? (
             <div className="queue-empty">
-              <p>Wala ticket hayahay</p>
+              <p>No tickets.</p>
             </div>
           ) : (
             <div className="queue-table-wrap">
