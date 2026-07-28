@@ -1,0 +1,109 @@
+.btn-loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-logo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 16px;
+}
+
+.login-title {
+  font-family: "Fraunces", serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+
+.login-subtitle {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin: 0 0 28px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-body);
+  letter-spacing: 0.3px;
+}
+
+.field-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color-strong);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-family: "Inter", sans-serif;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.field-input::placeholder {
+  color: var(--text-muted);
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  background: var(--bg-input-focus);
+}
+
+.login-error {
+  font-size: 13px;
+  color: var(--accent-error);
+  margin: -6px 0 0;
+}
+
+.login-submit {
+  margin-top: 6px;
+  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  color: var(--bg-primary);
+  border: none;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(204, 170, 73, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(204, 170, 73, 0.35);
+}
+
+.login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-submit:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-submit,
+  .field-input {
+    transition: none;
+  }
+}

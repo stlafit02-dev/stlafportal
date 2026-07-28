@@ -1,0 +1,227 @@
+.asset-modal {
+  width: 560px;
+  max-width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.asset-modal-title {
+  font-family: "Fraunces", serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px;
+}
+
+.asset-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.existing-id-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.asset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.asset-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color-strong);
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 13.5px;
+  font-family: "Inter", sans-serif;
+  color: var(--text-primary);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.asset-input::placeholder {
+  color: var(--text-muted);
+}
+
+.asset-input:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  background: var(--bg-input-focus);
+}
+
+.asset-textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.accessory-section {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.accessory-label {
+  font-size: 11.5px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.accessory-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.accessory-input {
+  margin-left: 24px;
+  width: calc(100% - 24px);
+}
+
+.asset-error {
+  font-size: 13px;
+  color: var(--accent-error);
+  margin: 0;
+}
+
+.asset-submit-btn {
+  margin-top: 4px;
+  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  color: var(--bg-primary);
+  border: none;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.asset-submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.asset-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Result state */
+.asset-result {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.asset-result-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.success-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(79, 203, 132, 0.15);
+  color: #4FCB84;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.asset-result-tag {
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--accent-gold);
+  font-weight: 700;
+  font-size: 15px;
+  margin: 12px 0 2px;
+}
+
+.asset-result-name {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  margin: 0 0 20px;
+}
+
+.qr-frame {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  display: inline-flex;
+  margin-bottom: 20px;
+}
+
+.qr-frame img {
+  display: block;
+  width: 200px;
+  height: 200px;
+}
+
+.asset-result-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.download-btn,
+.done-btn {
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.download-btn {
+  background: var(--bg-nav-hover);
+  border: 1px solid var(--border-color-strong);
+  color: var(--text-primary);
+}
+
+.done-btn {
+  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  color: var(--bg-primary);
+  border: none;
+}
+
+@media (max-width: 600px) {
+  .asset-modal {
+    width: 100%;
+  }
+
+  .asset-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asset-submit-btn,
+  .asset-input {
+    transition: none;
+  }
+}

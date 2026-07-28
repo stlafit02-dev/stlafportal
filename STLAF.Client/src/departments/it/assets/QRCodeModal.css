@@ -1,0 +1,57 @@
+.qr-view-modal {
+  width: 320px;
+  max-width: 100%;
+  text-align: center;
+}
+
+.qr-view-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.qr-view-name {
+  font-family: "Fraunces", serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px;
+}
+
+.qr-view-frame {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  display: inline-flex;
+  margin-bottom: 14px;
+}
+
+.qr-view-frame img {
+  display: block;
+  width: 200px;
+  height: 200px;
+}
+
+.qr-view-tag {
+  display: block;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+  color: var(--accent-gold);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.qr-view-download {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  color: var(--bg-primary);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 10px;
+}

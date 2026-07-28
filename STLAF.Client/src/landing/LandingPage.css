@@ -1,0 +1,210 @@
+.landing {
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  font-family: "Inter", sans-serif;
+  overflow: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.glow {
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 600px;
+  background: radial-gradient(circle, var(--bg-glow) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing-header,
+.landing-hero,
+.landing-feed,
+.landing-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 56px;
+  gap: 16px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.wordmark-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
+
+.signin-btn {
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  color: var(--bg-primary);
+  border: none;
+  padding: 11px 26px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(204, 170, 73, 0.25);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.signin-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(204, 170, 73, 0.35);
+}
+
+.signin-btn:active {
+  transform: translateY(0);
+}
+
+.signin-btn:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+}
+
+.landing-hero {
+  padding: 88px 56px 40px;
+  text-align: center;
+}
+
+.hero-title {
+  font-family: "Fraunces", serif;
+  font-size: 52px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  margin: 0 0 12px;
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.landing-feed {
+  flex: 1;
+  padding: 24px 56px 64px;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.empty-text {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 0;
+}
+
+.notice-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px 28px;
+  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.notice-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(204, 170, 73, 0.35);
+  background: var(--bg-card-hover);
+}
+
+.notice-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.notice-tag {
+  color: var(--accent-gold);
+  font-weight: 600;
+  background: var(--bg-tag);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.notice-date {
+  color: var(--text-muted);
+}
+
+.notice-title {
+  font-family: "Fraunces", serif;
+  font-size: 19px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+
+.notice-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-body);
+  margin: 0;
+}
+
+.landing-footer {
+  padding: 24px 56px;
+  border-top: 1px solid var(--border-color);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .landing-header,
+  .landing-hero,
+  .landing-feed,
+  .landing-footer {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .hero-title {
+    font-size: 34px;
+  }
+
+  .wordmark-logo {
+    height: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signin-btn,
+  .notice-card,
+  .landing {
+    transition: none;
+  }
+}

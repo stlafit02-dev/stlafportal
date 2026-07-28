@@ -1,0 +1,79 @@
+.floating-field {
+  position: relative;
+  width: 100%;
+}
+
+.floating-control {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color-strong);
+  border-radius: 10px;
+  padding: 16px 14px 8px;
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+  color: var(--text-primary);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+select.floating-control {
+  padding: 16px 34px 8px 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'><path d='M1 1L5 5L9 1' stroke='%2392A1B3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+}
+
+.floating-textarea {
+  min-height: 90px;
+  resize: vertical;
+  padding-top: 20px;
+}
+
+.floating-control:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  background-color: var(--bg-input-focus);
+}
+
+.floating-label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 0 4px;
+  pointer-events: none;
+  transition:
+    top 0.15s ease,
+    transform 0.15s ease,
+    color 0.15s ease;
+  background: transparent;
+}
+
+.floating-label-up {
+  top: 0;
+  transform: translateY(-50%) scale(0.82);
+  transform-origin: left;
+  color: var(--accent-gold);
+}
+.floating-static {
+  width: 100%;
+  background: var(--bg-nav-hover);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px 14px 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .floating-control,
+  .floating-label {
+    transition: none;
+  }
+}

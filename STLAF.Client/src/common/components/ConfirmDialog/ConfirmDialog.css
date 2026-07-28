@@ -1,0 +1,62 @@
+.confirm-dialog {
+  width: 380px;
+  max-width: 100%;
+}
+
+.confirm-title {
+  font-family: "Fraunces", serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 10px;
+}
+
+.confirm-message {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0 0 24px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.confirm-cancel-btn {
+  background: var(--bg-nav-hover);
+  border: 1px solid var(--border-color-strong);
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm-cancel-btn:hover {
+  border-color: var(--accent-gold);
+}
+
+.confirm-ok-btn {
+  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  color: var(--bg-primary);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-ok-danger {
+  background: linear-gradient(135deg, #e8877a, #c24a3a);
+  color: #fff;
+}
+
+@media (max-width: 480px) {
+  .confirm-dialog {
+    width: 100%;
+  }
+}
