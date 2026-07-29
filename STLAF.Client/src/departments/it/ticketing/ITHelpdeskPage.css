@@ -6,6 +6,10 @@
 }
 
 .helpdesk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
   margin-bottom: 28px;
 }
 
@@ -55,11 +59,26 @@
   width: fit-content;
 }
 
-.badge-open { background: rgba(90, 140, 230, 0.15); color: #6C9BEF; }
-.badge-progress { background: rgba(230, 150, 60, 0.15); color: #E8A44C; }
-.badge-hold { background: rgba(160, 100, 220, 0.15); color: #B888E6; }
-.badge-resolved { background: rgba(70, 190, 120, 0.15); color: #4FCB84; }
-.badge-closed { background: rgba(140, 150, 160, 0.15); color: var(--text-secondary); }
+.badge-open {
+  background: rgba(90, 140, 230, 0.15);
+  color: #6c9bef;
+}
+.badge-progress {
+  background: rgba(230, 150, 60, 0.15);
+  color: #e8a44c;
+}
+.badge-hold {
+  background: rgba(160, 100, 220, 0.15);
+  color: #b888e6;
+}
+.badge-resolved {
+  background: rgba(70, 190, 120, 0.15);
+  color: #4fcb84;
+}
+.badge-closed {
+  background: rgba(140, 150, 160, 0.15);
+  color: var(--text-secondary);
+}
 
 /* ---------- Two-column body: form + queue, stretched to match height ---------- */
 .helpdesk-body {
@@ -100,7 +119,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #4FCB84;
+  background: #4fcb84;
   box-shadow: 0 0 0 4px rgba(79, 203, 132, 0.15);
 }
 
@@ -119,7 +138,9 @@
   font-size: 14px;
   font-family: "Inter", sans-serif;
   color: var(--text-primary);
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .ticket-input::placeholder {
@@ -148,12 +169,16 @@
 }
 
 .form-success {
-  color: #4FCB84;
+  color: #4fcb84;
 }
 
 .submit-btn {
   margin-top: 4px;
-  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  background: linear-gradient(
+    135deg,
+    var(--accent-gold-bright),
+    var(--accent-gold)
+  );
   color: var(--bg-primary);
   border: none;
   padding: 13px;
@@ -161,7 +186,9 @@
   font-size: 14.5px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -262,10 +289,22 @@
   border-radius: 999px;
 }
 
-.priority-low { background: rgba(140, 150, 160, 0.15); color: var(--text-secondary); }
-.priority-medium { background: rgba(90, 140, 230, 0.15); color: #6C9BEF; }
-.priority-high { background: rgba(230, 150, 60, 0.15); color: #E8A44C; }
-.priority-urgent { background: rgba(220, 80, 80, 0.15); color: var(--accent-error); }
+.priority-low {
+  background: rgba(140, 150, 160, 0.15);
+  color: var(--text-secondary);
+}
+.priority-medium {
+  background: rgba(90, 140, 230, 0.15);
+  color: #6c9bef;
+}
+.priority-high {
+  background: rgba(230, 150, 60, 0.15);
+  color: #e8a44c;
+}
+.priority-urgent {
+  background: rgba(220, 80, 80, 0.15);
+  color: var(--accent-error);
+}
 
 @media (max-width: 900px) {
   .helpdesk {
@@ -289,5 +328,10 @@
 @media (max-width: 480px) {
   .summary-grid {
     grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .helpdesk-header {
+    flex-direction: column;
   }
 }
