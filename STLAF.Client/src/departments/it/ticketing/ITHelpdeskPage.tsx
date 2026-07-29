@@ -9,14 +9,9 @@ import {
 import { Spinner } from "../../../common/components/Loader/Loader";
 import "./ITHelpdeskPage.css";
 import { Toast } from "../../../common/components/Toast/Toast";
+import { ThemeToggle } from "../../../common/components/ThemeToggle/ThemeToggle";
 
-const CATEGORIES = [
-  "Hardware",
-  "Software",
-  "Network",
-  "Email",
-  "Other",
-];
+const CATEGORIES = ["Hardware", "Software", "Network", "Email", "Other"];
 const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
 const DEPARTMENTS = [
   "IT",
@@ -122,10 +117,13 @@ export function ITHelpdeskPage() {
   return (
     <div className="helpdesk">
       <header className="helpdesk-header">
-        <h1 className="helpdesk-title">IT Helpdesk</h1>
-        <p className="helpdesk-subtitle">
-          Submit an IT request and monitor live ticket updates.
-        </p>
+        <div>
+          <h1 className="helpdesk-title">IT Helpdesk</h1>
+          <p className="helpdesk-subtitle">
+            Submit an IT request and monitor live ticket updates.
+          </p>
+        </div>
+        <ThemeToggle />
       </header>
 
       <section className="summary-grid">
