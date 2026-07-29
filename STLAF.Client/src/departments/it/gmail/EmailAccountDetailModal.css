@@ -1,0 +1,113 @@
+.email-detail-modal {
+  width: 520px;
+  max-width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.email-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.email-detail-title {
+  font-family: "Fraunces", serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.email-detail-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.email-detail-close:hover {
+  color: var(--text-primary);
+}
+
+.email-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.email-detail-item {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.email-detail-full {
+  margin-bottom: 16px;
+}
+
+.email-detail-label {
+  font-size: 10.5px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.email-detail-value {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.email-detail-value.mono {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+}
+
+.password-reveal-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.mono {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.password-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+}
+
+.password-toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+.remarks-text {
+  font-size: 13.5px;
+  color: var(--text-body);
+  margin: 4px 0 0;
+}
+
+@media (max-width: 560px) {
+  .email-detail-modal {
+    width: 100%;
+  }
+
+  .email-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

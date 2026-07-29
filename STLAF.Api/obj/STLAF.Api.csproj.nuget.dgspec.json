@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\STLAF.Api\\STLAF.Api.csproj": {}
+    "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\stlaf.api\\STLAF.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\STLAF.Api\\STLAF.Api.csproj": {
+    "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\stlaf.api\\STLAF.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\STLAF.Api\\STLAF.Api.csproj",
+        "projectUniqueName": "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\stlaf.api\\STLAF.Api.csproj",
         "projectName": "STLAF.Api",
-        "projectPath": "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\STLAF.Api\\STLAF.Api.csproj",
+        "projectPath": "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\stlaf.api\\STLAF.Api.csproj",
         "packagesPath": "C:\\Users\\IT Full Stack\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\STLAF.Api\\obj\\",
+        "outputPath": "C:\\Users\\IT Full Stack\\Desktop\\stlafdev\\stlaf.api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\IT Full Stack\\AppData\\Roaming\\NuGet\\NuGet.Config"

@@ -19,6 +19,9 @@ public class AppDbContext : DbContext
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<Asset> Assets => Set<Asset>();
     public DbSet<AssetHistory> AssetHistories => Set<AssetHistory>();
+    public DbSet<GwsAccount> GwsAccounts => Set<GwsAccount>();
+    public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
+    public DbSet<AppPassword> AppPasswords => Set<AppPassword>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

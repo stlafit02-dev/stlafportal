@@ -2,18 +2,74 @@ import { useState, type ReactNode } from "react";
 import { useAuth } from "../../../auth/useAuth";
 import { ThemeToggle } from "../ThemeToggle/ThemeToggle";
 import { PageLoader } from "../Loader/Loader";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { useTheme } from "../../../theme/useTheme";
+import logoDark from "../../../assets/dark.png";
+import logoLight from "../../../assets/light.png";
 import "./DashboardLayout.css";
 
 export interface NavItem {
   label: string;
-  to: string;
+  to?: string;
+  children?: { label: string; to: string }[];
 }
 
 interface DashboardLayoutProps {
   departmentLabel: string;
   navItems: NavItem[];
   children: ReactNode;
+}
+
+function NavGroup({
+  item,
+  onNavigate,
+}: {
+  item: NavItem;
+  onNavigate: () => void;
+}) {
+  const location = useLocation();
+  const isChildActive = item.children!.some((c) =>
+    location.pathname.startsWith(c.to),
+  );
+  const [isOpen, setIsOpen] = useState(isChildActive);
+
+  return (
+    <div className="nav-group">
+      <button
+        className={`nav-item nav-group-toggle ${isChildActive ? "nav-item-active" : ""}`}
+        onClick={() => setIsOpen((prev) => !prev)}
+      >
+        <span>{item.label}</span>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          className={`nav-chevron ${isOpen ? "nav-chevron-open" : ""}`}
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {isOpen && (
+        <div className="nav-subitems">
+          {item.children!.map((child) => (
+            <NavLink
+              key={child.to}
+              to={child.to}
+              className={({ isActive }) =>
+                `nav-subitem ${isActive ? "nav-subitem-active" : ""}`
+              }
+              onClick={onNavigate}
+            >
+              {child.label}
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function DashboardLayout({
@@ -23,6 +79,8 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user, logout, isLoggingOut } = useAuth();
+  const { theme } = useTheme();
+  const logoSrc = theme === "dark" ? logoDark : logoLight;
 
   if (isLoggingOut) {
     return <PageLoader label="Signing out…" />;
@@ -50,7 +108,7 @@ export function DashboardLayout({
             <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
-        <span className="mobile-wordmark">STLAF</span>
+        <span className="mobile-topbar-spacer" />
         <div style={{ width: 22 }} />
       </div>
 
@@ -65,7 +123,7 @@ export function DashboardLayout({
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-header">
-          <span className="sidebar-wordmark">STLAF</span>
+          <img src={logoSrc} alt="STLAF" className="sidebar-logo" />
           <button
             className="sidebar-close-btn"
             onClick={() => setIsSidebarOpen(false)}
@@ -88,18 +146,26 @@ export function DashboardLayout({
         <p className="sidebar-department">{departmentLabel}</p>
 
         <nav className="sidebar-nav">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `nav-item ${isActive ? "nav-item-active" : ""}`
-              }
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              {item.label}
-            </NavLink>
-          ))}
+          {navItems.map((item) =>
+            item.children ? (
+              <NavGroup
+                key={item.label}
+                item={item}
+                onNavigate={() => setIsSidebarOpen(false)}
+              />
+            ) : (
+              <NavLink
+                key={item.to}
+                to={item.to!}
+                className={({ isActive }) =>
+                  `nav-item ${isActive ? "nav-item-active" : ""}`
+                }
+                onClick={() => setIsSidebarOpen(false)}
+              >
+                {item.label}
+              </NavLink>
+            ),
+          )}
         </nav>
 
         <div className="sidebar-footer">

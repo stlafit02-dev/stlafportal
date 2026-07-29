@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./theme/ThemeProvider";
 import { AuthProvider } from "./auth/AuthProvider";
 import { LandingPage } from "./landing/LandingPage";
@@ -13,9 +13,11 @@ import { CorporateDashboard } from "./departments/corporate/CorporateDashboard";
 import { MarketingDashboard } from "./departments/marketing/MarketingDashboard";
 import { ITHelpdeskPage } from "./departments/it/ticketing/ITHelpdeskPage";
 import { AssetPublicPage } from "./departments/it/assets/AssetPublicPage";
-import { Navigate } from "react-router-dom";
 import { TicketingPage } from "./departments/it/ticketing/TicketingPage";
 import { AssetManagementPage } from "./departments/it/assets/AssetManagementPage";
+import { GwsAccountPage } from "./departments/it/gmail/GwsAccountPage";
+import { EmailAccountPage } from "./departments/it/gmail/EmailAccountPage";
+import { AppPasswordPage } from "./departments/it/gmail/AppPasswordPage";
 
 function App() {
   return (
@@ -42,13 +44,11 @@ function App() {
               <Route path="assets" element={<AssetManagementPage />} />
               <Route
                 path="gmail"
-                element={
-                  <div>
-                    <h1 className="page-title">Gmail Management</h1>
-                    <p className="page-subtitle">Coming soon.</p>
-                  </div>
-                }
+                element={<Navigate to="accounts" replace />}
               />
+              <Route path="gmail/accounts" element={<GwsAccountPage />} />
+              <Route path="gmail/emails" element={<EmailAccountPage />} />
+              <Route path="gmail/app-passwords" element={<AppPasswordPage />} />
             </Route>
             <Route
               path="/dashboard/hr-admin"
