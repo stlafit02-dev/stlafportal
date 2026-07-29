@@ -6,6 +6,7 @@
 # dotenv files
 .env
 .env.prod
+.env.backup
 
 
 # User-specific files

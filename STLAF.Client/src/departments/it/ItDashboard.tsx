@@ -8,7 +8,14 @@ export function ItDashboard() {
       navItems={[
         { label: "Ticketing", to: "/dashboard/ticketing" },
         { label: "Asset Management", to: "/dashboard/assets" },
-        { label: "Gmail Management", to: "/dashboard/gmail" },
+        {
+          label: "Gmail Management",
+          children: [
+            { label: "GWS Accounts", to: "/dashboard/gmail/accounts" },
+            { label: "Email Accounts", to: "/dashboard/gmail/emails" },
+            { label: "App Passwords", to: "/dashboard/gmail/app-passwords" },
+          ],
+        },
       ]}
     >
       <Outlet />

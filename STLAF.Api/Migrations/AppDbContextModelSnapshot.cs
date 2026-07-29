@@ -64,6 +64,49 @@ namespace STLAF.Api.Migrations
                     b.ToTable("announcements", (string)null);
                 });
 
+            modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.AppPassword", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AppPasswordValue")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("app_password");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("GwsAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("gws_account_id");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("integer")
+                        .HasColumnName("month");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasColumnName("notes");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GwsAccountId");
+
+                    b.ToTable("it_app_passwords", (string)null);
+                });
+
             modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.Asset", b =>
                 {
                     b.Property<Guid>("Id")
@@ -230,6 +273,118 @@ namespace STLAF.Api.Migrations
                     b.HasIndex("AssetId");
 
                     b.ToTable("it_asset_history", (string)null);
+                });
+
+            modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.EmailAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeleteAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delete_at");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("deleted");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("full_name");
+
+                    b.Property<Guid>("GwsAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("gws_account_id");
+
+                    b.Property<string>("LocalGmail")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("local_gmail");
+
+                    b.Property<string>("OldStlafEmail")
+                        .HasColumnType("text")
+                        .HasColumnName("old_stlaf_email");
+
+                    b.Property<string>("OldUser")
+                        .HasColumnType("text")
+                        .HasColumnName("old_user");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password");
+
+                    b.Property<bool>("Recycled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("recycled");
+
+                    b.Property<DateTime?>("RecycledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recycled_at");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("text")
+                        .HasColumnName("remarks");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("StlafEmail")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("stlaf_email");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GwsAccountId");
+
+                    b.ToTable("it_email_accounts", (string)null);
+                });
+
+            modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.GwsAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("MaxCapacity")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_capacity");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("gws_accounts", (string)null);
                 });
 
             modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.Ticket", b =>
@@ -466,6 +621,17 @@ namespace STLAF.Api.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.AppPassword", b =>
+                {
+                    b.HasOne("STLAF.Api.Departments.IT.Entities.GwsAccount", "GwsAccount")
+                        .WithMany()
+                        .HasForeignKey("GwsAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GwsAccount");
+                });
+
             modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.AssetHistory", b =>
                 {
                     b.HasOne("STLAF.Api.Departments.IT.Entities.Asset", "Asset")
@@ -475,6 +641,17 @@ namespace STLAF.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Asset");
+                });
+
+            modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.EmailAccount", b =>
+                {
+                    b.HasOne("STLAF.Api.Departments.IT.Entities.GwsAccount", "GwsAccount")
+                        .WithMany()
+                        .HasForeignKey("GwsAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GwsAccount");
                 });
 
             modelBuilder.Entity("STLAF.Api.Identity.Entities.RolePermission", b =>
