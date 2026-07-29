@@ -11,6 +11,8 @@ using STLAF.Api.Departments.IT.Services;
 
 DotNetEnv.Env.Load();
 
+Environment.SetEnvironmentVariable("DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE", "false");
+
 var options = new WebApplicationOptions
 {
     Args = args,
@@ -19,16 +21,6 @@ var options = new WebApplicationOptions
 };
 
 var builder = WebApplication.CreateBuilder(options);
-
-// Remove configuration reload watchers
-builder.Configuration.Sources
-    .OfType<Microsoft.Extensions.Configuration.Json.JsonConfigurationSource>()
-    .ToList()
-    .ForEach(source =>
-    {
-        source.ReloadOnChange = false;
-    });
-
 
 // Controllers + OpenAPI
 builder.Services.AddControllers();
@@ -105,7 +97,6 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:5173",
-                // Add Vercel URL here later:
                 "https://stlafportal.vercel.app"
             )
             .AllowAnyHeader()

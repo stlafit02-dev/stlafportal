@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("STLAF.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+37402e3d6f6f6cd43ee6ad3f2ae147289b56d621")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+434b811634f29a38b72030b2a482a3121967e54f")]
 [assembly: System.Reflection.AssemblyProductAttribute("STLAF.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("STLAF.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
