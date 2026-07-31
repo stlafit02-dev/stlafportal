@@ -142,3 +142,11 @@ C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\out\STLAF.Ap
 C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\out\STLAF.Api.runtimeconfig.json
 C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\out\STLAF.Api.staticwebassets.endpoints.json
 C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\obj\Debug\net10.0\STLAF.Api.sourcelink.json
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\ClosedXML.dll
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\ClosedXML.Parser.dll
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\DocumentFormat.OpenXml.dll
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\ExcelNumberFormat.dll
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\RBush.dll
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\SixLabors.Fonts.dll
+C:\Users\IT Full Stack\Desktop\stlafdev\stlaf.api\bin\Debug\net10.0\System.IO.Packaging.dll

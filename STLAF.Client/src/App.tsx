@@ -22,6 +22,11 @@ import { EmployeesPage } from "./departments/hr-admin/employees/EmployeesPage";
 import { PortalLeaveRoute } from "./common/leave/PortalLeaveRoute";
 import { LeaveSettingsPage } from "./departments/hr-admin/leave-settings/LeaveSettingsPage";
 import { IdleLogoutWatcher } from "./auth/IdleLogoutWatcher";
+import { MyLeavePage } from "./common/leave/MyLeavePage";
+import { MyOvertimePage } from "./common/leave/MyOvertimePage";
+import { ApprovalsPage } from "./common/leave/ApprovalsPage";
+import { FinalApprovalsPage } from "./common/leave/FinalApprovalsPage";
+import { ReportsPage } from "./departments/hr-admin/reports/ReportsPage";
 
 function App() {
   return (
@@ -40,7 +45,13 @@ function App() {
                   <PortalLeaveRoute />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<Navigate to="my-leave" replace />} />
+              <Route path="my-leave" element={<MyLeavePage />} />
+              <Route path="overtime" element={<MyOvertimePage />} />
+              <Route path="approvals" element={<ApprovalsPage />} />
+              <Route path="final-approvals" element={<FinalApprovalsPage />} />
+            </Route>
             <Route
               path="/dashboard"
               element={
@@ -75,6 +86,7 @@ function App() {
               <Route index element={<Navigate to="employees" replace />} />
               <Route path="employees" element={<EmployeesPage />} />
               <Route path="leave-settings" element={<LeaveSettingsPage />} />
+               <Route path="reports" element={<ReportsPage />} />
             </Route>
             <Route
               path="/dashboard/litigation"

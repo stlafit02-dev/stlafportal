@@ -58,11 +58,19 @@ public class EmployeeService : IEmployeeService
 
         var employeeRole = await _db.Roles.FirstAsync(r => r.Name == "Employee");
 
-        var year = DateTime.UtcNow.Year;
-        var yy = year % 100;
-        var totalEmployeeCount = await _db.Employees.CountAsync();
-        var sequence = totalEmployeeCount + 1;
-        var companyId = $"{yy:D2}-{category.Code}{sequence:D4}";
+        string companyId;
+        if (!string.IsNullOrWhiteSpace(dto.ManualCompanyId))
+        {
+            companyId = dto.ManualCompanyId.Trim();
+        }
+        else
+        {
+            var year = DateTime.UtcNow.Year;
+            var yy = year % 100;
+            var totalEmployeeCount = await _db.Employees.CountAsync();
+            var sequence = totalEmployeeCount + 1;
+            companyId = $"{yy:D2}-{category.Code}{sequence:D4}";
+        }
 
         const string defaultPassword = "stlaf2026";
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(defaultPassword);

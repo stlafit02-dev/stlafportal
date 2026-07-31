@@ -35,5 +35,15 @@ public class LeaveRequestConfiguration : IEntityTypeConfiguration<LeaveRequest>
             .WithMany()
             .HasForeignKey(x => x.DecidedByEmployeeId)
             .OnDelete(DeleteBehavior.NoAction);
+        builder.Property(x => x.RetractionReason).HasColumnName("retraction_reason");
+        builder.Property(x => x.RetractionRequestedAt).HasColumnName("retraction_requested_at");
+        builder.Property(x => x.RetractionDecidedByEmployeeId).HasColumnName("retraction_decided_by_employee_id");
+        builder.Property(x => x.RetractionDecisionNotes).HasColumnName("retraction_decision_notes");
+        builder.Property(x => x.RetractionDecidedAt).HasColumnName("retraction_decided_at");
+
+        builder.HasOne(x => x.RetractionDecidedByEmployee)
+            .WithMany()
+            .HasForeignKey(x => x.RetractionDecidedByEmployeeId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

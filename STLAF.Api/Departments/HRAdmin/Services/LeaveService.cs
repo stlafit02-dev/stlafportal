@@ -186,8 +186,10 @@ public class LeaveService : ILeaveService
         var year = DateTime.UtcNow.Year;
 
         var approvedThisYear = await _db.LeaveRequests
-            .Where(r => r.EmployeeId == employee.Id && r.Status == "Approved" && r.StartDate.Year == year)
-            .ToListAsync();
+        .Where(r => r.EmployeeId == employee.Id
+            && (r.Status == "Approved" || r.Status == "RetractionRequested")
+            && r.StartDate.Year == year)
+        .ToListAsync();
 
         return types.Select(t =>
         {
@@ -307,6 +309,76 @@ public class LeaveService : ILeaveService
         return ToDto(request);
     }
 
+    public async Task<LeaveRequestDto?> RequestRetractionAsync(Guid userId, Guid requestId, RequestRetractionDto dto)
+    {
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (employee is null) return null;
+
+        var request = await _db.LeaveRequests
+            .Include(r => r.Employee)
+            .Include(r => r.LeaveType)
+            .FirstOrDefaultAsync(r => r.Id == requestId && r.EmployeeId == employee.Id);
+
+        if (request is null || request.Status != "Approved") return null;
+
+        request.Status = "RetractionRequested";
+        request.RetractionReason = dto.Reason;
+        request.RetractionRequestedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        await NotifyApproverOfRetractionAsync(request);
+
+        return ToDto(request);
+    }
+
+    public async Task<List<LeaveRequestDto>> GetPendingRetractionsAsync(Guid userId)
+    {
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (employee is null) return new List<LeaveRequestDto>();
+
+        var departments = await _db.LeaveApprovers
+            .Where(a => a.ApproverEmployeeId == employee.Id)
+            .Select(a => a.Department)
+            .ToListAsync();
+
+        if (departments.Count == 0) return new List<LeaveRequestDto>();
+
+        var requests = await _db.LeaveRequests
+            .Include(r => r.Employee)
+            .Include(r => r.LeaveType)
+            .Where(r => r.Status == "RetractionRequested" && departments.Contains(r.Employee.Department))
+            .OrderBy(r => r.RetractionRequestedAt)
+            .ToListAsync();
+
+        return requests.Select(ToDto).ToList();
+    }
+
+    public async Task<LeaveRequestDto?> DecideRetractionAsync(Guid userId, Guid requestId, DecideRetractionDto dto)
+    {
+        var approverEmployee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (approverEmployee is null) return null;
+
+        var request = await _db.LeaveRequests
+            .Include(r => r.Employee)
+            .Include(r => r.LeaveType)
+            .FirstOrDefaultAsync(r => r.Id == requestId);
+
+        if (request is null || request.Status != "RetractionRequested") return null;
+
+        request.Status = dto.Approved ? "Retracted" : "Approved";
+        request.RetractionDecidedByEmployeeId = approverEmployee.Id;
+        request.RetractionDecisionNotes = dto.Notes;
+        request.RetractionDecidedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+        await _db.Entry(request).Reference(r => r.RetractionDecidedByEmployee).LoadAsync();
+
+        await NotifyEmployeeOfRetractionDecisionAsync(request);
+
+        return ToDto(request);
+    }
+
     // ---------- Notifications ----------
 
     private async Task NotifyApproverAsync(LeaveRequest request)
@@ -365,6 +437,41 @@ public class LeaveService : ILeaveService
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, employeeEmail, subject, body);
     }
 
+    private async Task NotifyApproverOfRetractionAsync(LeaveRequest request)
+    {
+        var approverLink = await _db.LeaveApprovers
+            .Include(a => a.ApproverEmployee)
+            .FirstOrDefaultAsync(a => a.Department == request.Employee.Department);
+
+        if (approverLink is null) return;
+
+        var approverEmail = approverLink.ApproverEmployee.CompanyEmail ?? approverLink.ApproverEmployee.PersonalEmail;
+        if (string.IsNullOrWhiteSpace(approverEmail)) return;
+
+        var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
+        if (setting is null) return;
+
+        var subject = $"Leave Retraction Request - {request.Employee.FirstName} {request.Employee.LastName}";
+        var body = $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department}) wants to retract their approved {request.LeaveType.Name} request ({request.StartDate:MMM d, yyyy} to {request.EndDate:MMM d, yyyy}, {request.Days} day(s)).\n\nReason for retraction: {request.RetractionReason}\n\nPlease review this in the STLAF portal.";
+
+        await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, approverEmail, subject, body);
+    }
+
+    private async Task NotifyEmployeeOfRetractionDecisionAsync(LeaveRequest request)
+    {
+        var employeeEmail = request.Employee.CompanyEmail ?? request.Employee.PersonalEmail;
+        if (string.IsNullOrWhiteSpace(employeeEmail)) return;
+
+        var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
+        if (setting is null) return;
+
+        var outcome = request.Status == "Retracted" ? "approved — your leave credit has been returned" : "declined — the original approved leave stands";
+        var subject = $"Leave Retraction {(request.Status == "Retracted" ? "Approved" : "Declined")} - {request.LeaveType.Name}";
+        var body = $"Your request to retract the {request.LeaveType.Name} leave from {request.StartDate:MMM d, yyyy} to {request.EndDate:MMM d, yyyy} was {outcome}.\n\n{(string.IsNullOrWhiteSpace(request.RetractionDecisionNotes) ? "" : $"Notes: {request.RetractionDecisionNotes}")}";
+
+        await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, employeeEmail, subject, body);
+    }
+
     private static LeaveRequestDto ToDto(LeaveRequest r) => new()
     {
         Id = r.Id,
@@ -380,7 +487,12 @@ public class LeaveService : ILeaveService
         DecidedByName = r.DecidedByEmployee is null ? null : $"{r.DecidedByEmployee.FirstName} {r.DecidedByEmployee.LastName}",
         DecisionNotes = r.DecisionNotes,
         DecidedAt = r.DecidedAt,
-        CreatedAt = r.CreatedAt
+        CreatedAt = r.CreatedAt,
+        RetractionReason = r.RetractionReason,
+        RetractionRequestedAt = r.RetractionRequestedAt,
+        RetractionDecidedByName = r.RetractionDecidedByEmployee is null ? null : $"{r.RetractionDecidedByEmployee.FirstName} {r.RetractionDecidedByEmployee.LastName}",
+        RetractionDecisionNotes = r.RetractionDecisionNotes,
+        RetractionDecidedAt = r.RetractionDecidedAt
     };
 
     public async Task<EmployeeProfileDto?> GetMyProfileAsync(Guid userId)
@@ -464,5 +576,5 @@ public class LeaveService : ILeaveService
 
         return await GetEmployeeLeaveCreditsAsync(employeeId);
     }
-    
+
 }

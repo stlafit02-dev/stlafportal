@@ -36,6 +36,11 @@ export interface LeaveRequest {
   decisionNotes?: string | null;
   decidedAt?: string | null;
   createdAt: string;
+  retractionReason?: string | null;
+  retractionRequestedAt?: string | null;
+  retractionDecidedByName?: string | null;
+  retractionDecisionNotes?: string | null;
+  retractionDecidedAt?: string | null;
 }
 
 export interface CreateLeaveRequestPayload {
@@ -219,6 +224,34 @@ export async function setEmployeeLeaveCredit(
   const res = await apiClient.put<EmployeeLeaveCredit[]>(
     `/leave/employees/${employeeId}/credits`,
     { leaveTypeId, credits },
+  );
+  return res.data;
+}
+
+export async function requestRetraction(
+  id: string,
+  reason: string,
+): Promise<LeaveRequest> {
+  const res = await apiClient.post<LeaveRequest>(
+    `/leave/requests/${id}/request-retraction`,
+    { reason },
+  );
+  return res.data;
+}
+
+export async function fetchPendingRetractions(): Promise<LeaveRequest[]> {
+  const res = await apiClient.get<LeaveRequest[]>("/leave/pending-retractions");
+  return res.data;
+}
+
+export async function decideRetraction(
+  id: string,
+  approved: boolean,
+  notes?: string,
+): Promise<LeaveRequest> {
+  const res = await apiClient.post<LeaveRequest>(
+    `/leave/requests/${id}/decide-retraction`,
+    { approved, notes },
   );
   return res.data;
 }

@@ -1,9 +1,13 @@
-import {
-  DashboardLayout,
-  type NavItem,
-} from "../components/DashboardLayout/DashboardLayout";
+import { Outlet } from "react-router-dom";
+import { DashboardLayout, type NavItem } from "../components/DashboardLayout/DashboardLayout";
 import { useAuth } from "../../auth/useAuth";
-import { LeavePage } from "./LeavePage";
+
+const LEAVE_CHILDREN = [
+  { label: "My Leave", to: "/dashboard/leave/my-leave" },
+  { label: "My Overtime", to: "/dashboard/leave/overtime" },
+  { label: "Approvals", to: "/dashboard/leave/approvals" },
+  { label: "Final Approvals", to: "/dashboard/leave/final-approvals" },
+];
 
 const DEPARTMENT_NAV: Record<string, NavItem[]> = {
   IT: [
@@ -17,44 +21,39 @@ const DEPARTMENT_NAV: Record<string, NavItem[]> = {
         { label: "App Passwords", to: "/dashboard/gmail/app-passwords" },
       ],
     },
-    { label: "Leave", to: "/dashboard/leave" },
+    { label: "Leave & Overtime", children: LEAVE_CHILDREN },
   ],
   HRAdmin: [
     { label: "Employees", to: "/dashboard/hr-admin/employees" },
     { label: "Leave Settings", to: "/dashboard/hr-admin/leave-settings" },
-    { label: "Leave", to: "/dashboard/leave" },
+    { label: "Leave & Overtime", children: LEAVE_CHILDREN },
   ],
   Litigation: [
     { label: "Overview", to: "/dashboard/litigation" },
-    { label: "Leave", to: "/dashboard/leave" },
+    { label: "Leave & Overtime", children: LEAVE_CHILDREN },
   ],
   Accounting: [
     { label: "Overview", to: "/dashboard/accounting" },
-    { label: "Leave", to: "/dashboard/leave" },
+    { label: "Leave & Overtime", children: LEAVE_CHILDREN },
   ],
   Corporate: [
     { label: "Overview", to: "/dashboard/corporate" },
-    { label: "Leave", to: "/dashboard/leave" },
+    { label: "Leave & Overtime", children: LEAVE_CHILDREN },
   ],
   Marketing: [
     { label: "Overview", to: "/dashboard/marketing" },
-    { label: "Leave", to: "/dashboard/leave" },
+    { label: "Leave & Overtime", children: LEAVE_CHILDREN },
   ],
 };
 
 export function PortalLeaveRoute() {
   const { user } = useAuth();
   const department = user?.department ?? "IT";
-  const navItems = DEPARTMENT_NAV[department] ?? [
-    { label: "Leave", to: "/dashboard/leave" },
-  ];
+  const navItems = DEPARTMENT_NAV[department] ?? [{ label: "Leave & Overtime", children: LEAVE_CHILDREN }];
 
   return (
-    <DashboardLayout
-      departmentLabel={`${department} Department`}
-      navItems={navItems}
-    >
-      <LeavePage />
+    <DashboardLayout departmentLabel={`${department} Department`} navItems={navItems}>
+      <Outlet />
     </DashboardLayout>
   );
 }

@@ -17,4 +17,11 @@ public class LeaveRequest : BaseEntity
     public Employee? DecidedByEmployee { get; set; }
     public string? DecisionNotes { get; set; }
     public DateTime? DecidedAt { get; set; }
+
+    public string? RetractionReason { get; set; }
+    public DateTime? RetractionRequestedAt { get; set; }
+    public Guid? RetractionDecidedByEmployeeId { get; set; }
+    public Employee? RetractionDecidedByEmployee { get; set; }
+    public string? RetractionDecisionNotes { get; set; }
+    public DateTime? RetractionDecidedAt { get; set; }
 }

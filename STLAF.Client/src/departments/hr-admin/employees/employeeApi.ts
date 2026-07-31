@@ -38,7 +38,6 @@ export interface CreateEmployeePayload {
   firstName: string;
   middleName?: string;
   lastName: string;
-  mobileNumber?: string;
   age: number;
   sex: string;
   bday: string;
@@ -47,8 +46,10 @@ export interface CreateEmployeePayload {
   officePosition: string;
   personalEmail?: string;
   companyEmail?: string;
+  mobileNumber?: string;
   startDate: string;
   status: string;
+  manualCompanyId?: string;
 }
 
 export interface CreateEmployeeResult {
@@ -78,7 +79,9 @@ export async function fetchCategories(): Promise<EmployeeCategory[]> {
   return res.data;
 }
 
-export async function createCategory(payload: CreateEmployeeCategoryPayload): Promise<EmployeeCategory> {
+export async function createCategory(
+  payload: CreateEmployeeCategoryPayload,
+): Promise<EmployeeCategory> {
   const res = await apiClient.post<EmployeeCategory>("/hr/categories", payload);
   return res.data;
 }
@@ -88,12 +91,20 @@ export async function fetchEmployees(): Promise<Employee[]> {
   return res.data;
 }
 
-export async function createEmployee(payload: CreateEmployeePayload): Promise<CreateEmployeeResult> {
-  const res = await apiClient.post<CreateEmployeeResult>("/hr/employees", payload);
+export async function createEmployee(
+  payload: CreateEmployeePayload,
+): Promise<CreateEmployeeResult> {
+  const res = await apiClient.post<CreateEmployeeResult>(
+    "/hr/employees",
+    payload,
+  );
   return res.data;
 }
 
-export async function updateEmployee(id: string, payload: UpdateEmployeePayload): Promise<Employee> {
+export async function updateEmployee(
+  id: string,
+  payload: UpdateEmployeePayload,
+): Promise<Employee> {
   const res = await apiClient.put<Employee>(`/hr/employees/${id}`, payload);
   return res.data;
 }

@@ -23,7 +23,7 @@
   height: 44px;
   border-radius: 50%;
   background: rgba(79, 203, 132, 0.15);
-  color: #4FCB84;
+  color: #4fcb84;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,4 +72,13 @@
   color: var(--text-muted);
   margin: 0 0 20px;
   text-align: left;
+}
+.existing-id-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-bottom: 4px;
 }

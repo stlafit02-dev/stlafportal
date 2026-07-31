@@ -114,4 +114,22 @@ public class LeaveController : ControllerBase
     [Authorize(Policy = "HRAdmin")]
     public async Task<IActionResult> SetEmployeeLeaveCredit(Guid employeeId, SetEmployeeLeaveCreditDto dto) =>
         Ok(await _service.SetEmployeeLeaveCreditAsync(employeeId, dto));
+    [HttpPost("requests/{id}/request-retraction")]
+    public async Task<IActionResult> RequestRetraction(Guid id, RequestRetractionDto dto)
+    {
+        var result = await _service.RequestRetractionAsync(CurrentUserId, id, dto);
+        if (result is null) return BadRequest(new { message = "This request cannot be retracted." });
+        return Ok(result);
+    }
+
+    [HttpGet("pending-retractions")]
+    public async Task<IActionResult> GetPendingRetractions() => Ok(await _service.GetPendingRetractionsAsync(CurrentUserId));
+
+    [HttpPost("requests/{id}/decide-retraction")]
+    public async Task<IActionResult> DecideRetraction(Guid id, DecideRetractionDto dto)
+    {
+        var result = await _service.DecideRetractionAsync(CurrentUserId, id, dto);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
 }

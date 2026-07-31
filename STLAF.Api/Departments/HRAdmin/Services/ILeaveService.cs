@@ -35,4 +35,7 @@ public interface ILeaveService
     Task<bool> DeleteSmtpSenderAsync(Guid id);
     Task<List<EmployeeLeaveCreditDto>> GetEmployeeLeaveCreditsAsync(Guid employeeId);
     Task<List<EmployeeLeaveCreditDto>> SetEmployeeLeaveCreditAsync(Guid employeeId, SetEmployeeLeaveCreditDto dto);
+    Task<LeaveRequestDto?> RequestRetractionAsync(Guid userId, Guid requestId, RequestRetractionDto dto);
+    Task<List<LeaveRequestDto>> GetPendingRetractionsAsync(Guid userId);
+    Task<LeaveRequestDto?> DecideRetractionAsync(Guid userId, Guid requestId, DecideRetractionDto dto);
 }

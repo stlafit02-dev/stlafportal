@@ -31,6 +31,8 @@ public class AppDbContext : DbContext
     public DbSet<LeaveNotificationSetting> LeaveNotificationSettings => Set<LeaveNotificationSetting>();
     public DbSet<SmtpSender> SmtpSenders => Set<SmtpSender>();
     public DbSet<EmployeeLeaveCredit> EmployeeLeaveCredits => Set<EmployeeLeaveCredit>();
+    public DbSet<OvertimePartner> OvertimePartners => Set<OvertimePartner>();
+    public DbSet<OvertimeRequest> OvertimeRequests => Set<OvertimeRequest>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

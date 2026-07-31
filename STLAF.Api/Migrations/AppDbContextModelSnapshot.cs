@@ -375,6 +375,26 @@ namespace STLAF.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("reason");
 
+                    b.Property<DateTime?>("RetractionDecidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("retraction_decided_at");
+
+                    b.Property<Guid?>("RetractionDecidedByEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("retraction_decided_by_employee_id");
+
+                    b.Property<string>("RetractionDecisionNotes")
+                        .HasColumnType("text")
+                        .HasColumnName("retraction_decision_notes");
+
+                    b.Property<string>("RetractionReason")
+                        .HasColumnType("text")
+                        .HasColumnName("retraction_reason");
+
+                    b.Property<DateTime?>("RetractionRequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("retraction_requested_at");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("start_date");
@@ -395,6 +415,8 @@ namespace STLAF.Api.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("LeaveTypeId");
+
+                    b.HasIndex("RetractionDecidedByEmployeeId");
 
                     b.ToTable("hr_leave_requests", (string)null);
                 });
@@ -426,6 +448,120 @@ namespace STLAF.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("hr_leave_types", (string)null);
+                });
+
+            modelBuilder.Entity("STLAF.Api.Departments.HRAdmin.Entities.OvertimePartner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("department");
+
+                    b.Property<Guid>("PartnerEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("partner_employee_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Department")
+                        .IsUnique();
+
+                    b.HasIndex("PartnerEmployeeId");
+
+                    b.ToTable("hr_overtime_partners", (string)null);
+                });
+
+            modelBuilder.Entity("STLAF.Api.Departments.HRAdmin.Entities.OvertimeRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date");
+
+                    b.Property<DateTime?>("DeptDecidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dept_decided_at");
+
+                    b.Property<Guid?>("DeptDecidedByEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("dept_decided_by_employee_id");
+
+                    b.Property<string>("DeptDecisionNotes")
+                        .HasColumnType("text")
+                        .HasColumnName("dept_decision_notes");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_id");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("end_time");
+
+                    b.Property<double>("Hours")
+                        .HasColumnType("double precision")
+                        .HasColumnName("hours");
+
+                    b.Property<DateTime?>("PartnerDecidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("partner_decided_at");
+
+                    b.Property<Guid?>("PartnerDecidedByEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("partner_decided_by_employee_id");
+
+                    b.Property<string>("PartnerDecisionNotes")
+                        .HasColumnType("text")
+                        .HasColumnName("partner_decision_notes");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("reason");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("start_time");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeptDecidedByEmployeeId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("PartnerDecidedByEmployeeId");
+
+                    b.ToTable("hr_overtime_requests", (string)null);
                 });
 
             modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.AppPassword", b =>
@@ -1077,11 +1213,54 @@ namespace STLAF.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("STLAF.Api.Departments.HRAdmin.Entities.Employee", "RetractionDecidedByEmployee")
+                        .WithMany()
+                        .HasForeignKey("RetractionDecidedByEmployeeId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.Navigation("DecidedByEmployee");
 
                     b.Navigation("Employee");
 
                     b.Navigation("LeaveType");
+
+                    b.Navigation("RetractionDecidedByEmployee");
+                });
+
+            modelBuilder.Entity("STLAF.Api.Departments.HRAdmin.Entities.OvertimePartner", b =>
+                {
+                    b.HasOne("STLAF.Api.Departments.HRAdmin.Entities.Employee", "PartnerEmployee")
+                        .WithMany()
+                        .HasForeignKey("PartnerEmployeeId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("PartnerEmployee");
+                });
+
+            modelBuilder.Entity("STLAF.Api.Departments.HRAdmin.Entities.OvertimeRequest", b =>
+                {
+                    b.HasOne("STLAF.Api.Departments.HRAdmin.Entities.Employee", "DeptDecidedByEmployee")
+                        .WithMany()
+                        .HasForeignKey("DeptDecidedByEmployeeId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("STLAF.Api.Departments.HRAdmin.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("STLAF.Api.Departments.HRAdmin.Entities.Employee", "PartnerDecidedByEmployee")
+                        .WithMany()
+                        .HasForeignKey("PartnerDecidedByEmployeeId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("DeptDecidedByEmployee");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("PartnerDecidedByEmployee");
                 });
 
             modelBuilder.Entity("STLAF.Api.Departments.IT.Entities.AppPassword", b =>

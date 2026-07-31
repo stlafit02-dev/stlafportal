@@ -29,6 +29,7 @@ interface EmployeeFormModalProps {
 
 const emptyForm = {
   categoryId: "",
+  manualCompanyId: "",
   firstName: "",
   middleName: "",
   lastName: "",
@@ -56,6 +57,7 @@ export function EmployeeFormModal({
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CreateEmployeeResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [hasExistingId, setHasExistingId] = useState(false);
 
   function updateField<K extends keyof typeof form>(
     field: K,
@@ -66,6 +68,7 @@ export function EmployeeFormModal({
 
   function resetAndClose() {
     setForm(emptyForm);
+    setHasExistingId(false);
     setError(null);
     setResult(null);
     setCopied(false);
@@ -86,6 +89,7 @@ export function EmployeeFormModal({
     try {
       const created = await createEmployee({
         categoryId: form.categoryId,
+        manualCompanyId: hasExistingId ? form.manualCompanyId : undefined,
         firstName: form.firstName,
         middleName: form.middleName || undefined,
         lastName: form.lastName,
@@ -188,6 +192,27 @@ export function EmployeeFormModal({
             <h2 className="gmail-modal-title">Add Employee</h2>
             <form onSubmit={handleSubmit} className="gmail-form">
               <div className="gmail-field">
+                <label className="existing-id-toggle">
+                  <input
+                    type="checkbox"
+                    checked={hasExistingId}
+                    onChange={(e) => setHasExistingId(e.target.checked)}
+                  />
+                  This employee already has a Company ID
+                </label>
+
+                {hasExistingId && (
+                  <input
+                    type="text"
+                    placeholder="Existing Company ID (e.g. 25-10005)"
+                    value={form.manualCompanyId}
+                    onChange={(e) =>
+                      updateField("manualCompanyId", e.target.value)
+                    }
+                    required
+                    className="gmail-input"
+                  />
+                )}
                 <label className="gmail-label">Category</label>
                 <select
                   value={form.categoryId}

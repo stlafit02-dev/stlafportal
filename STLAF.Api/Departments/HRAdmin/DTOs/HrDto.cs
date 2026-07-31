@@ -53,6 +53,7 @@ public class CreateEmployeeDto
     public string CompanyEmail { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
     public string Status { get; set; } = "Active";
+    public string? ManualCompanyId { get; set; }
 }
 
 public class CreateEmployeeResultDto

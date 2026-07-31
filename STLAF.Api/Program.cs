@@ -12,6 +12,7 @@ using STLAF.Api.Departments.IT.BackgroundJobs;
 using STLAF.Api.Departments.HRAdmin.Services;
 using STLAF.Api.Common.Services;
 
+
 DotNetEnv.Env.Load();
 
 Environment.SetEnvironmentVariable("DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE", "false");
@@ -48,6 +49,8 @@ builder.Services.AddHostedService<AppPasswordCleanupService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<ILeaveService, LeaveService>();
+builder.Services.AddScoped<IOvertimeService, OvertimeService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 
 

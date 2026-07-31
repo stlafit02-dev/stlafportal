@@ -16,7 +16,18 @@ export function ItDashboard() {
             { label: "App Passwords", to: "/dashboard/gmail/app-passwords" },
           ],
         },
-         { label: "Leave", to: "/dashboard/leave" },
+        {
+          label: "Leave & Overtime",
+          children: [
+            { label: "My Leave", to: "/dashboard/leave/my-leave" },
+            { label: "My Overtime", to: "/dashboard/leave/overtime" },
+            { label: "Approvals", to: "/dashboard/leave/approvals" },
+            {
+              label: "Final Approvals",
+              to: "/dashboard/leave/final-approvals",
+            },
+          ],
+        },
       ]}
     >
       <Outlet />

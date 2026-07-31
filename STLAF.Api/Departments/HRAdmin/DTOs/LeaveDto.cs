@@ -58,6 +58,11 @@ public class LeaveRequestDto
     public string? DecisionNotes { get; set; }
     public DateTime? DecidedAt { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? RetractionReason { get; set; }
+    public DateTime? RetractionRequestedAt { get; set; }
+    public string? RetractionDecidedByName { get; set; }
+    public string? RetractionDecisionNotes { get; set; }
+    public DateTime? RetractionDecidedAt { get; set; }
 }
 
 public class CreateLeaveRequestDto
@@ -128,4 +133,15 @@ public class SetEmployeeLeaveCreditDto
 {
     public Guid LeaveTypeId { get; set; }
     public int? Credits { get; set; } // null = remove override, fall back to default
+}
+
+public class RequestRetractionDto
+{
+    public string Reason { get; set; } = string.Empty;
+}
+
+public class DecideRetractionDto
+{
+    public bool Approved { get; set; }
+    public string? Notes { get; set; }
 }

@@ -62,3 +62,5 @@
 .leave-reject-btn:hover {
   border-color: var(--accent-error);
 }
+.badge-retraction-requested { background: rgba(160, 100, 220, 0.15); color: #B888E6; }
+.badge-retracted { background: rgba(140, 150, 160, 0.15); color: var(--text-secondary); }

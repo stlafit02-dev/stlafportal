@@ -42,7 +42,11 @@
 }
 
 .gmail-primary-btn {
-  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  background: linear-gradient(
+    135deg,
+    var(--accent-gold-bright),
+    var(--accent-gold)
+  );
   color: var(--bg-primary);
   border: none;
   padding: 11px 22px;
@@ -112,7 +116,11 @@
 
 .gws-card-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-gold-bright), var(--accent-gold));
+  background: linear-gradient(
+    90deg,
+    var(--accent-gold-bright),
+    var(--accent-gold)
+  );
   border-radius: 999px;
 }
 
@@ -121,6 +129,8 @@
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 8px 24px;
+  height: 720px;
+  overflow-y: auto;
   overflow-x: auto;
 }
 
@@ -169,8 +179,14 @@
   white-space: nowrap;
 }
 
-.badge-active { background: rgba(70, 190, 120, 0.15); color: #4FCB84; }
-.badge-inactive { background: rgba(140, 150, 160, 0.15); color: var(--text-secondary); }
+.badge-active {
+  background: rgba(70, 190, 120, 0.15);
+  color: #4fcb84;
+}
+.badge-inactive {
+  background: rgba(140, 150, 160, 0.15);
+  color: var(--text-secondary);
+}
 
 .icon-btn {
   background: var(--bg-nav-hover);

@@ -21,6 +21,11 @@ import { Spinner } from "../../../common/components/Loader/Loader";
 import { Toast } from "../../../common/components/Toast/Toast";
 import { ConfirmDialog } from "../../../common/components/ConfirmDialog/ConfirmDialog";
 import "./LeaveSettingsPage.css";
+import {
+  fetchOvertimePartners,
+  setOvertimePartner,
+  type OvertimePartner,
+} from "../../../common/leave/overtimeApi";
 
 const DEPARTMENTS = [
   "IT",
@@ -52,26 +57,34 @@ export function LeaveSettingsPage() {
   const [newSenderPassword, setNewSenderPassword] = useState("");
   const [isAddingSender, setIsAddingSender] = useState(false);
   const [testingSenderId, setTestingSenderId] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<Record<string, "success" | "fail">>({});
-  const [pendingDeleteSender, setPendingDeleteSender] = useState<SmtpSender | null>(null);
+  const [testResults, setTestResults] = useState<
+    Record<string, "success" | "fail">
+  >({});
+  const [pendingDeleteSender, setPendingDeleteSender] =
+    useState<SmtpSender | null>(null);
 
   const [toastMessage, setToastMessage] = useState("");
   const [isToastVisible, setIsToastVisible] = useState(false);
+  const [overtimePartners, setOvertimePartners] = useState<OvertimePartner[]>(
+    [],
+  );
 
   async function loadAll() {
     setIsLoading(true);
-    const [types, emps, apprs, senders, notif] = await Promise.all([
+    const [types, emps, apprs, senders, notif, partners] = await Promise.all([
       fetchLeaveTypes(),
       fetchEmployees(),
       fetchApprovers(),
       fetchSmtpSenders(),
       fetchNotificationSetting().catch(() => null),
+      fetchOvertimePartners(),
     ]);
     setLeaveTypes(types);
     setEmployees(emps);
     setApprovers(apprs);
     setSmtpSenders(senders);
     setNotificationSettingState(notif);
+    setOvertimePartners(partners);
     setCreditDrafts(
       Object.fromEntries(types.map((t) => [t.id, String(t.defaultCredits)])),
     );
@@ -85,6 +98,18 @@ export function LeaveSettingsPage() {
   function showToast(message: string) {
     setToastMessage(message);
     setIsToastVisible(true);
+  }
+
+  async function handlePartnerChange(department: string, employeeId: string) {
+    if (!employeeId) return;
+    const updated = await setOvertimePartner(department, employeeId);
+    setOvertimePartners((prev) => {
+      const exists = prev.some((p) => p.department === department);
+      return exists
+        ? prev.map((p) => (p.department === department ? updated : p))
+        : [...prev, updated];
+    });
+    showToast(`${department} overtime partner set to ${updated.partnerName}.`);
   }
 
   async function handleSaveCredits(type: LeaveType) {
@@ -136,7 +161,12 @@ export function LeaveSettingsPage() {
 
   async function handleAddSender(e: React.FormEvent) {
     e.preventDefault();
-    if (!newSenderLabel.trim() || !newSenderEmail.trim() || !newSenderPassword.trim()) return;
+    if (
+      !newSenderLabel.trim() ||
+      !newSenderEmail.trim() ||
+      !newSenderPassword.trim()
+    )
+      return;
     setIsAddingSender(true);
     try {
       const created = await createSmtpSender({
@@ -159,7 +189,10 @@ export function LeaveSettingsPage() {
     setTestingSenderId(sender.id);
     try {
       const result = await testSmtpSender(sender.id);
-      setTestResults((prev) => ({ ...prev, [sender.id]: result.success ? "success" : "fail" }));
+      setTestResults((prev) => ({
+        ...prev,
+        [sender.id]: result.success ? "success" : "fail",
+      }));
       showToast(
         result.success
           ? `${sender.label} works — test email sent.`
@@ -203,7 +236,8 @@ export function LeaveSettingsPage() {
       <div className="ls-header">
         <h1 className="page-title">Leave Settings</h1>
         <p className="page-subtitle">
-          Configure leave types, department approvers, and the notification sender.
+          Configure leave types, department approvers, and the notification
+          sender.
         </p>
       </div>
 
@@ -212,9 +246,14 @@ export function LeaveSettingsPage() {
         <div className="ls-section-header">
           <div>
             <h2 className="ls-section-title">Leave Types</h2>
-            <p className="ls-section-caption">Default credit allowance per year.</p>
+            <p className="ls-section-caption">
+              Default credit allowance per year.
+            </p>
           </div>
-          <button className="ls-add-btn" onClick={() => setIsAddTypeOpen((v) => !v)}>
+          <button
+            className="ls-add-btn"
+            onClick={() => setIsAddTypeOpen((v) => !v)}
+          >
             {isAddTypeOpen ? "Cancel" : "+ Add Type"}
           </button>
         </div>
@@ -237,7 +276,11 @@ export function LeaveSettingsPage() {
               onChange={(e) => setNewTypeCredits(e.target.value)}
               className="ls-input ls-input-narrow"
             />
-            <button type="submit" className="ls-primary-btn" disabled={isAddingType}>
+            <button
+              type="submit"
+              className="ls-primary-btn"
+              disabled={isAddingType}
+            >
               {isAddingType ? <Spinner size="sm" /> : "Save"}
             </button>
           </form>
@@ -256,7 +299,10 @@ export function LeaveSettingsPage() {
                     className="ls-credit-input"
                     value={creditDrafts[t.id] ?? ""}
                     onChange={(e) =>
-                      setCreditDrafts((prev) => ({ ...prev, [t.id]: e.target.value }))
+                      setCreditDrafts((prev) => ({
+                        ...prev,
+                        [t.id]: e.target.value,
+                      }))
                     }
                   />
                   <span className="ls-credit-label">credits / yr</span>
@@ -279,22 +325,33 @@ export function LeaveSettingsPage() {
         <div className="ls-section-header">
           <div>
             <h2 className="ls-section-title">Department Approvers</h2>
-            <p className="ls-section-caption">One approver per department reviews their leave requests.</p>
+            <p className="ls-section-caption">
+              One approver per department reviews their leave requests.
+            </p>
           </div>
         </div>
 
         <div className="ls-approver-grid">
           {DEPARTMENTS.map((dept) => {
             const current = approvers.find((a) => a.department === dept);
-            const deptEmployees = employees.filter((e) => e.department === dept);
+            const deptEmployees = employees.filter(
+              (e) => e.department === dept,
+            );
             const initials = current
-              ? current.approverName.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
+              ? current.approverName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase()
               : "?";
 
             return (
               <div key={dept} className="ls-approver-card">
                 <div className="ls-approver-top">
-                  <span className={`ls-avatar ${current ? "ls-avatar-set" : "ls-avatar-empty"}`}>
+                  <span
+                    className={`ls-avatar ${current ? "ls-avatar-set" : "ls-avatar-empty"}`}
+                  >
                     {initials}
                   </span>
                   <div className="ls-approver-info">
@@ -310,7 +367,72 @@ export function LeaveSettingsPage() {
                   onChange={(e) => handleApproverChange(dept, e.target.value)}
                 >
                   <option value="" disabled>
-                    {deptEmployees.length === 0 ? "No employees in this department" : "Change approver…"}
+                    {deptEmployees.length === 0
+                      ? "No employees in this department"
+                      : "Change approver…"}
+                  </option>
+                  {deptEmployees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.firstName} {emp.lastName} ({emp.companyId})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="gmail-section">
+        <div className="ls-section-header">
+          <div>
+            <h2 className="ls-section-title">Overtime Partners</h2>
+            <p className="ls-section-caption">
+              Gives the final approval on overtime, after the department head
+              signs off.
+            </p>
+          </div>
+        </div>
+
+        <div className="ls-approver-grid">
+          {DEPARTMENTS.map((dept) => {
+            const current = overtimePartners.find((p) => p.department === dept);
+            const deptEmployees = employees.filter(
+              (e) => e.department === dept,
+            );
+            const initials = current
+              ? current.partnerName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase()
+              : "?";
+
+            return (
+              <div key={dept} className="ls-approver-card">
+                <div className="ls-approver-top">
+                  <span
+                    className={`ls-avatar ${current ? "ls-avatar-set" : "ls-avatar-empty"}`}
+                  >
+                    {initials}
+                  </span>
+                  <div className="ls-approver-info">
+                    <span className="ls-approver-dept">{dept}</span>
+                    <span className="ls-approver-name">
+                      {current ? current.partnerName : "No partner set"}
+                    </span>
+                  </div>
+                </div>
+                <select
+                  className="ls-select"
+                  value={current?.partnerEmployeeId ?? ""}
+                  onChange={(e) => handlePartnerChange(dept, e.target.value)}
+                >
+                  <option value="" disabled>
+                    {deptEmployees.length === 0
+                      ? "No employees in this department"
+                      : "Change partner…"}
                   </option>
                   {deptEmployees.map((emp) => (
                     <option key={emp.id} value={emp.id}>
@@ -329,15 +451,23 @@ export function LeaveSettingsPage() {
         <div className="ls-section-header">
           <div>
             <h2 className="ls-section-title">SMTP Senders</h2>
-            <p className="ls-section-caption">Gmail accounts used to send leave notification emails.</p>
+            <p className="ls-section-caption">
+              Gmail accounts used to send leave notification emails.
+            </p>
           </div>
-          <button className="ls-add-btn" onClick={() => setIsAddSenderOpen((v) => !v)}>
+          <button
+            className="ls-add-btn"
+            onClick={() => setIsAddSenderOpen((v) => !v)}
+          >
             {isAddSenderOpen ? "Cancel" : "+ Add Sender"}
           </button>
         </div>
 
         {isAddSenderOpen && (
-          <form onSubmit={handleAddSender} className="ls-inline-form ls-inline-form-wrap">
+          <form
+            onSubmit={handleAddSender}
+            className="ls-inline-form ls-inline-form-wrap"
+          >
             <input
               type="text"
               placeholder="Label (e.g. IT Notifications)"
@@ -360,7 +490,11 @@ export function LeaveSettingsPage() {
               onChange={(e) => setNewSenderPassword(e.target.value)}
               className="ls-input"
             />
-            <button type="submit" className="ls-primary-btn" disabled={isAddingSender}>
+            <button
+              type="submit"
+              className="ls-primary-btn"
+              disabled={isAddingSender}
+            >
               {isAddingSender ? <Spinner size="sm" /> : "Save"}
             </button>
           </form>
@@ -374,14 +508,19 @@ export function LeaveSettingsPage() {
               const isActive = notificationSetting?.smtpSenderId === s.id;
               const testState = testResults[s.id];
               return (
-                <div key={s.id} className={`ls-sender-row ${isActive ? "ls-sender-row-active" : ""}`}>
+                <div
+                  key={s.id}
+                  className={`ls-sender-row ${isActive ? "ls-sender-row-active" : ""}`}
+                >
                   <div className="ls-sender-main">
                     <span className="ls-sender-label">{s.label}</span>
                     <span className="ls-sender-email">{s.email}</span>
                   </div>
                   <div className="ls-sender-actions">
                     {testState && (
-                      <span className={`ls-test-pill ${testState === "success" ? "ls-test-pill-ok" : "ls-test-pill-fail"}`}>
+                      <span
+                        className={`ls-test-pill ${testState === "success" ? "ls-test-pill-ok" : "ls-test-pill-fail"}`}
+                      >
                         {testState === "success" ? "Verified" : "Failed"}
                       </span>
                     )}
@@ -391,10 +530,17 @@ export function LeaveSettingsPage() {
                       onClick={() => handleTestSender(s)}
                       disabled={testingSenderId === s.id}
                     >
-                      {testingSenderId === s.id ? <Spinner size="sm" /> : "Test"}
+                      {testingSenderId === s.id ? (
+                        <Spinner size="sm" />
+                      ) : (
+                        "Test"
+                      )}
                     </button>
                     {!isActive && (
-                      <button className="ls-use-btn" onClick={() => handleNotificationChange(s.id)}>
+                      <button
+                        className="ls-use-btn"
+                        onClick={() => handleNotificationChange(s.id)}
+                      >
                         Use as sender
                       </button>
                     )}
@@ -403,7 +549,14 @@ export function LeaveSettingsPage() {
                       onClick={() => setPendingDeleteSender(s)}
                       aria-label={`Delete ${s.label}`}
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
                         <polyline points="3 6 5 6 21 6" />
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                       </svg>
