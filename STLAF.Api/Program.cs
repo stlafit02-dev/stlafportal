@@ -9,6 +9,8 @@ using STLAF.Api.Identity.Services;
 using STLAF.Api.Announcements.Services;
 using STLAF.Api.Departments.IT.Services;
 using STLAF.Api.Departments.IT.BackgroundJobs;
+using STLAF.Api.Departments.HRAdmin.Services;
+using STLAF.Api.Common.Services;
 
 DotNetEnv.Env.Load();
 
@@ -43,6 +45,11 @@ builder.Services.AddScoped<ITicketingService, TicketingService>();
 builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<IGmailService, GmailService>();
 builder.Services.AddHostedService<AppPasswordCleanupService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<ILeaveService, LeaveService>();
+
+
 
 
 // Authentication (JWT)

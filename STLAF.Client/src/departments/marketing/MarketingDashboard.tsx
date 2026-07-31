@@ -4,7 +4,9 @@ export function MarketingDashboard() {
   return (
     <DashboardLayout
       departmentLabel="Marketing Department"
-      navItems={[{ label: "Employees", to: "/dashboard/marketing" }]}
+      navItems={[{ label: "Employees", to: "/dashboard/marketing" },
+        { label: "Leave", to: "/dashboard/leave" },
+      ]}
     >
       <h1 className="page-title">Marketing</h1>
       <p className="page-subtitle">Modules for this department are coming soon.</p>

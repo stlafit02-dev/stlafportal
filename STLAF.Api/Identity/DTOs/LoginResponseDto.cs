@@ -15,3 +15,9 @@ public class UserInfoDto
     public string Department { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
 }
+
+public class LoginOutcome
+{
+    public LoginResponseDto? Result { get; set; }
+    public string? ErrorMessage { get; set; }
+}

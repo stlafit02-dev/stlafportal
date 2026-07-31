@@ -18,17 +18,29 @@ import { AssetManagementPage } from "./departments/it/assets/AssetManagementPage
 import { GwsAccountPage } from "./departments/it/gmail/GwsAccountPage";
 import { EmailAccountPage } from "./departments/it/gmail/EmailAccountPage";
 import { AppPasswordPage } from "./departments/it/gmail/AppPasswordPage";
+import { EmployeesPage } from "./departments/hr-admin/employees/EmployeesPage";
+import { PortalLeaveRoute } from "./common/leave/PortalLeaveRoute";
+import { LeaveSettingsPage } from "./departments/hr-admin/leave-settings/LeaveSettingsPage";
+import { IdleLogoutWatcher } from "./auth/IdleLogoutWatcher";
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
+          <IdleLogoutWatcher />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/it-helpdesk" element={<ITHelpdeskPage />} />
             <Route path="/assets/:assetTag" element={<AssetPublicPage />} />
-
+            <Route
+              path="/dashboard/leave"
+              element={
+                <ProtectedRoute>
+                  <PortalLeaveRoute />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard"
               element={
@@ -59,7 +71,11 @@ function App() {
                   </DepartmentGuard>
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<Navigate to="employees" replace />} />
+              <Route path="employees" element={<EmployeesPage />} />
+              <Route path="leave-settings" element={<LeaveSettingsPage />} />
+            </Route>
             <Route
               path="/dashboard/litigation"
               element={

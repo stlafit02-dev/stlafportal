@@ -16,6 +16,7 @@ export function ItDashboard() {
             { label: "App Passwords", to: "/dashboard/gmail/app-passwords" },
           ],
         },
+         { label: "Leave", to: "/dashboard/leave" },
       ]}
     >
       <Outlet />

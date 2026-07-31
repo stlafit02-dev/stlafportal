@@ -1,13 +1,17 @@
+import { Outlet } from "react-router-dom";
 import { DashboardLayout } from "../../common/components/DashboardLayout/DashboardLayout";
 
 export function HrDashboard() {
   return (
     <DashboardLayout
       departmentLabel="HR Admin Department"
-      navItems={[{ label: "Employees", to: "/dashboard/hr-admin" }]}
+      navItems={[
+        { label: "Employees", to: "/dashboard/hr-admin/employees" },
+        { label: "Leave Settings", to: "/dashboard/hr-admin/leave-settings" },
+        { label: "Leave", to: "/dashboard/leave" },
+      ]}
     >
-      <h1 className="page-title">Employees</h1>
-      <p className="page-subtitle">Module coming soon.</p>
+      <Outlet />
     </DashboardLayout>
   );
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using STLAF.Api.Identity.Entities;
+using STLAF.Api.Departments.HRAdmin.Entities;
 
 namespace STLAF.Api.Data;
 
@@ -51,6 +52,23 @@ public static class DbSeeder
                 });
             }
 
+            await db.SaveChangesAsync();
+        }
+        if (!await db.EmployeeCategories.AnyAsync())
+        {
+            db.EmployeeCategories.AddRange(
+                new EmployeeCategory { Name = "STLAF", Code = 1 },
+                new EmployeeCategory { Name = "CCT", Code = 2 }
+            );
+            await db.SaveChangesAsync();
+        }
+        if (!await db.LeaveTypes.AnyAsync())
+        {
+            db.LeaveTypes.AddRange(
+                new LeaveType { Name = "Vacation Leave", DefaultCredits = 15 },
+                new LeaveType { Name = "Sick Leave", DefaultCredits = 15 },
+                new LeaveType { Name = "Emergency Leave", DefaultCredits = 5 }
+            );
             await db.SaveChangesAsync();
         }
     }

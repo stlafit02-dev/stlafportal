@@ -4,7 +4,9 @@ export function AccountingDashboard() {
   return (
     <DashboardLayout
       departmentLabel="Accounting Department"
-      navItems={[{ label: "Employees", to: "/dashboard/accounting" }]}
+      navItems={[{ label: "Employees", to: "/dashboard/accounting" },
+        { label: "Leave", to: "/dashboard/leave" },
+      ]}
     >
       <h1 className="page-title">Accounting</h1>
       <p className="page-subtitle">Modules for this department are coming soon.</p>

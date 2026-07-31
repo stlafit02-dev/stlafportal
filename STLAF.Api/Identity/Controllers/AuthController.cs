@@ -18,10 +18,11 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequestDto request)
     {
-        var result = await _authService.LoginAsync(request);
-        if (result is null)
-            return Unauthorized(new { message = "Invalid email or password." });
+        var outcome = await _authService.LoginAsync(request);
 
-        return Ok(result);
+        if (outcome.Result is null)
+            return Unauthorized(new { message = outcome.ErrorMessage ?? "Invalid email or password." });
+
+        return Ok(outcome.Result);
     }
 }
