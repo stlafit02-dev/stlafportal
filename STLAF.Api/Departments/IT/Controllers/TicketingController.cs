@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using STLAF.Api.Departments.IT.DTOs;
 using STLAF.Api.Departments.IT.Services;
+using System.Security.Claims;
 
 namespace STLAF.Api.Departments.IT.Controllers;
 
@@ -15,6 +16,8 @@ public class TicketingController : ControllerBase
     {
         _service = service;
     }
+
+    private Guid CurrentUserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
 
     // Public — anyone in the firm can submit a ticket without logging in
     [HttpPost]
@@ -80,6 +83,7 @@ public class TicketingController : ControllerBase
         if (result is null) return NotFound();
         return Ok(result);
     }
+
     [HttpDelete("{id}")]
     [Authorize(Policy = "IT")]
     public async Task<IActionResult> Delete(Guid id)
@@ -88,4 +92,23 @@ public class TicketingController : ControllerBase
         if (!deleted) return NotFound();
         return NoContent();
     }
+
+    // ---------- Portal (employee self-service) ----------
+
+    [HttpGet("my-profile")]
+    [Authorize]
+    public async Task<IActionResult> GetMyProfile()
+    {
+        var profile = await _service.GetMyProfileAsync(CurrentUserId);
+        if (profile is null) return NotFound();
+        return Ok(profile);
+    }
+
+    [HttpGet("my")]
+    [Authorize]
+    public async Task<IActionResult> GetMyTickets() => Ok(await _service.GetMyTicketsAsync(CurrentUserId));
+
+    [HttpPost("my")]
+    [Authorize]
+    public async Task<IActionResult> CreateMyTicket(CreatePortalTicketDto dto) => Ok(await _service.CreateFromPortalAsync(CurrentUserId, dto));
 }

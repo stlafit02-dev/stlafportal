@@ -20,6 +20,7 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(x => x.Status).HasColumnName("status");
         builder.Property(x => x.Department).HasColumnName("department");
         builder.Property(x => x.AssignedTo).HasColumnName("assigned_to");
+        builder.Property(x => x.SubmittedByEmployeeId).HasColumnName("submitted_by_employee_id");
         builder.Property(x => x.DateSubmitted).HasColumnName("date_submitted");
         builder.Property(x => x.UpdatedDate).HasColumnName("updated_date");
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");

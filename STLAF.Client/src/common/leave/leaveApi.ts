@@ -11,6 +11,7 @@ export interface LeaveType {
   id: string;
   name: string;
   defaultCredits: number;
+  requiresMedicalAfterDays?: number | null;
 }
 
 export interface LeaveBalance {
@@ -127,6 +128,7 @@ export async function decideLeaveRequest(
 export async function createLeaveType(payload: {
   name: string;
   defaultCredits: number;
+  requiresMedicalAfterDays?: number | null;
 }): Promise<LeaveType> {
   const res = await apiClient.post<LeaveType>("/leave/types", payload);
   return res.data;
@@ -134,7 +136,11 @@ export async function createLeaveType(payload: {
 
 export async function updateLeaveType(
   id: string,
-  payload: { name: string; defaultCredits: number },
+  payload: {
+    name: string;
+    defaultCredits: number;
+    requiresMedicalAfterDays?: number | null;
+  },
 ): Promise<LeaveType> {
   const res = await apiClient.put<LeaveType>(`/leave/types/${id}`, payload);
   return res.data;

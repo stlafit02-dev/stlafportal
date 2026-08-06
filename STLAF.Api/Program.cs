@@ -51,8 +51,8 @@ builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<ILeaveService, LeaveService>();
 builder.Services.AddScoped<IOvertimeService, OvertimeService>();
 builder.Services.AddScoped<IReportService, ReportService>();
-
-
+builder.Services.AddScoped<IUndertimeService, UndertimeService>();
+builder.Services.AddScoped<IFileStorageService, BackblazeFileStorageService>();
 
 
 // Authentication (JWT)

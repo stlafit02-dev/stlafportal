@@ -11,5 +11,8 @@ public interface ITicketingService
     Task<TicketDto?> UpdateStatusAsync(Guid ticketId, string status);
     Task<TicketDto?> AssignAsync(Guid ticketId, Guid? assignedToId);
     Task<List<ItStaffDto>> GetItStaffAsync();
+    Task<EmployeeTicketProfileDto?> GetMyProfileAsync(Guid userId);
+    Task<List<TicketDto>> GetMyTicketsAsync(Guid userId);
+    Task<TicketDto> CreateFromPortalAsync(Guid userId, CreatePortalTicketDto dto);
     Task<bool> DeleteAsync(Guid ticketId);
 }

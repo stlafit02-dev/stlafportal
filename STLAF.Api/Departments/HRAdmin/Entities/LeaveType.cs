@@ -6,4 +6,5 @@ public class LeaveType : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public int DefaultCredits { get; set; }
+    public int? RequiresMedicalAfterDays { get; set; }
 }

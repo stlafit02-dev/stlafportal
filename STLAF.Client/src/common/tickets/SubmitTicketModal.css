@@ -1,0 +1,52 @@
+.submit-ticket-modal {
+  width: 560px;
+  max-width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.submit-ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.submit-ticket-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.submit-ticket-close:hover {
+  color: var(--text-primary);
+}
+
+.submit-ticket-success {
+  font-size: 13px;
+  color: #4FCB84;
+  margin: 0;
+}
+
+.submit-ticket-history {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.submit-ticket-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.submit-ticket-history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-input);
+  border-radius: 8px;
+  padding: 8px 12px;
+}

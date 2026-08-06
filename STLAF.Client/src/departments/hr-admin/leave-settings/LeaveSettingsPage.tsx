@@ -26,6 +26,7 @@ import {
   setOvertimePartner,
   type OvertimePartner,
 } from "../../../common/leave/overtimeApi";
+import { testFileStorageConnection } from "../../../common/leave/medicalApi";
 
 const DEPARTMENTS = [
   "IT",
@@ -44,13 +45,14 @@ export function LeaveSettingsPage() {
   const [notificationSetting, setNotificationSettingState] =
     useState<NotificationSetting | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
   const [creditDrafts, setCreditDrafts] = useState<Record<string, string>>({});
+  const [medicalDrafts, setMedicalDrafts] = useState<Record<string, string>>(
+    {},
+  );
   const [isAddTypeOpen, setIsAddTypeOpen] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypeCredits, setNewTypeCredits] = useState("");
   const [isAddingType, setIsAddingType] = useState(false);
-
   const [isAddSenderOpen, setIsAddSenderOpen] = useState(false);
   const [newSenderLabel, setNewSenderLabel] = useState("");
   const [newSenderEmail, setNewSenderEmail] = useState("");
@@ -62,12 +64,12 @@ export function LeaveSettingsPage() {
   >({});
   const [pendingDeleteSender, setPendingDeleteSender] =
     useState<SmtpSender | null>(null);
-
   const [toastMessage, setToastMessage] = useState("");
   const [isToastVisible, setIsToastVisible] = useState(false);
   const [overtimePartners, setOvertimePartners] = useState<OvertimePartner[]>(
     [],
   );
+  const [isTestingDrive, setIsTestingDrive] = useState(false);
 
   async function loadAll() {
     setIsLoading(true);
@@ -87,6 +89,16 @@ export function LeaveSettingsPage() {
     setOvertimePartners(partners);
     setCreditDrafts(
       Object.fromEntries(types.map((t) => [t.id, String(t.defaultCredits)])),
+    );
+    setMedicalDrafts(
+      Object.fromEntries(
+        types.map((t) => [
+          t.id,
+          t.requiresMedicalAfterDays != null
+            ? String(t.requiresMedicalAfterDays)
+            : "",
+        ]),
+      ),
     );
     setIsLoading(false);
   }
@@ -114,14 +126,20 @@ export function LeaveSettingsPage() {
 
   async function handleSaveCredits(type: LeaveType) {
     const value = parseInt(creditDrafts[type.id] || "0", 10);
+    const medicalRaw = medicalDrafts[type.id];
+    const medicalValue =
+      medicalRaw === "" || medicalRaw === undefined
+        ? null
+        : parseInt(medicalRaw, 10);
     const updated = await updateLeaveType(type.id, {
       name: type.name,
       defaultCredits: value,
+      requiresMedicalAfterDays: medicalValue,
     });
     setLeaveTypes((prev) =>
       prev.map((t) => (t.id === updated.id ? updated : t)),
     );
-    showToast(`${updated.name} updated to ${updated.defaultCredits} credits.`);
+    showToast(`${updated.name} updated.`);
   }
 
   async function handleAddType(e: React.FormEvent) {
@@ -137,6 +155,13 @@ export function LeaveSettingsPage() {
       setCreditDrafts((prev) => ({
         ...prev,
         [created.id]: String(created.defaultCredits),
+      }));
+      setMedicalDrafts((prev) => ({
+        ...prev,
+        [created.id]:
+          created.requiresMedicalAfterDays != null
+            ? String(created.requiresMedicalAfterDays)
+            : "",
       }));
       setNewTypeName("");
       setNewTypeCredits("");
@@ -214,13 +239,26 @@ export function LeaveSettingsPage() {
     if (!pendingDeleteSender) return;
     const sender = pendingDeleteSender;
     setPendingDeleteSender(null);
-
     await deleteSmtpSender(sender.id);
     setSmtpSenders((prev) => prev.filter((s) => s.id !== sender.id));
     if (notificationSetting?.smtpSenderId === sender.id) {
       setNotificationSettingState(null);
     }
     showToast(`${sender.label} removed.`);
+  }
+
+  async function handleTestDrive() {
+    setIsTestingDrive(true);
+    try {
+      const result = await testFileStorageConnection();
+      showToast(
+        result.success
+          ? "Google Drive connected — test file uploaded successfully."
+          : `Drive test failed: ${result.error}`,
+      );
+    } finally {
+      setIsTestingDrive(false);
+    }
   }
 
   if (isLoading) {
@@ -288,7 +326,6 @@ export function LeaveSettingsPage() {
 
         <div className="ls-card-grid">
           {leaveTypes.map((t) => {
-            const isDirty = creditDrafts[t.id] !== String(t.defaultCredits);
             return (
               <div key={t.id} className="ls-type-card">
                 <span className="ls-type-name">{t.name}</span>
@@ -307,10 +344,27 @@ export function LeaveSettingsPage() {
                   />
                   <span className="ls-credit-label">credits / yr</span>
                 </div>
+                <div className="ls-type-credit-row">
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="Off"
+                    className="ls-credit-input"
+                    value={medicalDrafts[t.id] ?? ""}
+                    onChange={(e) =>
+                      setMedicalDrafts((prev) => ({
+                        ...prev,
+                        [t.id]: e.target.value,
+                      }))
+                    }
+                  />
+                  <span className="ls-credit-label">
+                    days → requires medical
+                  </span>
+                </div>
                 <button
-                  className={`ls-save-btn ${isDirty ? "ls-save-btn-active" : ""}`}
+                  className={`ls-save-btn ${creditDrafts[t.id] !== String(t.defaultCredits) || medicalDrafts[t.id] !== (t.requiresMedicalAfterDays != null ? String(t.requiresMedicalAfterDays) : "") ? "ls-save-btn-active" : ""}`}
                   onClick={() => handleSaveCredits(t)}
-                  disabled={!isDirty}
                 >
                   Save
                 </button>
@@ -345,7 +399,6 @@ export function LeaveSettingsPage() {
                   .join("")
                   .toUpperCase()
               : "?";
-
             return (
               <div key={dept} className="ls-approver-card">
                 <div className="ls-approver-top">
@@ -383,6 +436,7 @@ export function LeaveSettingsPage() {
         </div>
       </section>
 
+      {/* ---------- Overtime Partners ---------- */}
       <section className="gmail-section">
         <div className="ls-section-header">
           <div>
@@ -408,7 +462,6 @@ export function LeaveSettingsPage() {
                   .join("")
                   .toUpperCase()
               : "?";
-
             return (
               <div key={dept} className="ls-approver-card">
                 <div className="ls-approver-top">
@@ -567,6 +620,25 @@ export function LeaveSettingsPage() {
             })}
           </div>
         )}
+      </section>
+
+      {/* ---------- Google Drive ---------- */}
+      <section className="ls-section">
+        <div className="ls-section-header">
+          <div>
+            <h2 className="ls-section-title">Google Drive</h2>
+            <p className="ls-section-caption">
+              Used to store uploaded medical certificates.
+            </p>
+          </div>
+          <button
+            className="ls-add-btn"
+            onClick={handleTestDrive}
+            disabled={isTestingDrive}
+          >
+            {isTestingDrive ? <Spinner size="sm" /> : "Test Connection"}
+          </button>
+        </div>
       </section>
 
       <Toast

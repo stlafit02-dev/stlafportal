@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using STLAF.Api.Data;
+using STLAF.Api.Departments.HRAdmin.Entities;
 using STLAF.Api.Departments.IT.DTOs;
 using STLAF.Api.Departments.IT.Services;
 
@@ -11,10 +14,12 @@ namespace STLAF.Api.Departments.IT.Controllers;
 public class GmailManagementController : ControllerBase
 {
     private readonly IGmailService _service;
+    private readonly AppDbContext _db;
 
-    public GmailManagementController(IGmailService service)
+    public GmailManagementController(IGmailService service, AppDbContext db)
     {
         _service = service;
+        _db = db;
     }
 
     [HttpGet("accounts")]
@@ -30,6 +35,7 @@ public class GmailManagementController : ControllerBase
         var result = await _service.CreateGwsAccountAsync(dto);
         return CreatedAtAction(nameof(GetGwsAccounts), result);
     }
+
     [HttpPut("accounts/{id}")]
     public async Task<IActionResult> UpdateGwsAccount(Guid id, UpdateGwsAccountDto dto)
     {
@@ -92,5 +98,23 @@ public class GmailManagementController : ControllerBase
     {
         var result = await _service.CreateAppPasswordAsync(dto);
         return CreatedAtAction(nameof(GetAppPasswords), result);
+    }
+
+    [HttpGet("registered-employees")]
+    public async Task<IActionResult> GetRegisteredEmployees()
+    {
+        var employees = await _db.Employees
+            .Where(e => e.Status == "Active")
+            .OrderBy(e => e.FirstName)
+            .Select(e => new RegisteredEmployeeOptionDto
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName,
+                CompanyId = e.CompanyId,
+                Department = e.Department
+            })
+            .ToListAsync();
+
+        return Ok(employees);
     }
 }

@@ -53,3 +53,18 @@ public class ItStaffDto
     public Guid Id { get; set; }
     public string FullName { get; set; } = string.Empty;
 }
+
+public class EmployeeTicketProfileDto
+{
+    public string FullName { get; set; } = string.Empty;
+    public string CompanyEmail { get; set; } = string.Empty;
+    public string? ViberNumber { get; set; }
+    public string Department { get; set; } = string.Empty;
+}
+
+public class CreatePortalTicketDto
+{
+    public string Category { get; set; } = string.Empty;
+    public string Priority { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+}

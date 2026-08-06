@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import { IdleLogoutModal } from "./IdleLogoutModal";
 
-const INACTIVITY_LIMIT_MS = 900000; //15 mins
+const INACTIVITY_LIMIT_MS = 900000; //15 mins for 900000
 const ACTIVITY_EVENTS = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
 
 export function IdleLogoutWatcher() {

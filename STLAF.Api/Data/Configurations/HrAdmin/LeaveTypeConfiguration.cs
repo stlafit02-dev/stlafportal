@@ -14,5 +14,6 @@ public class LeaveTypeConfiguration : IEntityTypeConfiguration<LeaveType>
         builder.Property(x => x.DefaultCredits).HasColumnName("default_credits");
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(x => x.RequiresMedicalAfterDays).HasColumnName("requires_medical_after_days");
     }
 }

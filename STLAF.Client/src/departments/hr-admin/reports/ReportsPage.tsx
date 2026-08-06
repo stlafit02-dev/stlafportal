@@ -5,7 +5,15 @@ import { Toast } from "../../../common/components/Toast/Toast";
 import "../../it/gmail/GmailForms.css";
 import "./ReportsPage.css";
 
-const DEPARTMENTS = ["All", "IT", "HRAdmin", "Litigation", "Accounting", "Corporate", "Marketing"];
+const DEPARTMENTS = [
+  "All",
+  "IT",
+  "HRAdmin",
+  "Litigation",
+  "Accounting",
+  "Corporate",
+  "Marketing",
+];
 
 export function ReportsPage() {
   const [from, setFrom] = useState("");
@@ -38,7 +46,9 @@ export function ReportsPage() {
       <div className="gmail-page-header">
         <div>
           <h1 className="page-title">Reports</h1>
-          <p className="page-subtitle">Export Leave &amp; Overtime records to Excel.</p>
+          <p className="page-subtitle">
+            Export Leave &amp; Overtime records to Excel.
+          </p>
         </div>
       </div>
 
@@ -46,32 +56,63 @@ export function ReportsPage() {
         <div className="report-grid">
           <div className="gmail-field">
             <label className="gmail-label">From</label>
-            <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="gmail-input" />
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="gmail-input"
+            />
           </div>
           <div className="gmail-field">
             <label className="gmail-label">To</label>
-            <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="gmail-input" />
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="gmail-input"
+            />
           </div>
           <div className="gmail-field">
             <label className="gmail-label">Department</label>
-            <select value={department} onChange={(e) => setDepartment(e.target.value)} className="gmail-input">
+            <select
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              className="gmail-input"
+            >
               {DEPARTMENTS.map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
           </div>
         </div>
 
         <p className="report-note">
-          Leave blank dates to include all records. The exported file has two sheets: Leave Requests and Overtime Requests.
+          Leave blank dates to include all records. The exported file has three
+          sheets: Leave Requests, Overtime Requests, and Undertime Requests.
         </p>
 
-        <button className="gmail-submit-btn report-export-btn" onClick={handleExport} disabled={isGenerating}>
+        <button
+          className="gmail-submit-btn report-export-btn"
+          onClick={handleExport}
+          disabled={isGenerating}
+        >
           {isGenerating ? (
-            <span className="btn-loading"><Spinner size="sm" /> Generating…</span>
+            <span className="btn-loading">
+              <Spinner size="sm" /> Generating…
+            </span>
           ) : (
             <>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8 }}>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                style={{ marginRight: 8 }}
+              >
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
                 <line x1="12" y1="15" x2="12" y2="3" />
@@ -82,7 +123,11 @@ export function ReportsPage() {
         </button>
       </div>
 
-      <Toast message={toastMessage} isVisible={isToastVisible} onClose={() => setIsToastVisible(false)} />
+      <Toast
+        message={toastMessage}
+        isVisible={isToastVisible}
+        onClose={() => setIsToastVisible(false)}
+      />
     </div>
   );
 }

@@ -12,7 +12,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.Username).HasColumnName("username");
         builder.HasIndex(x => x.Username).IsUnique();
-        builder.Property(x => x.Email).HasColumnName("email").IsRequired();
+        builder.Property(x => x.Email).HasColumnName("email");
         builder.Property(x => x.PasswordHash).HasColumnName("password_hash").IsRequired();
         builder.Property(x => x.FullName).HasColumnName("full_name").IsRequired();
         builder.Property(x => x.DepartmentId).HasColumnName("department_id");

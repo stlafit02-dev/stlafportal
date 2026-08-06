@@ -89,4 +89,32 @@ public class AuthService : IAuthService
             }
         };
     }
+    public async Task<(bool Success, string? ErrorMessage)> ChangePasswordAsync(Guid userId, ChangePasswordDto dto)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user is null)
+        {
+            return (false, "Account not found.");
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+        {
+            return (false, "Current password is incorrect.");
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.NewPassword) || dto.NewPassword.Length < 6)
+        {
+            return (false, "New password must be at least 6 characters.");
+        }
+
+        if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, user.PasswordHash))
+        {
+            return (false, "New password must be different from your current password.");
+        }
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        await _db.SaveChangesAsync();
+
+        return (true, null);
+    }
 }

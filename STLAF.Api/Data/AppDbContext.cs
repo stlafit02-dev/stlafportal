@@ -38,4 +38,6 @@ public class AppDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
+    public DbSet<UndertimeRequest> UndertimeRequests => Set<UndertimeRequest>();
+    public DbSet<MedicalCertificate> MedicalCertificates => Set<MedicalCertificate>();
 }

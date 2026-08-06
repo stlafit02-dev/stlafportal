@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using STLAF.Api.Departments.HRAdmin.DTOs;
 using STLAF.Api.Departments.HRAdmin.Services;
+using STLAF.Api.Common.Services;
 
 namespace STLAF.Api.Departments.HRAdmin.Controllers;
 
@@ -40,8 +41,18 @@ public class LeaveController : ControllerBase
     public async Task<IActionResult> GetMyRequests() => Ok(await _service.GetMyRequestsAsync(CurrentUserId));
 
     [HttpPost("requests")]
-    public async Task<IActionResult> CreateRequest(CreateLeaveRequestDto dto) => Ok(await _service.CreateRequestAsync(CurrentUserId, dto));
-
+    public async Task<IActionResult> CreateRequest(CreateLeaveRequestDto dto)
+    {
+        try
+        {
+            var request = await _service.CreateRequestAsync(CurrentUserId, dto);
+            return Ok(request);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
     [HttpGet("am-i-approver")]
     public async Task<IActionResult> AmIApprover() => Ok(new { isApprover = await _service.IsApproverAsync(CurrentUserId) });
 
@@ -131,5 +142,56 @@ public class LeaveController : ControllerBase
         var result = await _service.DecideRetractionAsync(CurrentUserId, id, dto);
         if (result is null) return NotFound();
         return Ok(result);
+    }
+    [HttpGet("medical-block-status")]
+    public async Task<IActionResult> GetMedicalBlockStatus() => Ok(new { isBlocked = await _service.HasBlockingMedicalCertificateAsync(CurrentUserId) });
+
+    [HttpGet("my-medical-certificates")]
+    public async Task<IActionResult> GetMyMedicalCertificates() => Ok(await _service.GetMyMedicalCertificatesAsync(CurrentUserId));
+
+    [HttpGet("medical-certificates/pending")]
+    [Authorize(Policy = "HRAdmin")]
+    public async Task<IActionResult> GetPendingMedicalVerifications() => Ok(await _service.GetPendingMedicalVerificationsAsync());
+
+    [HttpPost("medical-certificates/{id}/upload")]
+    public async Task<IActionResult> UploadMedicalCertificate(Guid id, IFormFile file)
+    {
+        if (file is null || file.Length == 0) return BadRequest(new { message = "No file provided." });
+
+        const long maxSizeBytes = 3_670_016; // 3.5 MB
+        if (file.Length > maxSizeBytes)
+            return BadRequest(new { message = "File is too large. Maximum size is 3.5 MB." });
+
+        var isPdf = file.ContentType == "application/pdf"
+            || file.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
+        if (!isPdf)
+            return BadRequest(new { message = "Only PDF files are accepted." });
+
+        try
+        {
+            using var stream = file.OpenReadStream();
+            var result = await _service.UploadMedicalCertificateAsync(CurrentUserId, id, stream, file.FileName, file.ContentType);
+            if (result is null) return NotFound();
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+    [HttpPost("medical-certificates/{id}/verify")]
+    [Authorize(Policy = "HRAdmin")]
+    public async Task<IActionResult> VerifyMedicalCertificate(Guid id, VerifyMedicalCertificateDto dto)
+    {
+        var result = await _service.VerifyMedicalCertificateAsync(CurrentUserId, id, dto);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+    [HttpPost("test-file-storage")]
+    [Authorize(Policy = "HRAdmin")]
+    public async Task<IActionResult> TestFileStorage([FromServices] IFileStorageService fileStorage)
+    {
+        var (success, error) = await fileStorage.TestConnectionAsync();
+        return Ok(new { success, error });
     }
 }

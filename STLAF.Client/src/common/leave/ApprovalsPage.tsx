@@ -1,38 +1,76 @@
 import { useEffect, useState } from "react";
-import { fetchAmIApprover, fetchPendingApprovals, fetchPendingRetractions, type LeaveRequest } from "./leaveApi";
-import { fetchAmIDeptApprover, fetchPendingDeptOvertime, type OvertimeRequest } from "./overtimeApi";
+import {
+  fetchAmIApprover,
+  fetchPendingApprovals,
+  fetchPendingRetractions,
+  type LeaveRequest,
+} from "./leaveApi";
+import {
+  fetchAmIDeptApprover,
+  fetchPendingDeptOvertime,
+  type OvertimeRequest,
+} from "./overtimeApi";
 import { DecideRequestModal } from "./DecideRequestModal";
 import { DecideRetractionModal } from "./DecideRetractionModal";
 import { DecideOvertimeModal } from "./DecideOvertimeModal";
 import { Spinner } from "../components/Loader/Loader";
 import { Toast } from "../components/Toast/Toast";
+import {
+  fetchAmIUndertimeApprover,
+  fetchPendingUndertime,
+  type UndertimeRequest,
+} from "./undertimeApi";
+import { DecideUndertimeModal } from "./DecideUndertimeModal";
 import "../../departments/it/gmail/GmailManagementPage.css";
 import "./LeavePage.css";
 
 type CombinedPendingItem =
   | { kind: "retraction"; data: LeaveRequest }
-  | { kind: "overtime"; data: OvertimeRequest };
+  | { kind: "overtime"; data: OvertimeRequest }
+  | { kind: "undertime"; data: UndertimeRequest };
 
 export function ApprovalsPage() {
   const [isApprover, setIsApprover] = useState(false);
   const [isDeptOvertimeApprover, setIsDeptOvertimeApprover] = useState(false);
+  const [isUndertimeApprover, setIsUndertimeApprover] = useState(false);
+
   const [pending, setPending] = useState<LeaveRequest[]>([]);
   const [pendingRetractions, setPendingRetractions] = useState<LeaveRequest[]>([]);
   const [pendingDeptOvertime, setPendingDeptOvertime] = useState<OvertimeRequest[]>([]);
+  const [pendingUndertime, setPendingUndertime] = useState<UndertimeRequest[]>([]);
+
   const [isLoading, setIsLoading] = useState(true);
 
-  const [decideTarget, setDecideTarget] = useState<{ request: LeaveRequest; approved: boolean } | null>(null);
-  const [decideRetractTarget, setDecideRetractTarget] = useState<{ request: LeaveRequest; approved: boolean } | null>(null);
-  const [decideOvertimeTarget, setDecideOvertimeTarget] = useState<{ request: OvertimeRequest; approved: boolean } | null>(null);
+  const [decideTarget, setDecideTarget] = useState<{
+    request: LeaveRequest;
+    approved: boolean;
+  } | null>(null);
+  const [decideRetractTarget, setDecideRetractTarget] = useState<{
+    request: LeaveRequest;
+    approved: boolean;
+  } | null>(null);
+  const [decideOvertimeTarget, setDecideOvertimeTarget] = useState<{
+    request: OvertimeRequest;
+    approved: boolean;
+  } | null>(null);
+  const [decideUndertimeTarget, setDecideUndertimeTarget] = useState<{
+    request: UndertimeRequest;
+    approved: boolean;
+  } | null>(null);
 
   const [toastMessage, setToastMessage] = useState("");
   const [isToastVisible, setIsToastVisible] = useState(false);
 
   async function loadAll() {
     setIsLoading(true);
-    const [approverFlag, deptOtFlag] = await Promise.all([fetchAmIApprover(), fetchAmIDeptApprover()]);
+    const [approverFlag, deptOtFlag, undertimeFlag] = await Promise.all([
+      fetchAmIApprover(),
+      fetchAmIDeptApprover(),
+      fetchAmIUndertimeApprover(),
+    ]);
     setIsApprover(approverFlag);
     setIsDeptOvertimeApprover(deptOtFlag);
+    setIsUndertimeApprover(undertimeFlag);
 
     if (approverFlag) {
       setPending(await fetchPendingApprovals());
@@ -40,6 +78,9 @@ export function ApprovalsPage() {
     }
     if (deptOtFlag) {
       setPendingDeptOvertime(await fetchPendingDeptOvertime());
+    }
+    if (undertimeFlag) {
+      setPendingUndertime(await fetchPendingUndertime());
     }
     setIsLoading(false);
   }
@@ -74,6 +115,12 @@ export function ApprovalsPage() {
     setIsToastVisible(true);
   }
 
+  function handleUndertimeDecided(request: UndertimeRequest) {
+    setPendingUndertime((prev) => prev.filter((r) => r.id !== request.id));
+    setToastMessage(`${request.employeeName}'s undertime ${request.status.toLowerCase()}.`);
+    setIsToastVisible(true);
+  }
+
   if (isLoading) {
     return (
       <div className="gmail-page-loading">
@@ -82,13 +129,15 @@ export function ApprovalsPage() {
     );
   }
 
-  if (!isApprover && !isDeptOvertimeApprover) {
+  if (!isApprover && !isDeptOvertimeApprover && !isUndertimeApprover) {
     return (
       <div className="gmail-page">
         <div className="gmail-page-header">
           <div>
             <h1 className="page-title">Approvals</h1>
-            <p className="page-subtitle">You are not assigned as an approver for any department.</p>
+            <p className="page-subtitle">
+              You are not assigned as an approver for any department.
+            </p>
           </div>
         </div>
       </div>
@@ -98,6 +147,7 @@ export function ApprovalsPage() {
   const combined: CombinedPendingItem[] = [
     ...pendingRetractions.map((r): CombinedPendingItem => ({ kind: "retraction", data: r })),
     ...pendingDeptOvertime.map((r): CombinedPendingItem => ({ kind: "overtime", data: r })),
+    ...pendingUndertime.map((r): CombinedPendingItem => ({ kind: "undertime", data: r })),
   ];
 
   return (
@@ -105,7 +155,9 @@ export function ApprovalsPage() {
       <div className="gmail-page-header">
         <div>
           <h1 className="page-title">Approvals</h1>
-          <p className="page-subtitle">Leave requests, retractions, and overtime awaiting your review.</p>
+          <p className="page-subtitle">
+            Leave requests, retractions, overtime, and undertime awaiting your review.
+          </p>
         </div>
       </div>
 
@@ -131,13 +183,26 @@ export function ApprovalsPage() {
                   <tr key={r.id}>
                     <td>{r.employeeName}</td>
                     <td>{r.leaveTypeName}</td>
-                    <td>{new Date(r.startDate).toLocaleDateString()} – {new Date(r.endDate).toLocaleDateString()}</td>
+                    <td>
+                      {new Date(r.startDate).toLocaleDateString()} –{" "}
+                      {new Date(r.endDate).toLocaleDateString()}
+                    </td>
                     <td>{r.days}</td>
                     <td>{r.reason}</td>
                     <td>
                       <div className="action-icons">
-                        <button className="leave-approve-btn" onClick={() => setDecideTarget({ request: r, approved: true })}>Approve</button>
-                        <button className="leave-reject-btn" onClick={() => setDecideTarget({ request: r, approved: false })}>Reject</button>
+                        <button
+                          className="leave-approve-btn"
+                          onClick={() => setDecideTarget({ request: r, approved: true })}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          className="leave-reject-btn"
+                          onClick={() => setDecideTarget({ request: r, approved: false })}
+                        >
+                          Reject
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -149,7 +214,7 @@ export function ApprovalsPage() {
       </section>
 
       <section className="gmail-section">
-        <h2 className="gmail-section-title">Pending Retractions &amp; Overtime</h2>
+        <h2 className="gmail-section-title">Pending Retractions, Overtime &amp; Undertime</h2>
         {combined.length === 0 ? (
           <div className="gmail-empty">Nothing pending here.</div>
         ) : (
@@ -165,35 +230,96 @@ export function ApprovalsPage() {
                 </tr>
               </thead>
               <tbody>
-                {combined.map((item) =>
-                  item.kind === "retraction" ? (
-                    <tr key={`ret-${item.data.id}`}>
-                      <td><span className="category-badge">Retraction</span></td>
+                {combined.map((item) => {
+                  if (item.kind === "retraction") {
+                    return (
+                      <tr key={`ret-${item.data.id}`}>
+                        <td><span className="category-badge">Retraction</span></td>
+                        <td>{item.data.employeeName}</td>
+                        <td>
+                          {item.data.leaveTypeName}:{" "}
+                          {new Date(item.data.startDate).toLocaleDateString()} –{" "}
+                          {new Date(item.data.endDate).toLocaleDateString()}
+                        </td>
+                        <td>{item.data.retractionReason}</td>
+                        <td>
+                          <div className="action-icons">
+                            <button
+                              className="leave-approve-btn"
+                              onClick={() => setDecideRetractTarget({ request: item.data, approved: true })}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className="leave-reject-btn"
+                              onClick={() => setDecideRetractTarget({ request: item.data, approved: false })}
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  }
+
+                  if (item.kind === "overtime") {
+                    return (
+                      <tr key={`ot-${item.data.id}`}>
+                        <td><span className="category-badge">Overtime</span></td>
+                        <td>{item.data.employeeName}</td>
+                        <td>
+                          {new Date(item.data.date).toLocaleDateString()},{" "}
+                          {item.data.startTime}–{item.data.endTime} ({item.data.hours}h)
+                        </td>
+                        <td>{item.data.reason}</td>
+                        <td>
+                          <div className="action-icons">
+                            <button
+                              className="leave-approve-btn"
+                              onClick={() => setDecideOvertimeTarget({ request: item.data, approved: true })}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className="leave-reject-btn"
+                              onClick={() => setDecideOvertimeTarget({ request: item.data, approved: false })}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  }
+
+                  return (
+                    <tr key={`ut-${item.data.id}`}>
+                      <td><span className="category-badge">Undertime</span></td>
                       <td>{item.data.employeeName}</td>
-                      <td>{item.data.leaveTypeName}: {new Date(item.data.startDate).toLocaleDateString()} – {new Date(item.data.endDate).toLocaleDateString()}</td>
-                      <td>{item.data.retractionReason}</td>
                       <td>
-                        <div className="action-icons">
-                          <button className="leave-approve-btn" onClick={() => setDecideRetractTarget({ request: item.data, approved: true })}>Approve</button>
-                          <button className="leave-reject-btn" onClick={() => setDecideRetractTarget({ request: item.data, approved: false })}>Decline</button>
-                        </div>
+                        {new Date(item.data.date).toLocaleDateString()},{" "}
+                        {item.data.startTime}–{item.data.endTime} ({item.data.hours}h)
                       </td>
-                    </tr>
-                  ) : (
-                    <tr key={`ot-${item.data.id}`}>
-                      <td><span className="category-badge">Overtime</span></td>
-                      <td>{item.data.employeeName}</td>
-                      <td>{new Date(item.data.date).toLocaleDateString()}, {item.data.startTime}–{item.data.endTime} ({item.data.hours}h)</td>
                       <td>{item.data.reason}</td>
                       <td>
                         <div className="action-icons">
-                          <button className="leave-approve-btn" onClick={() => setDecideOvertimeTarget({ request: item.data, approved: true })}>Approve</button>
-                          <button className="leave-reject-btn" onClick={() => setDecideOvertimeTarget({ request: item.data, approved: false })}>Reject</button>
+                          <button
+                            className="leave-approve-btn"
+                            onClick={() => setDecideUndertimeTarget({ request: item.data, approved: true })}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className="leave-reject-btn"
+                            onClick={() => setDecideUndertimeTarget({ request: item.data, approved: false })}
+                          >
+                            Reject
+                          </button>
                         </div>
                       </td>
                     </tr>
-                  )
-                )}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -225,7 +351,19 @@ export function ApprovalsPage() {
         onDecided={handleDeptOvertimeDecided}
       />
 
-      <Toast message={toastMessage} isVisible={isToastVisible} onClose={() => setIsToastVisible(false)} />
+      <DecideUndertimeModal
+        key={decideUndertimeTarget?.request.id ?? "decide-ut-empty"}
+        request={decideUndertimeTarget?.request ?? null}
+        approved={decideUndertimeTarget?.approved ?? false}
+        onClose={() => setDecideUndertimeTarget(null)}
+        onDecided={handleUndertimeDecided}
+      />
+
+      <Toast
+        message={toastMessage}
+        isVisible={isToastVisible}
+        onClose={() => setIsToastVisible(false)}
+      />
     </div>
   );
 }

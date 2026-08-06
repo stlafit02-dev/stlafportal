@@ -72,18 +72,25 @@ public class EmployeeService : IEmployeeService
             companyId = $"{yy:D2}-{category.Code}{sequence:D4}";
         }
 
+        var idAlreadyTaken = await _db.Users.AnyAsync(u => u.Username == companyId)
+            || await _db.Employees.AnyAsync(e => e.CompanyId == companyId);
+
+        if (idAlreadyTaken)
+        {
+            throw new InvalidOperationException(
+                string.IsNullOrWhiteSpace(dto.ManualCompanyId)
+                    ? $"Generated Company ID {companyId} is already in use. Please try again."
+                    : $"Company ID {companyId} is already assigned to another employee. Please use a different one.");
+        }
+
         const string defaultPassword = "stlaf2026";
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(defaultPassword);
 
         var fullName = string.Join(" ", new[] { dto.FirstName, dto.MiddleName, dto.LastName }.Where(s => !string.IsNullOrWhiteSpace(s)));
 
-        var resolvedCompanyEmail = string.IsNullOrWhiteSpace(dto.CompanyEmail)
-            ? $"{companyId}@pending.stlaf.global"
-            : dto.CompanyEmail;
-
         var user = new User
         {
-            Email = resolvedCompanyEmail,
+            Email = companyId,
             Username = companyId,
             PasswordHash = passwordHash,
             FullName = fullName,
@@ -116,16 +123,19 @@ public class EmployeeService : IEmployeeService
             UserId = user.Id
         };
 
-        await _ticketingService.CreateAsync(new CreateTicketDto
+        if (string.IsNullOrWhiteSpace(dto.ManualCompanyId))
         {
-            Name = requestedByName,
-            CompanyEmail = requestedByEmail,
-            ViberNumber = null,
-            Description = $"Please create email for new employee.\nName: {fullName}\nNumber: {dto.MobileNumber}\nDepartment: {dto.Department}\nOffice Position: {dto.OfficePosition}",
-            Category = "Email & Communications",
-            Priority = "Urgent",
-            Department = dto.Department
-        });
+            await _ticketingService.CreateAsync(new CreateTicketDto
+            {
+                Name = requestedByName,
+                CompanyEmail = requestedByEmail,
+                ViberNumber = null,
+                Description = $"Please create email for new employee.\nName: {fullName}\nNumber: {dto.MobileNumber}\nDepartment: {dto.Department}\nOffice Position: {dto.OfficePosition}",
+                Category = "Email & Communications",
+                Priority = "Urgent",
+                Department = dto.Department
+            });
+        }
 
         _db.Employees.Add(employee);
         await _db.SaveChangesAsync();
@@ -165,14 +175,9 @@ public class EmployeeService : IEmployeeService
 
         if (employee.User is not null)
         {
-            // Only update the login email if a real, non-blank Company Email was provided.
-            // Otherwise leave the existing User.Email untouched — Company Email is optional/cosmetic
-            // and must never collide with another employee's login email.
-            if (!string.IsNullOrWhiteSpace(dto.CompanyEmail))
-            {
-                employee.User.Email = dto.CompanyEmail;
-            }
-
+            // User.Email/Username stay permanently as the Company ID and are never
+            // touched here — Company Email is purely informational and lives only
+            // on Employee.CompanyEmail.
             employee.User.FullName = string.Join(" ", new[] { dto.FirstName, dto.MiddleName, dto.LastName }.Where(s => !string.IsNullOrWhiteSpace(s)));
             employee.User.IsActive = dto.Status == "Active";
 
@@ -201,6 +206,12 @@ public class EmployeeService : IEmployeeService
         _db.Employees.Remove(employee);
         await _db.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<string?> GetCompanyEmailForUserAsync(Guid userId)
+    {
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        return employee?.CompanyEmail;
     }
 
     private static string GenerateRandomPassword(int length)

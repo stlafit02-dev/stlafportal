@@ -28,11 +28,17 @@ public class ReportService : IReportService
             .Include(r => r.PartnerDecidedByEmployee)
             .AsQueryable();
 
+        var undertimeQuery = _db.UndertimeRequests
+            .Include(r => r.Employee)
+            .Include(r => r.DecidedByEmployee)
+            .AsQueryable();
+
         if (filter.From.HasValue)
         {
             var from = DateTime.SpecifyKind(filter.From.Value, DateTimeKind.Utc);
             leaveQuery = leaveQuery.Where(r => r.StartDate >= from);
             overtimeQuery = overtimeQuery.Where(r => r.Date >= from);
+            undertimeQuery = undertimeQuery.Where(r => r.Date >= from);
         }
 
         if (filter.To.HasValue)
@@ -40,16 +46,19 @@ public class ReportService : IReportService
             var to = DateTime.SpecifyKind(filter.To.Value, DateTimeKind.Utc);
             leaveQuery = leaveQuery.Where(r => r.StartDate <= to);
             overtimeQuery = overtimeQuery.Where(r => r.Date <= to);
+            undertimeQuery = undertimeQuery.Where(r => r.Date <= to);
         }
 
         if (!string.IsNullOrWhiteSpace(filter.Department) && filter.Department != "All")
         {
             leaveQuery = leaveQuery.Where(r => r.Employee.Department == filter.Department);
             overtimeQuery = overtimeQuery.Where(r => r.Employee.Department == filter.Department);
+            undertimeQuery = undertimeQuery.Where(r => r.Employee.Department == filter.Department);
         }
 
         var leaveRequests = await leaveQuery.OrderBy(r => r.StartDate).ToListAsync();
         var overtimeRequests = await overtimeQuery.OrderBy(r => r.Date).ToListAsync();
+        var undertimeRequests = await undertimeQuery.OrderBy(r => r.Date).ToListAsync();
 
         using var workbook = new XLWorkbook();
 
@@ -119,6 +128,38 @@ public class ReportService : IReportService
         }
         otSheet.Columns().AdjustToContents();
         otSheet.SheetView.FreezeRows(1);
+
+        // ---------- Undertime sheet ----------
+        var utSheet = workbook.Worksheets.Add("Undertime Requests");
+        string[] utHeaders = { "Company ID", "Employee", "Department", "Date", "Time In", "Time Out", "Hours", "Reason", "Status", "Decided By", "Decision Notes", "Decided At", "Submitted" };
+        for (var i = 0; i < utHeaders.Length; i++)
+        {
+            utSheet.Cell(1, i + 1).Value = utHeaders[i];
+            utSheet.Cell(1, i + 1).Style.Font.Bold = true;
+            utSheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.FromHtml("#1A2634");
+            utSheet.Cell(1, i + 1).Style.Font.FontColor = XLColor.White;
+        }
+
+        var utRow = 2;
+        foreach (var r in undertimeRequests)
+        {
+            utSheet.Cell(utRow, 1).Value = r.Employee.CompanyId;
+            utSheet.Cell(utRow, 2).Value = $"{r.Employee.FirstName} {r.Employee.LastName}";
+            utSheet.Cell(utRow, 3).Value = r.Employee.Department;
+            utSheet.Cell(utRow, 4).Value = r.Date.ToString("yyyy-MM-dd");
+            utSheet.Cell(utRow, 5).Value = r.StartTime.ToString("HH:mm");
+            utSheet.Cell(utRow, 6).Value = r.EndTime.ToString("HH:mm");
+            utSheet.Cell(utRow, 7).Value = r.Hours;
+            utSheet.Cell(utRow, 8).Value = r.Reason;
+            utSheet.Cell(utRow, 9).Value = r.Status;
+            utSheet.Cell(utRow, 10).Value = r.DecidedByEmployee is null ? "" : $"{r.DecidedByEmployee.FirstName} {r.DecidedByEmployee.LastName}";
+            utSheet.Cell(utRow, 11).Value = r.DecisionNotes ?? "";
+            utSheet.Cell(utRow, 12).Value = r.DecidedAt?.ToString("yyyy-MM-dd HH:mm") ?? "";
+            utSheet.Cell(utRow, 13).Value = r.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+            utRow++;
+        }
+        utSheet.Columns().AdjustToContents();
+        utSheet.SheetView.FreezeRows(1);
 
         using var stream = new MemoryStream();
         workbook.SaveAs(stream);

@@ -8,6 +8,8 @@
 .env.prod
 .env.backup
 
+secrets/
+
 
 # User-specific files
 *.rsuser

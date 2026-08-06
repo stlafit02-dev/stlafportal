@@ -41,14 +41,19 @@ public class EmployeesController : ControllerBase
     [HttpPost("employees")]
     public async Task<IActionResult> CreateEmployee(CreateEmployeeDto dto)
     {
-        if (dto.Bday.Date >= dto.StartDate.Date)
-            return BadRequest(new { message = "Birthdate must be earlier than the start date." });
-
         var requestedByName = User.FindFirst("name")?.Value ?? "HR Admin";
-        var requestedByEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "hr@stlaf.global";
+        var currentUserId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
+        var requestedByEmail = await _service.GetCompanyEmailForUserAsync(currentUserId) ?? "hr@stlaf.global";
 
-        var result = await _service.CreateEmployeeAsync(dto, requestedByName, requestedByEmail);
-        return CreatedAtAction(nameof(GetEmployees), result);
+        try
+        {
+            var result = await _service.CreateEmployeeAsync(dto, requestedByName, requestedByEmail);
+            return CreatedAtAction(nameof(GetEmployees), result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPut("employees/{id}")]

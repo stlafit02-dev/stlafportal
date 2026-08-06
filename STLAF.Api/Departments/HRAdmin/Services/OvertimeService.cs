@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using STLAF.Api.Common.Email;
 using STLAF.Api.Common.Services;
 using STLAF.Api.Data;
 using STLAF.Api.Departments.HRAdmin.DTOs;
@@ -10,12 +11,16 @@ public class OvertimeService : IOvertimeService
 {
     private readonly AppDbContext _db;
     private readonly IEmailSender _emailSender;
+    private readonly IConfiguration _config;
 
-    public OvertimeService(AppDbContext db, IEmailSender emailSender)
+    public OvertimeService(AppDbContext db, IEmailSender emailSender, IConfiguration config)
     {
         _db = db;
         _emailSender = emailSender;
+        _config = config;
     }
+
+    private string FrontendUrl(string path) => $"{_config["Frontend:BaseUrl"]?.TrimEnd('/')}{path}";
 
     // ---------- Partners ----------
 
@@ -87,7 +92,7 @@ public class OvertimeService : IOvertimeService
         var start = TimeOnly.Parse(dto.StartTime);
         var end = TimeOnly.Parse(dto.EndTime);
         var hours = (end.ToTimeSpan() - start.ToTimeSpan()).TotalHours;
-        if (hours <= 0) hours += 24; // crosses midnight
+        if (hours <= 0) hours += 24;
 
         var request = new OvertimeRequest
         {
@@ -245,9 +250,13 @@ public class OvertimeService : IOvertimeService
         if (setting is null) return;
 
         var subject = $"New Overtime Request - {request.Employee.FirstName} {request.Employee.LastName}";
-        var body = $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department}) submitted an overtime request for {request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s)).\n\nReason: {request.Reason}\n\nPlease review this in the STLAF portal.";
+        var bodyHtml = EmailTemplateBuilder.InfoRow("Employee", $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department})")
+            + EmailTemplateBuilder.InfoRow("Date", $"{request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s))")
+            + EmailTemplateBuilder.InfoRow("Reason", request.Reason);
 
-        await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, body);
+        var html = EmailTemplateBuilder.Build("New Overtime Request", bodyHtml, "Review Request", FrontendUrl("/dashboard/leave/approvals"));
+
+        await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, html);
     }
 
     private async Task NotifyPartnerAsync(OvertimeRequest request)
@@ -264,9 +273,14 @@ public class OvertimeService : IOvertimeService
         if (setting is null) return;
 
         var subject = $"Overtime Request Needs Final Approval - {request.Employee.FirstName} {request.Employee.LastName}";
-        var body = $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department})'s overtime request for {request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s)) was approved by the department head and needs your final decision.\n\nReason: {request.Reason}\n\nPlease review this in the STLAF portal.";
+        var bodyHtml = EmailTemplateBuilder.InfoRow("Employee", $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department})")
+            + EmailTemplateBuilder.InfoRow("Date", $"{request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s))")
+            + $@"<p style=""margin:12px 0 4px;"">Approved by the department head. This needs your final decision.</p>"
+            + EmailTemplateBuilder.InfoRow("Reason", request.Reason);
 
-        await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, body);
+        var html = EmailTemplateBuilder.Build("Overtime Needs Final Approval", bodyHtml, "Review Request", FrontendUrl("/dashboard/leave/final-approvals"));
+
+        await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, html);
     }
 
     private async Task NotifyEmployeeOfFinalDecisionAsync(OvertimeRequest request)
@@ -281,9 +295,13 @@ public class OvertimeService : IOvertimeService
         var notes = request.Status == "Rejected" && request.PartnerDecidedAt is null
             ? request.DeptDecisionNotes
             : request.PartnerDecisionNotes;
-        var body = $"Your overtime request for {request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s)) has been {request.Status.ToLower()}.\n\n{(string.IsNullOrWhiteSpace(notes) ? "" : $"Notes: {notes}")}";
+        var bodyHtml = EmailTemplateBuilder.InfoRow("Date", $"{request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s))")
+            + EmailTemplateBuilder.InfoRow("Status", request.Status)
+            + (string.IsNullOrWhiteSpace(notes) ? "" : EmailTemplateBuilder.InfoRow("Notes", notes));
 
-        await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, body);
+        var html = EmailTemplateBuilder.Build($"Overtime Request {request.Status}", bodyHtml, "View My Overtime", FrontendUrl("/dashboard/leave/overtime"));
+
+        await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, html);
     }
 
     private static OvertimeRequestDto ToDto(OvertimeRequest r) => new()

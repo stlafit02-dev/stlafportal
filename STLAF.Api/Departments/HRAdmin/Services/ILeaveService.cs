@@ -38,4 +38,9 @@ public interface ILeaveService
     Task<LeaveRequestDto?> RequestRetractionAsync(Guid userId, Guid requestId, RequestRetractionDto dto);
     Task<List<LeaveRequestDto>> GetPendingRetractionsAsync(Guid userId);
     Task<LeaveRequestDto?> DecideRetractionAsync(Guid userId, Guid requestId, DecideRetractionDto dto);
+    Task<bool> HasBlockingMedicalCertificateAsync(Guid userId);
+    Task<List<MedicalCertificateDto>> GetMyMedicalCertificatesAsync(Guid userId);
+    Task<MedicalCertificateDto?> UploadMedicalCertificateAsync(Guid userId, Guid certificateId, Stream fileStream, string fileName, string contentType);
+    Task<List<MedicalCertificateDto>> GetPendingMedicalVerificationsAsync();
+    Task<MedicalCertificateDto?> VerifyMedicalCertificateAsync(Guid userId, Guid certificateId, VerifyMedicalCertificateDto dto);
 }

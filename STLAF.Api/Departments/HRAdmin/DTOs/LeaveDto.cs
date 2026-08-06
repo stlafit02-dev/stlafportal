@@ -5,18 +5,21 @@ public class LeaveTypeDto
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public int DefaultCredits { get; set; }
+    public int? RequiresMedicalAfterDays { get; set; }
 }
 
 public class CreateLeaveTypeDto
 {
     public string Name { get; set; } = string.Empty;
     public int DefaultCredits { get; set; }
+    public int? RequiresMedicalAfterDays { get; set; }
 }
 
 public class UpdateLeaveTypeDto
 {
     public string Name { get; set; } = string.Empty;
     public int DefaultCredits { get; set; }
+    public int? RequiresMedicalAfterDays { get; set; }
 }
 
 public class LeaveApproverDto
@@ -141,6 +144,25 @@ public class RequestRetractionDto
 }
 
 public class DecideRetractionDto
+{
+    public bool Approved { get; set; }
+    public string? Notes { get; set; }
+}
+public class MedicalCertificateDto
+{
+    public Guid Id { get; set; }
+    public Guid LeaveRequestId { get; set; }
+    public string EmployeeName { get; set; } = string.Empty;
+    public string Department { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public string? DriveFileUrl { get; set; }
+    public DateTime? UploadedAt { get; set; }
+    public string? VerifiedByName { get; set; }
+    public string? VerificationNotes { get; set; }
+    public DateTime? VerifiedAt { get; set; }
+}
+
+public class VerifyMedicalCertificateDto
 {
     public bool Approved { get; set; }
     public string? Notes { get; set; }

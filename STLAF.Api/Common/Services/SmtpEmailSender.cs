@@ -23,7 +23,7 @@ public class SmtpEmailSender : IEmailSender
                 Credentials = new NetworkCredential(fromEmail, fromAppPassword.Replace(" ", ""))
             };
 
-            using var message = new MailMessage(fromEmail, toEmail, subject, body);
+            using var message = new MailMessage(fromEmail, toEmail, subject, body) { IsBodyHtml = true };
             await client.SendMailAsync(message);
             _logger.LogInformation("Email sent successfully from {From} to {To}.", fromEmail, toEmail);
         }
@@ -32,6 +32,7 @@ public class SmtpEmailSender : IEmailSender
             _logger.LogError(ex, "Failed to send leave notification email to {ToEmail}", toEmail);
         }
     }
+
     public async Task<(bool Success, string? Error)> TestConnectionAsync(string fromEmail, string fromAppPassword)
     {
         try
@@ -42,7 +43,7 @@ public class SmtpEmailSender : IEmailSender
                 Credentials = new NetworkCredential(fromEmail, fromAppPassword.Replace(" ", ""))
             };
 
-            using var message = new MailMessage(fromEmail, fromEmail, "STLAF SMTP Sender Test", "This is an automated test to confirm this sender's app password is still valid. You can ignore this email.");
+            using var message = new MailMessage(fromEmail, fromEmail, "STLAF App Password Test", "This is an automated test to confirm this app password is still valid. You can ignore this email.");
             await client.SendMailAsync(message);
             return (true, null);
         }
