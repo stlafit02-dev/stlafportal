@@ -24,4 +24,5 @@ public class LeaveRequest : BaseEntity
     public Employee? RetractionDecidedByEmployee { get; set; }
     public string? RetractionDecisionNotes { get; set; }
     public DateTime? RetractionDecidedAt { get; set; }
+    public bool IsPaid { get; set; } = true;
 }

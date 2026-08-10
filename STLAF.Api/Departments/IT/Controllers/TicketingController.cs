@@ -48,7 +48,7 @@ public class TicketingController : ControllerBase
 
     // IT-only — full ticket list including closed
     [HttpGet]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> GetAll()
     {
         var tickets = await _service.GetAllAsync();
@@ -57,7 +57,7 @@ public class TicketingController : ControllerBase
 
     // IT-only — list of IT staff for the assignee dropdown
     [HttpGet("staff")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> GetStaff()
     {
         var staff = await _service.GetItStaffAsync();
@@ -66,7 +66,7 @@ public class TicketingController : ControllerBase
 
     // IT-only — change status
     [HttpPatch("{id}/status")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> UpdateStatus(Guid id, UpdateTicketStatusDto dto)
     {
         var result = await _service.UpdateStatusAsync(id, dto.Status);
@@ -76,7 +76,7 @@ public class TicketingController : ControllerBase
 
     // IT-only — assign/reassign
     [HttpPatch("{id}/assign")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Assign(Guid id, AssignTicketDto dto)
     {
         var result = await _service.AssignAsync(id, dto.AssignedToId);
@@ -85,7 +85,7 @@ public class TicketingController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var deleted = await _service.DeleteAsync(id);

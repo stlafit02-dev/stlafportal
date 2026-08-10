@@ -10,13 +10,13 @@ const CONDITIONS = ["Brand New", "Refurbished", "Old"];
 const STATUSES = ["Available", "Assigned", "Under Repair"];
 const DEPARTMENTS = [
   "IT",
-  "HR Admin",
+  "HRAdmin",
   "Litigation",
   "Accounting",
   "Corporate",
   "Marketing",
+  "Partner",
 ];
-
 interface AssetFormModalProps {
   isOpen: boolean;
   onClose: () => void;

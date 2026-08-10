@@ -22,6 +22,9 @@ public class UndertimeService : IUndertimeService
 
     private string FrontendUrl(string path) => $"{_config["Frontend:BaseUrl"]?.TrimEnd('/')}{path}";
 
+    private static string DepartmentSlug(string department) =>
+        department == "HRAdmin" ? "hr-admin" : department.ToLowerInvariant();
+
     public async Task<List<UndertimeRequestDto>> GetMyRequestsAsync(Guid userId)
     {
         var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
@@ -132,12 +135,13 @@ public class UndertimeService : IUndertimeService
         var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
         if (setting is null) return;
 
+        var slug = DepartmentSlug(request.Employee.Department);
         var subject = $"New Undertime Request - {request.Employee.FirstName} {request.Employee.LastName}";
         var bodyHtml = EmailTemplateBuilder.InfoRow("Employee", $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department})")
             + EmailTemplateBuilder.InfoRow("Date", $"{request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s))")
             + EmailTemplateBuilder.InfoRow("Reason", request.Reason);
 
-        var html = EmailTemplateBuilder.Build("New Undertime Request", bodyHtml, "Review Request", FrontendUrl("/dashboard/leave/approvals"));
+        var html = EmailTemplateBuilder.Build("New Undertime Request", bodyHtml, "Review Request", FrontendUrl($"/{slug}/leave/approvals"));
 
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, html);
     }
@@ -150,12 +154,13 @@ public class UndertimeService : IUndertimeService
         var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
         if (setting is null) return;
 
+        var slug = DepartmentSlug(request.Employee.Department);
         var subject = $"Undertime Request {request.Status} - {request.Date:MMM d, yyyy}";
         var bodyHtml = EmailTemplateBuilder.InfoRow("Date", $"{request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s))")
             + EmailTemplateBuilder.InfoRow("Status", request.Status)
             + (string.IsNullOrWhiteSpace(request.DecisionNotes) ? "" : EmailTemplateBuilder.InfoRow("Notes", request.DecisionNotes));
 
-        var html = EmailTemplateBuilder.Build($"Undertime Request {request.Status}", bodyHtml, "View My Undertime", FrontendUrl("/dashboard/leave/undertime"));
+        var html = EmailTemplateBuilder.Build($"Undertime Request {request.Status}", bodyHtml, "View My Undertime", FrontendUrl($"/{slug}/leave/undertime"));
 
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, html);
     }

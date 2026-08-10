@@ -191,6 +191,7 @@ export function DashboardLayout({
               <NavLink
                 key={item.to}
                 to={item.to!}
+                end
                 className={({ isActive }) =>
                   `nav-item ${isActive ? "nav-item-active" : ""}`
                 }
@@ -213,7 +214,9 @@ export function DashboardLayout({
               </span>
               <span className="user-menu-info">
                 <span className="user-name">{user?.fullName}</span>
-                <span className="user-role">{user?.role}</span>
+                <span className="user-role">
+                  {user?.officePosition || user?.role}
+                </span>
               </span>
               <svg
                 width="14"

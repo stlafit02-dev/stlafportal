@@ -22,6 +22,9 @@ public class OvertimeService : IOvertimeService
 
     private string FrontendUrl(string path) => $"{_config["Frontend:BaseUrl"]?.TrimEnd('/')}{path}";
 
+    private static string DepartmentSlug(string department) =>
+        department == "HRAdmin" ? "hr-admin" : department.ToLowerInvariant();
+
     // ---------- Partners ----------
 
     public async Task<List<OvertimePartnerDto>> GetPartnersAsync()
@@ -249,12 +252,13 @@ public class OvertimeService : IOvertimeService
         var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
         if (setting is null) return;
 
+        var slug = DepartmentSlug(request.Employee.Department);
         var subject = $"New Overtime Request - {request.Employee.FirstName} {request.Employee.LastName}";
         var bodyHtml = EmailTemplateBuilder.InfoRow("Employee", $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department})")
             + EmailTemplateBuilder.InfoRow("Date", $"{request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s))")
             + EmailTemplateBuilder.InfoRow("Reason", request.Reason);
 
-        var html = EmailTemplateBuilder.Build("New Overtime Request", bodyHtml, "Review Request", FrontendUrl("/dashboard/leave/approvals"));
+        var html = EmailTemplateBuilder.Build("New Overtime Request", bodyHtml, "Review Request", FrontendUrl($"/{slug}/leave/approvals"));
 
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, html);
     }
@@ -272,13 +276,14 @@ public class OvertimeService : IOvertimeService
         var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
         if (setting is null) return;
 
+        var slug = DepartmentSlug(request.Employee.Department);
         var subject = $"Overtime Request Needs Final Approval - {request.Employee.FirstName} {request.Employee.LastName}";
         var bodyHtml = EmailTemplateBuilder.InfoRow("Employee", $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department})")
             + EmailTemplateBuilder.InfoRow("Date", $"{request.Date:MMM d, yyyy}, {request.StartTime:h:mm tt} - {request.EndTime:h:mm tt} ({request.Hours} hour(s))")
             + $@"<p style=""margin:12px 0 4px;"">Approved by the department head. This needs your final decision.</p>"
             + EmailTemplateBuilder.InfoRow("Reason", request.Reason);
 
-        var html = EmailTemplateBuilder.Build("Overtime Needs Final Approval", bodyHtml, "Review Request", FrontendUrl("/dashboard/leave/final-approvals"));
+        var html = EmailTemplateBuilder.Build("Overtime Needs Final Approval", bodyHtml, "Review Request", FrontendUrl($"/{slug}/leave/final-approvals"));
 
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, html);
     }
@@ -291,6 +296,7 @@ public class OvertimeService : IOvertimeService
         var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
         if (setting is null) return;
 
+        var slug = DepartmentSlug(request.Employee.Department);
         var subject = $"Overtime Request {request.Status} - {request.Date:MMM d, yyyy}";
         var notes = request.Status == "Rejected" && request.PartnerDecidedAt is null
             ? request.DeptDecisionNotes
@@ -299,7 +305,7 @@ public class OvertimeService : IOvertimeService
             + EmailTemplateBuilder.InfoRow("Status", request.Status)
             + (string.IsNullOrWhiteSpace(notes) ? "" : EmailTemplateBuilder.InfoRow("Notes", notes));
 
-        var html = EmailTemplateBuilder.Build($"Overtime Request {request.Status}", bodyHtml, "View My Overtime", FrontendUrl("/dashboard/leave/overtime"));
+        var html = EmailTemplateBuilder.Build($"Overtime Request {request.Status}", bodyHtml, "View My Overtime", FrontendUrl($"/{slug}/leave/overtime"));
 
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, html);
     }

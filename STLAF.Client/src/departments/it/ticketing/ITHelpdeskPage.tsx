@@ -15,11 +15,12 @@ const CATEGORIES = ["Hardware", "Software", "Network", "Email", "Other"];
 const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
 const DEPARTMENTS = [
   "IT",
-  "HR Admin",
+  "HRAdmin",
   "Litigation",
   "Accounting",
   "Corporate",
   "Marketing",
+  "Partner",
 ];
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
@@ -68,6 +69,8 @@ export function ITHelpdeskPage() {
 
   useEffect(() => {
     loadData();
+    const interval = setInterval(loadData, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   function updateField(field: keyof typeof form, value: string) {

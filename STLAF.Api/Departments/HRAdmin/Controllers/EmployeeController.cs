@@ -7,7 +7,7 @@ namespace STLAF.Api.Departments.HRAdmin.Controllers;
 
 [ApiController]
 [Route("api/hr")]
-[Authorize(Policy = "HRAdmin")]
+[Authorize(Policy = "hr-employees")]
 public class EmployeesController : ControllerBase
 {
     private readonly IEmployeeService _service;

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using STLAF.Api.Identity.Entities;
 using STLAF.Api.Departments.HRAdmin.Entities;
+using STLAF.Api.Common.Entities;
 
 namespace STLAF.Api.Data;
 
@@ -17,7 +18,8 @@ public static class DbSeeder
                 new Department { Name = "Litigation" },
                 new Department { Name = "Accounting" },
                 new Department { Name = "Corporate" },
-                new Department { Name = "Marketing" }
+                new Department { Name = "Marketing" },
+                new Department { Name = "Partner" }
             );
             await db.SaveChangesAsync();
         }
@@ -37,7 +39,7 @@ public static class DbSeeder
         if (!await db.Users.AnyAsync())
         {
             var departments = await db.Departments.ToListAsync();
-            var employeeRole = await db.Roles.FirstAsync(r => r.Name == "Employee");
+            var deptAdminRole = await db.Roles.FirstAsync(r => r.Name == "DeptAdmin");
 
             foreach (var dept in departments)
             {
@@ -47,7 +49,7 @@ public static class DbSeeder
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password123!"),
                     FullName = $"{dept.Name} Test User",
                     DepartmentId = dept.Id,
-                    RoleId = employeeRole.Id,
+                    RoleId = deptAdminRole.Id,
                     IsActive = true
                 });
             }

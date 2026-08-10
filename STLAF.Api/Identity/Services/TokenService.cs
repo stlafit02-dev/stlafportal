@@ -15,7 +15,7 @@ public class TokenService : ITokenService
         _config = config;
     }
 
-    public (string token, DateTime expiresAt) GenerateToken(User user, string departmentName, string roleName)
+    public (string token, DateTime expiresAt) GenerateToken(User user, string departmentName, string roleName, string? officePosition)
     {
         var secret = _config["Jwt:Secret"]!;
         var issuer = _config["Jwt:Issuer"]!;
@@ -25,14 +25,15 @@ public class TokenService : ITokenService
         var expiresAt = DateTime.UtcNow.AddMinutes(expiresInMinutes);
 
         var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(ClaimTypes.Email, user.Email),
-            new("department", departmentName),
-            new("role", roleName),
-            new("name", user.FullName),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+    {
+        new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+        new(ClaimTypes.Email, user.Email ?? ""),
+        new("department", departmentName),
+        new("role", roleName),
+        new("name", user.FullName),
+        new("officePosition", officePosition ?? ""),
+        new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

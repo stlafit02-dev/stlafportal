@@ -42,6 +42,7 @@ export interface LeaveRequest {
   retractionDecidedByName?: string | null;
   retractionDecisionNotes?: string | null;
   retractionDecidedAt?: string | null;
+  isPaid: boolean;
 }
 
 export interface CreateLeaveRequestPayload {
@@ -49,6 +50,7 @@ export interface CreateLeaveRequestPayload {
   startDate: string;
   endDate: string;
   reason: string;
+  isPaid: boolean;
 }
 
 export interface DecideLeaveRequestPayload {

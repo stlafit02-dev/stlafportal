@@ -35,6 +35,7 @@ const DEPARTMENTS = [
   "Accounting",
   "Corporate",
   "Marketing",
+  "Partner",
 ];
 
 export function LeaveSettingsPage() {

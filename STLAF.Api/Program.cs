@@ -11,7 +11,7 @@ using STLAF.Api.Departments.IT.Services;
 using STLAF.Api.Departments.IT.BackgroundJobs;
 using STLAF.Api.Departments.HRAdmin.Services;
 using STLAF.Api.Common.Services;
-
+using STLAF.Api.Common.Entities;
 
 DotNetEnv.Env.Load();
 
@@ -59,6 +59,8 @@ builder.Services.AddScoped<IFileStorageService, BackblazeFileStorageService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -79,6 +81,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Authorization
 builder.Services.AddScoped<IAuthorizationHandler, DepartmentAuthorizationHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ModuleAuthorizationHandler>();
 
 builder.Services.AddAuthorization(options =>
 {
@@ -89,7 +92,8 @@ builder.Services.AddAuthorization(options =>
         "Litigation",
         "Accounting",
         "Corporate",
-        "Marketing"
+        "Marketing",
+        "Partner"
     };
 
     foreach (var dept in departments)
@@ -99,6 +103,22 @@ builder.Services.AddAuthorization(options =>
                 new DepartmentRequirement(dept)
             ));
     }
+    var modules = new[]
+    {
+        "hr-employees",
+        "hr-leave-settings",
+        "hr-medical-certificates",
+        "hr-reports",
+        "it-ticketing",
+        "it-assets",
+        "it-gmail"
+    };
+
+        foreach (var module in modules)
+        {
+            options.AddPolicy(module, policy =>
+                policy.Requirements.Add(new ModuleRequirement(module)));
+        }
 });
 
 

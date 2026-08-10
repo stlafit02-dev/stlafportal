@@ -10,7 +10,7 @@ namespace STLAF.Api.Departments.IT.Controllers;
 
 [ApiController]
 [Route("api/it/gmail")]
-[Authorize(Policy = "IT")]
+[Authorize(Policy = "it-gmail")]
 public class GmailManagementController : ControllerBase
 {
     private readonly IGmailService _service;

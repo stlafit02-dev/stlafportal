@@ -66,6 +66,7 @@ public class LeaveRequestDto
     public string? RetractionDecidedByName { get; set; }
     public string? RetractionDecisionNotes { get; set; }
     public DateTime? RetractionDecidedAt { get; set; }
+    public bool IsPaid { get; set; }
 }
 
 public class CreateLeaveRequestDto
@@ -74,6 +75,7 @@ public class CreateLeaveRequestDto
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public string Reason { get; set; } = string.Empty;
+    public bool IsPaid { get; set; }
 }
 
 public class DecideLeaveRequestDto

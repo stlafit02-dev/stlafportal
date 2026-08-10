@@ -45,5 +45,7 @@ public class LeaveRequestConfiguration : IEntityTypeConfiguration<LeaveRequest>
             .WithMany()
             .HasForeignKey(x => x.RetractionDecidedByEmployeeId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Property(x => x.IsPaid).HasColumnName("is_paid");
     }
 }

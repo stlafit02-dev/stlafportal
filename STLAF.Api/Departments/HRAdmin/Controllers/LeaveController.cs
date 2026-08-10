@@ -70,11 +70,11 @@ public class LeaveController : ControllerBase
     // ---------- HR-only settings ----------
 
     [HttpPost("types")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> CreateType(CreateLeaveTypeDto dto) => Ok(await _service.CreateLeaveTypeAsync(dto));
 
     [HttpPut("types/{id}")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> UpdateType(Guid id, UpdateLeaveTypeDto dto)
     {
         var result = await _service.UpdateLeaveTypeAsync(id, dto);
@@ -83,33 +83,33 @@ public class LeaveController : ControllerBase
     }
 
     [HttpGet("approvers")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> GetApprovers() => Ok(await _service.GetApproversAsync());
 
     [HttpPost("approvers")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> SetApprover(SetLeaveApproverDto dto) => Ok(await _service.SetApproverAsync(dto));
 
     [HttpGet("notification-setting")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> GetNotificationSetting() => Ok(await _service.GetNotificationSettingAsync());
 
     [HttpPut("notification-setting")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> SetNotificationSetting(SetLeaveNotificationSettingDto dto) => Ok(await _service.SetNotificationSettingAsync(dto));
     [HttpGet("smtp-senders")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> GetSmtpSenders() => Ok(await _service.GetSmtpSendersAsync());
 
     [HttpPost("smtp-senders")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> CreateSmtpSender(CreateSmtpSenderDto dto) => Ok(await _service.CreateSmtpSenderAsync(dto));
 
     [HttpPost("smtp-senders/{id}/test")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> TestSmtpSender(Guid id) => Ok(await _service.TestSmtpSenderAsync(id));
     [HttpDelete("smtp-senders/{id}")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> DeleteSmtpSender(Guid id)
     {
         var deleted = await _service.DeleteSmtpSenderAsync(id);
@@ -117,12 +117,12 @@ public class LeaveController : ControllerBase
         return NoContent();
     }
     [HttpGet("employees/{employeeId}/credits")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> GetEmployeeLeaveCredits(Guid employeeId) =>
     Ok(await _service.GetEmployeeLeaveCreditsAsync(employeeId));
 
     [HttpPut("employees/{employeeId}/credits")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> SetEmployeeLeaveCredit(Guid employeeId, SetEmployeeLeaveCreditDto dto) =>
         Ok(await _service.SetEmployeeLeaveCreditAsync(employeeId, dto));
     [HttpPost("requests/{id}/request-retraction")]
@@ -150,7 +150,7 @@ public class LeaveController : ControllerBase
     public async Task<IActionResult> GetMyMedicalCertificates() => Ok(await _service.GetMyMedicalCertificatesAsync(CurrentUserId));
 
     [HttpGet("medical-certificates/pending")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-medical-certificates")]
     public async Task<IActionResult> GetPendingMedicalVerifications() => Ok(await _service.GetPendingMedicalVerificationsAsync());
 
     [HttpPost("medical-certificates/{id}/upload")]
@@ -180,7 +180,7 @@ public class LeaveController : ControllerBase
         }
     }
     [HttpPost("medical-certificates/{id}/verify")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-medical-certificates")]
     public async Task<IActionResult> VerifyMedicalCertificate(Guid id, VerifyMedicalCertificateDto dto)
     {
         var result = await _service.VerifyMedicalCertificateAsync(CurrentUserId, id, dto);
@@ -188,7 +188,7 @@ public class LeaveController : ControllerBase
         return Ok(result);
     }
     [HttpPost("test-file-storage")]
-    [Authorize(Policy = "HRAdmin")]
+    [Authorize(Policy = "hr-leave-settings")]
     public async Task<IActionResult> TestFileStorage([FromServices] IFileStorageService fileStorage)
     {
         var (success, error) = await fileStorage.TestConnectionAsync();

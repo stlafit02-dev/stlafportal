@@ -16,6 +16,7 @@ const DEPARTMENTS = [
   "Accounting",
   "Corporate",
   "Marketing",
+  "Partner",
 ];
 const SEX_OPTIONS = ["Male", "Female"];
 const STATUSES = ["Active", "Inactive"];

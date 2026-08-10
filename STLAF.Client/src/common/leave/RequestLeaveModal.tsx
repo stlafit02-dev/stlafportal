@@ -28,6 +28,7 @@ export function RequestLeaveModal({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
+  const [isPaid, setIsPaid] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showMedicalBlockModal, setShowMedicalBlockModal] = useState(false);
@@ -37,6 +38,7 @@ export function RequestLeaveModal({
     setStartDate("");
     setEndDate("");
     setReason("");
+    setIsPaid(true);
     setError(null);
     onClose();
   }
@@ -57,6 +59,7 @@ export function RequestLeaveModal({
         startDate,
         endDate,
         reason,
+        isPaid,
       });
       onCreated(request);
       resetAndClose();
@@ -144,6 +147,22 @@ export function RequestLeaveModal({
               rows={3}
               className="gmail-input gmail-textarea"
             />
+          </div>
+
+          <div className="gmail-field">
+            <label className="gmail-checkbox-label">
+              <input
+                type="checkbox"
+                checked={isPaid}
+                onChange={(e) => setIsPaid(e.target.checked)}
+              />
+              This is a Paid Leave
+            </label>
+            <p style={{ fontSize: 11.5, color: "var(--text-muted)", margin: "4px 0 0" }}>
+              Uncheck if this should be recorded as unpaid leave. Note: if you have a
+              pending medical certificate, this will automatically be marked unpaid
+              regardless of this setting.
+            </p>
           </div>
 
           {error && <p className="gmail-error">{error}</p>}

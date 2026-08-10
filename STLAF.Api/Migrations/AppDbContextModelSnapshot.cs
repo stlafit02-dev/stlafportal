@@ -64,6 +64,39 @@ namespace STLAF.Api.Migrations
                     b.ToTable("announcements", (string)null);
                 });
 
+            modelBuilder.Entity("STLAF.Api.Common.Entities.ModuleAccessPosition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("module");
+
+                    b.Property<string>("OfficePosition")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("office_position");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Module", "OfficePosition")
+                        .IsUnique();
+
+                    b.ToTable("module_access_positions", (string)null);
+                });
+
             modelBuilder.Entity("STLAF.Api.Common.Entities.SmtpSender", b =>
                 {
                     b.Property<Guid>("Id")
@@ -365,6 +398,10 @@ namespace STLAF.Api.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("end_date");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_paid");
 
                     b.Property<Guid>("LeaveTypeId")
                         .HasColumnType("uuid")

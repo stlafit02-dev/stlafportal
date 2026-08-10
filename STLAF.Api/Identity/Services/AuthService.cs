@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using STLAF.Api.Data;
 using STLAF.Api.Identity.DTOs;
+using STLAF.Api.Departments.HRAdmin.Entities;
 
 namespace STLAF.Api.Identity.Services;
 
@@ -70,8 +71,8 @@ public class AuthService : IAuthService
         user.LockoutEnd = null;
         await _db.SaveChangesAsync();
 
-        var (token, expiresAt) = _tokenService.GenerateToken(user, user.Department.Name, user.Role.Name);
-
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == user.Id);
+        var (token, expiresAt) = _tokenService.GenerateToken(user, user.Department.Name, user.Role.Name, employee?.OfficePosition);
         return new LoginOutcome
         {
             Result = new LoginResponseDto
@@ -84,7 +85,8 @@ public class AuthService : IAuthService
                     Email = user.Email,
                     FullName = user.FullName,
                     Department = user.Department.Name,
-                    Role = user.Role.Name
+                    Role = user.Role.Name,
+                    OfficePosition = employee?.OfficePosition
                 }
             }
         };

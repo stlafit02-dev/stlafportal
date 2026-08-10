@@ -11,12 +11,12 @@ interface LoginModalProps {
 }
 
 const DEPARTMENT_ROUTES: Record<string, string> = {
-  IT: "/dashboard",
-  HRAdmin: "/dashboard/hr-admin",
-  Litigation: "/dashboard/litigation",
-  Accounting: "/dashboard/accounting",
-  Corporate: "/dashboard/corporate",
-  Marketing: "/dashboard/marketing",
+  IT: "/it",
+  HRAdmin: "/hr-admin",
+  Litigation: "/litigation",
+  Accounting: "/accounting",
+  Corporate: "/corporate",
+  Marketing: "/marketing",
 };
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {

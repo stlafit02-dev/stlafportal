@@ -15,11 +15,12 @@ const CONDITIONS = ["Brand New", "Refurbished", "Old"];
 const STATUSES = ["Available", "Assigned", "Under Repair"];
 const DEPARTMENTS = [
   "IT",
-  "HR Admin",
+  "HRAdmin",
   "Litigation",
   "Accounting",
   "Corporate",
   "Marketing",
+  "Partner",
 ];
 
 const STATUS_PILL: Record<string, string> = {
@@ -273,7 +274,6 @@ export function AssetDetailModal({
                 <p className="remarks-text">{asset.remarks}</p>
               </div>
             )}
-
           </div>
         ) : (
           <>

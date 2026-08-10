@@ -40,4 +40,6 @@ public class AppDbContext : DbContext
     }
     public DbSet<UndertimeRequest> UndertimeRequests => Set<UndertimeRequest>();
     public DbSet<MedicalCertificate> MedicalCertificates => Set<MedicalCertificate>();
+    public DbSet<ModuleAccessPosition> ModuleAccessPositions => Set<ModuleAccessPosition>();
+
 }

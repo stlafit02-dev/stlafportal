@@ -19,15 +19,14 @@ import { RequestLeaveModal } from "./RequestLeaveModal";
 import { RequestRetractionModal } from "./RequestRetractionModal";
 import { Spinner } from "../components/Loader/Loader";
 import { Toast } from "../components/Toast/Toast";
-import "../../departments/it/gmail/GmailManagementPage.css";
-import "./LeavePage.css";
+import "./MyLeavePage.css";
 
-const STATUS_META: Record<string, string> = {
-  Pending: "badge-pending",
-  Approved: "badge-active",
-  Rejected: "badge-rejected",
-  RetractionRequested: "badge-retraction-requested",
-  Retracted: "badge-retracted",
+const STATUS_PILL: Record<string, string> = {
+  Pending: "ml-pill-pending",
+  Approved: "ml-pill-approved",
+  Rejected: "ml-pill-rejected",
+  RetractionRequested: "ml-pill-retraction",
+  Retracted: "ml-pill-pending",
 };
 
 export function MyLeavePage() {
@@ -46,6 +45,12 @@ export function MyLeavePage() {
   const [isBlocked, setIsBlocked] = useState(false);
   const [medicalCerts, setMedicalCerts] = useState<MedicalCertificate[]>([]);
   const [uploadingCertId, setUploadingCertId] = useState<string | null>(null);
+
+  const [paidFilter, setPaidFilter] = useState<"all" | "paid" | "unpaid">(
+    "all",
+  );
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
 
   async function loadAll() {
     setIsLoading(true);
@@ -112,23 +117,33 @@ export function MyLeavePage() {
 
   if (isLoading || !profile) {
     return (
-      <div className="gmail-page-loading">
+      <div style={{ display: "flex", justifyContent: "center", padding: 60 }}>
         <Spinner size="lg" />
       </div>
     );
   }
 
+  const filteredRequests = myRequests.filter((r) => {
+    if (paidFilter === "paid" && !r.isPaid) return false;
+    if (paidFilter === "unpaid" && r.isPaid) return false;
+    if (filterStartDate && new Date(r.startDate) < new Date(filterStartDate))
+      return false;
+    if (filterEndDate && new Date(r.endDate) > new Date(filterEndDate))
+      return false;
+    return true;
+  });
+
   return (
-    <div className="gmail-page">
-      <div className="gmail-page-header">
+    <div>
+      <div className="ml-header">
         <div>
-          <h1 className="page-title">My Leave</h1>
-          <p className="page-subtitle">
+          <h1 className="ml-title">My Leave</h1>
+          <p className="ml-subtitle">
             {profile.fullName} · {profile.department} · {profile.companyId}
           </p>
         </div>
         <button
-          className="gmail-primary-btn"
+          className="ml-primary-btn"
           onClick={() => setIsRequestModalOpen(true)}
         >
           + Request Leave
@@ -136,11 +151,11 @@ export function MyLeavePage() {
       </div>
 
       {isBlocked && (
-        <div className="medical-block-banner">
-          <div className="medical-block-icon">
+        <div className="ml-banner">
+          <div className="ml-banner-icon">
             <svg
-              width="20"
-              height="20"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -149,19 +164,25 @@ export function MyLeavePage() {
               <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
             </svg>
           </div>
-          <div>
-            <p className="medical-block-title">Leave submission is on hold</p>
-            <p className="medical-block-text">
-              You have a fit-to-work medical certificate that needs to be
-              uploaded (PDF only, max 3.5 MB) and verified by HR before you can
-              submit new leave requests.
+          <div style={{ flex: 1 }}>
+            <p className="ml-banner-title">Pending Medical Certificate</p>
+            <p className="ml-banner-text">
+              You have a fit-to-work medical certificate that still needs to be
+              uploaded (PDF only, max 3.5 MB) and verified by HR. Until then,
+              any new leave you submit will automatically be recorded as unpaid.
             </p>
             {medicalCerts
               .filter((c) => c.status !== "Verified")
               .map((c) => (
-                <div key={c.id} className="medical-cert-row">
+                <div key={c.id} className="ml-cert-row">
                   <span
-                    className={`status-badge ${c.status === "PendingUpload" ? "badge-pending" : c.status === "Rejected" ? "badge-rejected" : "badge-progress"}`}
+                    className={`ml-pill ${
+                      c.status === "PendingUpload"
+                        ? "ml-pill-pending"
+                        : c.status === "Rejected"
+                          ? "ml-pill-rejected"
+                          : "ml-pill-unpaid"
+                    }`}
                   >
                     {c.status === "PendingUpload"
                       ? "Awaiting Upload"
@@ -171,7 +192,7 @@ export function MyLeavePage() {
                   </span>
                   {(c.status === "PendingUpload" ||
                     c.status === "Rejected") && (
-                    <label className="medical-upload-btn">
+                    <label className="ml-upload-btn">
                       {uploadingCertId === c.id ? (
                         <Spinner size="sm" />
                       ) : (
@@ -214,81 +235,117 @@ export function MyLeavePage() {
         </div>
       )}
 
-      <div className="leave-balance-cards">
+      <div className="ml-balances">
         {balances.map((b) => (
-          <div key={b.leaveTypeId} className="leave-balance-card">
-            <span className="leave-balance-name">{b.leaveTypeName}</span>
-            <span className="leave-balance-remaining">
-              {b.remainingCredits}
-            </span>
-            <span className="leave-balance-sub">
+          <div key={b.leaveTypeId} className="ml-balance-item">
+            <span className="ml-balance-name">{b.leaveTypeName}</span>
+            <span className="ml-balance-value">{b.remainingCredits}</span>
+            <span className="ml-balance-sub">
               of {b.defaultCredits} remaining
             </span>
           </div>
         ))}
       </div>
 
-      <section className="gmail-section">
-        <h2 className="gmail-section-title">My Requests</h2>
-        {myRequests.length === 0 ? (
-          <div className="gmail-empty">No leave requests yet.</div>
-        ) : (
-          <div className="gmail-table-wrap email-table-wrap">
-            <table className="gmail-table">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Dates</th>
-                  <th>Days</th>
-                  <th>Status</th>
-                  <th>Decided By</th>
-                  <th>Submitted</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {myRequests.map((r) => (
-                  <tr key={r.id}>
-                    <td>{r.leaveTypeName}</td>
-                    <td>
-                      {new Date(r.startDate).toLocaleDateString()} –{" "}
-                      {new Date(r.endDate).toLocaleDateString()}
-                    </td>
-                    <td>{r.days}</td>
-                    <td>
-                      <span
-                        className={`status-badge ${STATUS_META[r.status] ?? ""}`}
+      <h2 className="ml-section-title">My Requests</h2>
+
+      <div className="ml-filters">
+        <div className="ml-filter-field">
+          <span className="ml-filter-label">Type</span>
+          <select
+            value={paidFilter}
+            onChange={(e) =>
+              setPaidFilter(e.target.value as "all" | "paid" | "unpaid")
+            }
+            className="ml-filter-input"
+          >
+            <option value="all">All</option>
+            <option value="paid">Paid Leave</option>
+            <option value="unpaid">Unpaid Leave</option>
+          </select>
+        </div>
+        <div className="ml-filter-field">
+          <span className="ml-filter-label">From</span>
+          <input
+            type="date"
+            value={filterStartDate}
+            onChange={(e) => setFilterStartDate(e.target.value)}
+            className="ml-filter-input"
+          />
+        </div>
+        <div className="ml-filter-field">
+          <span className="ml-filter-label">To</span>
+          <input
+            type="date"
+            value={filterEndDate}
+            onChange={(e) => setFilterEndDate(e.target.value)}
+            className="ml-filter-input"
+          />
+        </div>
+      </div>
+
+      {filteredRequests.length === 0 ? (
+        <div className="ml-table-wrap">
+          <div className="ml-empty">No leave requests match this filter.</div>
+        </div>
+      ) : (
+        <div className="ml-table-wrap">
+          <table className="ml-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Dates</th>
+                <th>Days</th>
+                <th>Paid?</th>
+                <th>Status</th>
+                <th>Decided By</th>
+                <th>Submitted</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRequests.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.leaveTypeName}</td>
+                  <td>
+                    {new Date(r.startDate).toLocaleDateString()} –{" "}
+                    {new Date(r.endDate).toLocaleDateString()}
+                  </td>
+                  <td>{r.days}</td>
+                  <td>
+                    <span
+                      className={`ml-pill ${r.isPaid ? "ml-pill-paid" : "ml-pill-unpaid"}`}
+                    >
+                      {r.isPaid ? "Paid" : "Unpaid"}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className={`ml-pill ${STATUS_PILL[r.status] ?? "ml-pill-pending"}`}
+                    >
+                      {r.status === "RetractionRequested"
+                        ? "Retraction Pending"
+                        : r.status}
+                    </span>
+                  </td>
+                  <td>{r.decidedByName || "—"}</td>
+                  <td>{new Date(r.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    {r.status === "Approved" && (
+                      <button
+                        className="ml-retract-btn"
+                        onClick={() => setRetractTarget(r)}
                       >
-                        {r.status === "RetractionRequested"
-                          ? "Retraction Pending"
-                          : r.status}
-                      </span>
-                    </td>
-                    <td>
-                      {r.decidedByName || (
-                        <span className="unassigned-text">—</span>
-                      )}
-                    </td>
-                    <td className="email-date-cell">
-                      {new Date(r.createdAt).toLocaleDateString()}
-                    </td>
-                    <td>
-                      {r.status === "Approved" && (
-                        <button
-                          className="ls-test-btn"
-                          onClick={() => setRetractTarget(r)}
-                        >
-                          Retract
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+                        Retract
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <RequestLeaveModal
         isOpen={isRequestModalOpen}

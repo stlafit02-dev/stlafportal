@@ -28,6 +28,9 @@ public class LeaveService : ILeaveService
 
     private string FrontendUrl(string path) => $"{_config["Frontend:BaseUrl"]?.TrimEnd('/')}{path}";
 
+    private static string DepartmentSlug(string department) =>
+        department == "HRAdmin" ? "hr-admin" : department.ToLowerInvariant();
+
     // ---------- Leave Types ----------
 
     public async Task<List<LeaveTypeDto>> GetLeaveTypesAsync()
@@ -322,11 +325,13 @@ public class LeaveService : ILeaveService
 
         var hasBlocker = await _db.MedicalCertificates
             .AnyAsync(m => m.EmployeeId == employee.Id && m.Status != "Verified");
-        if (hasBlocker)
-            throw new InvalidOperationException("You have a pending medical certificate that must be uploaded and verified before submitting new leave requests.");
 
-        var days = (dto.EndDate.Date - dto.StartDate.Date).Days + 1;
+        var days = CalculateBusinessDays(dto.StartDate, dto.EndDate);
         if (days < 1) throw new InvalidOperationException("Invalid date range.");
+
+        // A pending/unverified medical certificate no longer blocks submission —
+        // it just forces this leave to be unpaid, regardless of the employee's checkbox choice.
+        var isPaid = hasBlocker ? false : dto.IsPaid;
 
         var request = new LeaveRequest
         {
@@ -336,7 +341,8 @@ public class LeaveService : ILeaveService
             EndDate = DateTime.SpecifyKind(dto.EndDate, DateTimeKind.Utc),
             Days = days,
             Reason = dto.Reason,
-            Status = "Pending"
+            Status = "Pending",
+            IsPaid = isPaid
         };
 
         _db.LeaveRequests.Add(request);
@@ -609,13 +615,14 @@ public class LeaveService : ILeaveService
             return;
         }
 
+        var slug = DepartmentSlug(request.Employee.Department);
         var subject = $"New Leave Request - {request.Employee.FirstName} {request.Employee.LastName}";
         var bodyHtml = EmailTemplateBuilder.InfoRow("Employee", $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department})")
             + EmailTemplateBuilder.InfoRow("Leave Type", request.LeaveType.Name)
             + EmailTemplateBuilder.InfoRow("Dates", $"{request.StartDate:MMM d, yyyy} to {request.EndDate:MMM d, yyyy} ({request.Days} day(s))")
             + EmailTemplateBuilder.InfoRow("Reason", request.Reason);
 
-        var html = EmailTemplateBuilder.Build("New Leave Request", bodyHtml, "Review Request", FrontendUrl("/dashboard/leave/approvals"));
+        var html = EmailTemplateBuilder.Build("New Leave Request", bodyHtml, "Review Request", FrontendUrl($"/{slug}/leave/approvals"));
 
         _logger.LogInformation("Sending leave notification from {From} to {To}.", setting.SmtpSender.Email, approverEmail);
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, approverEmail, subject, html);
@@ -637,13 +644,14 @@ public class LeaveService : ILeaveService
             return;
         }
 
+        var slug = DepartmentSlug(request.Employee.Department);
         var subject = $"Leave Request {request.Status} - {request.LeaveType.Name}";
         var bodyHtml = EmailTemplateBuilder.InfoRow("Leave Type", request.LeaveType.Name)
             + EmailTemplateBuilder.InfoRow("Dates", $"{request.StartDate:MMM d, yyyy} to {request.EndDate:MMM d, yyyy}")
             + EmailTemplateBuilder.InfoRow("Status", request.Status)
             + (string.IsNullOrWhiteSpace(request.DecisionNotes) ? "" : EmailTemplateBuilder.InfoRow("Notes", request.DecisionNotes));
 
-        var html = EmailTemplateBuilder.Build($"Leave Request {request.Status}", bodyHtml, "View My Leave", FrontendUrl("/dashboard/leave/my-leave"));
+        var html = EmailTemplateBuilder.Build($"Leave Request {request.Status}", bodyHtml, "View My Leave", FrontendUrl($"/{slug}/leave/my-leave"));
 
         _logger.LogInformation("Sending decision notification from {From} to {To}.", setting.SmtpSender.Email, employeeEmail);
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, employeeEmail, subject, html);
@@ -663,12 +671,13 @@ public class LeaveService : ILeaveService
         var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
         if (setting is null) return;
 
+        var slug = DepartmentSlug(request.Employee.Department);
         var subject = $"Leave Retraction Request - {request.Employee.FirstName} {request.Employee.LastName}";
         var bodyHtml = EmailTemplateBuilder.InfoRow("Employee", $"{request.Employee.FirstName} {request.Employee.LastName} ({request.Employee.Department})")
             + EmailTemplateBuilder.InfoRow("Original Leave", $"{request.LeaveType.Name}, {request.StartDate:MMM d, yyyy} to {request.EndDate:MMM d, yyyy} ({request.Days} day(s))")
             + EmailTemplateBuilder.InfoRow("Retraction Reason", request.RetractionReason ?? "");
 
-        var html = EmailTemplateBuilder.Build("Leave Retraction Request", bodyHtml, "Review Retraction", FrontendUrl("/dashboard/leave/approvals"));
+        var html = EmailTemplateBuilder.Build("Leave Retraction Request", bodyHtml, "Review Retraction", FrontendUrl($"/{slug}/leave/approvals"));
 
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, approverEmail, subject, html);
     }
@@ -681,6 +690,7 @@ public class LeaveService : ILeaveService
         var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
         if (setting is null) return;
 
+        var slug = DepartmentSlug(request.Employee.Department);
         var outcome = request.Status == "Retracted" ? "approved — your leave credit has been returned" : "declined — the original approved leave stands";
         var subject = $"Leave Retraction {(request.Status == "Retracted" ? "Approved" : "Declined")} - {request.LeaveType.Name}";
         var bodyHtml = EmailTemplateBuilder.InfoRow("Leave Type", request.LeaveType.Name)
@@ -688,7 +698,7 @@ public class LeaveService : ILeaveService
             + $@"<p style=""margin:12px 0 4px;"">Your retraction request was {outcome}.</p>"
             + (string.IsNullOrWhiteSpace(request.RetractionDecisionNotes) ? "" : EmailTemplateBuilder.InfoRow("Notes", request.RetractionDecisionNotes));
 
-        var html = EmailTemplateBuilder.Build($"Leave Retraction {(request.Status == "Retracted" ? "Approved" : "Declined")}", bodyHtml, "View My Leave", FrontendUrl("/dashboard/leave/my-leave"));
+        var html = EmailTemplateBuilder.Build($"Leave Retraction {(request.Status == "Retracted" ? "Approved" : "Declined")}", bodyHtml, "View My Leave", FrontendUrl($"/{slug}/leave/my-leave"));
 
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, employeeEmail, subject, html);
     }
@@ -698,16 +708,16 @@ public class LeaveService : ILeaveService
         var setting = await _db.LeaveNotificationSettings.Include(s => s.SmtpSender).FirstOrDefaultAsync();
         if (setting is null) return;
 
-        var hrEmails = await _db.Users
-            .Where(u => u.Department.Name == "HRAdmin" && u.IsActive && u.Email != null && u.Email != "")
-            .Select(u => u.Email)
+        var hrEmails = await _db.Employees
+            .Where(e => e.Department == "HRAdmin" && e.Status == "Active" && e.CompanyEmail != null && e.CompanyEmail != "")
+            .Select(e => e.CompanyEmail!)
             .ToListAsync();
 
         var subject = $"Medical Certificate Uploaded - {cert.Employee.FirstName} {cert.Employee.LastName}";
         var bodyHtml = EmailTemplateBuilder.InfoRow("Employee", $"{cert.Employee.FirstName} {cert.Employee.LastName} ({cert.Employee.Department})")
             + $@"<p style=""margin:12px 0 4px;"">A fit-to-work medical certificate has been uploaded and needs verification.</p>";
 
-        var html = EmailTemplateBuilder.Build("Medical Certificate Uploaded", bodyHtml, "Review Certificate", FrontendUrl("/dashboard/hr-admin/medical-certificates"));
+        var html = EmailTemplateBuilder.Build("Medical Certificate Uploaded", bodyHtml, "Review Certificate", FrontendUrl("/hr-admin/medical-certificates"));
 
         foreach (var email in hrEmails)
         {
@@ -744,6 +754,7 @@ public class LeaveService : ILeaveService
         Days = r.Days,
         Reason = r.Reason,
         Status = r.Status,
+        IsPaid = r.IsPaid,
         DecidedByName = r.DecidedByEmployee is null ? null : $"{r.DecidedByEmployee.FirstName} {r.DecidedByEmployee.LastName}",
         DecisionNotes = r.DecisionNotes,
         DecidedAt = r.DecidedAt,
@@ -768,4 +779,16 @@ public class LeaveService : ILeaveService
         VerificationNotes = m.VerificationNotes,
         VerifiedAt = m.VerifiedAt
     };
+    private static int CalculateBusinessDays(DateTime start, DateTime end)
+    {
+        var days = 0;
+        for (var date = start.Date; date <= end.Date; date = date.AddDays(1))
+        {
+            if (date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday)
+            {
+                days++;
+            }
+        }
+        return days;
+    }
 }
