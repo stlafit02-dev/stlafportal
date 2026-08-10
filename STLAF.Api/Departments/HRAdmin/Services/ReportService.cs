@@ -64,7 +64,7 @@ public class ReportService : IReportService
 
         // ---------- Leave sheet ----------
         var leaveSheet = workbook.Worksheets.Add("Leave Requests");
-        string[] leaveHeaders = { "Company ID", "Employee", "Department", "Leave Type", "Start Date", "End Date", "Days", "Reason", "Status", "Decided By", "Decision Notes", "Decided At", "Submitted" };
+        string[] leaveHeaders = { "Company ID", "Employee", "Department", "Leave Type", "Start Date", "End Date", "Days", "Paid?", "Reason", "Status", "Decided By", "Decision Notes", "Decided At", "Submitted" };
         for (var i = 0; i < leaveHeaders.Length; i++)
         {
             leaveSheet.Cell(1, i + 1).Value = leaveHeaders[i];
@@ -83,12 +83,13 @@ public class ReportService : IReportService
             leaveSheet.Cell(leaveRow, 5).Value = r.StartDate.ToString("yyyy-MM-dd");
             leaveSheet.Cell(leaveRow, 6).Value = r.EndDate.ToString("yyyy-MM-dd");
             leaveSheet.Cell(leaveRow, 7).Value = r.Days;
-            leaveSheet.Cell(leaveRow, 8).Value = r.Reason;
-            leaveSheet.Cell(leaveRow, 9).Value = r.Status;
-            leaveSheet.Cell(leaveRow, 10).Value = r.DecidedByEmployee is null ? "" : $"{r.DecidedByEmployee.FirstName} {r.DecidedByEmployee.LastName}";
-            leaveSheet.Cell(leaveRow, 11).Value = r.DecisionNotes ?? "";
-            leaveSheet.Cell(leaveRow, 12).Value = r.DecidedAt?.ToString("yyyy-MM-dd HH:mm") ?? "";
-            leaveSheet.Cell(leaveRow, 13).Value = r.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+            leaveSheet.Cell(leaveRow, 8).Value = r.IsPaid ? "Paid" : "Unpaid";
+            leaveSheet.Cell(leaveRow, 9).Value = r.Reason;
+            leaveSheet.Cell(leaveRow, 10).Value = r.Status;
+            leaveSheet.Cell(leaveRow, 11).Value = r.DecidedByEmployee is null ? "" : $"{r.DecidedByEmployee.FirstName} {r.DecidedByEmployee.LastName}";
+            leaveSheet.Cell(leaveRow, 12).Value = r.DecisionNotes ?? "";
+            leaveSheet.Cell(leaveRow, 13).Value = r.DecidedAt?.ToString("yyyy-MM-dd HH:mm") ?? "";
+            leaveSheet.Cell(leaveRow, 14).Value = r.CreatedAt.ToString("yyyy-MM-dd HH:mm");
             leaveRow++;
         }
         leaveSheet.Columns().AdjustToContents();

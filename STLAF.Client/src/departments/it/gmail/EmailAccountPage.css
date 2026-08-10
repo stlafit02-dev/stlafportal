@@ -1,3 +1,7 @@
+.email-page {
+  max-width: 100%;
+}
+
 .email-toolbar-header {
   display: flex;
   justify-content: space-between;
@@ -9,15 +13,38 @@
 
 .email-toolbar {
   display: flex;
+  align-items: center;
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 20px;
 }
 
 .email-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 14px;
   flex: 1;
   min-width: 240px;
   max-width: 360px;
+  color: var(--text-muted);
+}
+
+.email-search-input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 13.5px;
+  font-family: "Inter", sans-serif;
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.email-search-input::placeholder {
+  color: var(--text-muted);
 }
 
 .email-gws-filter {
@@ -36,8 +63,62 @@
   background-position: right 14px center;
 }
 
+.email-table-panel {
+  margin-top: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.email-loading,
+.email-empty {
+  height: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
 .email-table-wrap {
-  padding: 0 24px;
+  height: 720px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.email-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.email-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0 12px 12px;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.email-table tbody td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-body);
+  vertical-align: middle;
+}
+
+.email-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .email-row {
@@ -53,11 +134,24 @@
   white-space: nowrap;
   color: var(--text-muted);
   font-size: 12.5px;
+  min-width: 150px;
+}
+
+@media (max-width: 900px) {
+  .email-table-panel {
+    padding: 16px;
+  }
 }
 
 @media (max-width: 700px) {
   .email-toolbar-header {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .email-row {
+    transition: none;
   }
 }
