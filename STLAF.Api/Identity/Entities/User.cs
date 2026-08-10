@@ -4,7 +4,8 @@ namespace STLAF.Api.Identity.Entities;
 
 public class User : BaseEntity
 {
-    public string Email { get; set; } = string.Empty;
+    public string? Username { get; set; }
+    public string? Email { get; set; }
     public string PasswordHash { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
 
@@ -15,4 +16,7 @@ public class User : BaseEntity
     public Role Role { get; set; } = null!;
 
     public bool IsActive { get; set; } = true;
+
+    public int FailedLoginAttempts { get; set; } = 0;
+    public DateTime? LockoutEnd { get; set; }
 }

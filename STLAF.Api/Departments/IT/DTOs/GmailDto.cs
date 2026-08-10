@@ -88,3 +88,11 @@ public class CreateAppPasswordDto
     public int Year { get; set; }
     public string? Notes { get; set; }
 }
+
+public class RegisteredEmployeeOptionDto
+{
+    public Guid Id { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string CompanyId { get; set; } = string.Empty;
+    public string Department { get; set; } = string.Empty;
+}

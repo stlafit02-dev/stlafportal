@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using STLAF.Api.Data;
 using STLAF.Api.Identity.DTOs;
+using STLAF.Api.Departments.HRAdmin.Entities;
 
 namespace STLAF.Api.Identity.Services;
 
@@ -8,6 +9,8 @@ public class AuthService : IAuthService
 {
     private readonly AppDbContext _db;
     private readonly ITokenService _tokenService;
+    private const int MaxFailedAttempts = 5;
+    private const int LockoutMinutes = 15;
 
     public AuthService(AppDbContext db, ITokenService tokenService)
     {
@@ -15,32 +18,105 @@ public class AuthService : IAuthService
         _tokenService = tokenService;
     }
 
-    public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto request)
+    public async Task<LoginOutcome> LoginAsync(LoginRequestDto request)
     {
         var user = await _db.Users
             .Include(u => u.Department)
             .Include(u => u.Role)
-            .FirstOrDefaultAsync(u => u.Email == request.Email && u.IsActive);
+            .FirstOrDefaultAsync(u => (u.Email == request.Email || u.Username == request.Email) && u.IsActive);
 
-        if (user is null) return null;
+        if (user is null)
+        {
+            return new LoginOutcome { ErrorMessage = "Invalid email or password." };
+        }
+
+        if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.UtcNow)
+        {
+            var minutesLeft = (int)Math.Ceiling((user.LockoutEnd.Value - DateTime.UtcNow).TotalMinutes);
+            return new LoginOutcome
+            {
+                ErrorMessage = $"Account locked due to too many failed attempts. Try again in {minutesLeft} minute(s)."
+            };
+        }
 
         var validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
-        if (!validPassword) return null;
 
-        var (token, expiresAt) = _tokenService.GenerateToken(user, user.Department.Name, user.Role.Name);
-
-        return new LoginResponseDto
+        if (!validPassword)
         {
-            Token = token,
-            ExpiresAt = expiresAt,
-            User = new UserInfoDto
+            user.FailedLoginAttempts += 1;
+
+            if (user.FailedLoginAttempts >= MaxFailedAttempts)
             {
-                Id = user.Id,
-                Email = user.Email,
-                FullName = user.FullName,
-                Department = user.Department.Name,
-                Role = user.Role.Name
+                user.LockoutEnd = DateTime.UtcNow.AddMinutes(LockoutMinutes);
+                user.FailedLoginAttempts = 0;
+                await _db.SaveChangesAsync();
+
+                return new LoginOutcome
+                {
+                    ErrorMessage = $"Account locked due to too many failed attempts. Try again in {LockoutMinutes} minutes."
+                };
+            }
+
+            await _db.SaveChangesAsync();
+
+            var remaining = MaxFailedAttempts - user.FailedLoginAttempts;
+            return new LoginOutcome
+            {
+                ErrorMessage = $"Invalid email or password. {remaining} attempt(s) remaining before lockout."
+            };
+        }
+
+        // Successful login — reset counters
+        user.FailedLoginAttempts = 0;
+        user.LockoutEnd = null;
+        await _db.SaveChangesAsync();
+
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == user.Id);
+        var (token, expiresAt) = _tokenService.GenerateToken(user, user.Department.Name, user.Role.Name, employee?.OfficePosition);
+        return new LoginOutcome
+        {
+            Result = new LoginResponseDto
+            {
+                Token = token,
+                ExpiresAt = expiresAt,
+                User = new UserInfoDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    Department = user.Department.Name,
+                    Role = user.Role.Name,
+                    OfficePosition = employee?.OfficePosition
+                }
             }
         };
+    }
+    public async Task<(bool Success, string? ErrorMessage)> ChangePasswordAsync(Guid userId, ChangePasswordDto dto)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user is null)
+        {
+            return (false, "Account not found.");
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+        {
+            return (false, "Current password is incorrect.");
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.NewPassword) || dto.NewPassword.Length < 6)
+        {
+            return (false, "New password must be at least 6 characters.");
+        }
+
+        if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, user.PasswordHash))
+        {
+            return (false, "New password must be different from your current password.");
+        }
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        await _db.SaveChangesAsync();
+
+        return (true, null);
     }
 }

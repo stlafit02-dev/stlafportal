@@ -10,7 +10,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.ToTable("users");
         builder.Property(x => x.Id).HasColumnName("id");
-        builder.Property(x => x.Email).HasColumnName("email").IsRequired();
+        builder.Property(x => x.Username).HasColumnName("username");
+        builder.HasIndex(x => x.Username).IsUnique();
+        builder.Property(x => x.Email).HasColumnName("email");
         builder.Property(x => x.PasswordHash).HasColumnName("password_hash").IsRequired();
         builder.Property(x => x.FullName).HasColumnName("full_name").IsRequired();
         builder.Property(x => x.DepartmentId).HasColumnName("department_id");
@@ -28,5 +30,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasOne(x => x.Role)
             .WithMany()
             .HasForeignKey(x => x.RoleId);
+        builder.Property(x => x.FailedLoginAttempts).HasColumnName("failed_login_attempts");
+        builder.Property(x => x.LockoutEnd).HasColumnName("lockout_end");
     }
 }

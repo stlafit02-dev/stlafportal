@@ -1,13 +1,28 @@
+import { Outlet } from "react-router-dom";
 import { DashboardLayout } from "../../common/components/DashboardLayout/DashboardLayout";
+import { buildNavItems } from "../../common/navConfig";
+import { useAuth } from "../../auth/useAuth";
+import { useModuleAccessPositions } from "../../common/access/useModuleAccess";
+import { useApprovalStatus } from "../../common/leave/useApprovalStatus";
 
 export function HrDashboard() {
+  const { user } = useAuth();
+  const { positions } = useModuleAccessPositions();
+  const { showApprovals, showFinalApprovals } = useApprovalStatus();
+
   return (
     <DashboardLayout
       departmentLabel="HR Admin Department"
-      navItems={[{ label: "Employees", to: "/dashboard/hr-admin" }]}
+      navItems={buildNavItems(
+        "HRAdmin",
+        user?.role,
+        user?.officePosition ?? undefined,
+        positions,
+        showApprovals,
+        showFinalApprovals,
+      )}
     >
-      <h1 className="page-title">Employees</h1>
-      <p className="page-subtitle">Module coming soon.</p>
+      <Outlet />
     </DashboardLayout>
   );
 }

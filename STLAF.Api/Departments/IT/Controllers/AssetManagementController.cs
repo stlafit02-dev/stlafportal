@@ -7,6 +7,7 @@ namespace STLAF.Api.Departments.IT.Controllers;
 
 [ApiController]
 [Route("api/it/assets")]
+[Authorize(Policy = "it-assets")]
 public class AssetManagementController : ControllerBase
 {
     private readonly IAssetService _service;
@@ -17,7 +18,7 @@ public class AssetManagementController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-assets")]
     public async Task<IActionResult> GetAll()
     {
         var assets = await _service.GetAllAsync();
@@ -25,7 +26,7 @@ public class AssetManagementController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-assets")]
     public async Task<IActionResult> Create(CreateAssetDto dto)
     {
         var createdByName = User.FindFirst("name")?.Value ?? "Unknown";
@@ -34,7 +35,7 @@ public class AssetManagementController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-assets")]
     public async Task<IActionResult> Update(Guid id, UpdateAssetDto dto)
     {
         var result = await _service.UpdateAsync(id, dto);
@@ -52,7 +53,7 @@ public class AssetManagementController : ControllerBase
         return Ok(result);
     }
     [HttpDelete("{id}")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-assets")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var deleted = await _service.DeleteAsync(id);
@@ -60,7 +61,7 @@ public class AssetManagementController : ControllerBase
         return NoContent();
     }
     [HttpGet("{assetId}/history")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-assets")]
     public async Task<IActionResult> GetHistory(Guid assetId)
     {
         var history = await _service.GetHistoryAsync(assetId);
@@ -68,7 +69,7 @@ public class AssetManagementController : ControllerBase
     }
 
     [HttpPost("history")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-assets")]
     public async Task<IActionResult> CreateHistory(CreateAssetHistoryDto dto)
     {
         var result = await _service.CreateHistoryAsync(dto);

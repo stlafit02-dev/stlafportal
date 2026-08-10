@@ -117,11 +117,13 @@
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .asset-loading,
 .asset-empty {
-  min-height: 720px;
+  height: 720px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,8 +132,7 @@
 }
 
 .asset-table-wrap {
-  min-height: 720px;
-  max-height: 720px;
+  height: 720px;
   overflow-y: auto;
   overflow-x: auto;
 }

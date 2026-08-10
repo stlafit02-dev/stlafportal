@@ -93,3 +93,34 @@ export async function assignTicket(
 export async function deleteTicket(id: string): Promise<void> {
   await apiClient.delete(`/it/tickets/${id}`);
 }
+export interface EmployeeTicketProfile {
+  fullName: string;
+  companyEmail: string;
+  viberNumber?: string | null;
+  department: string;
+}
+
+export interface CreatePortalTicketPayload {
+  category: string;
+  priority: string;
+  description: string;
+}
+
+export async function fetchMyTicketProfile(): Promise<EmployeeTicketProfile> {
+  const res = await apiClient.get<EmployeeTicketProfile>(
+    "/it/tickets/my-profile",
+  );
+  return res.data;
+}
+
+export async function fetchMyTickets(): Promise<Ticket[]> {
+  const res = await apiClient.get<Ticket[]>("/it/tickets/my");
+  return res.data;
+}
+
+export async function createMyTicket(
+  payload: CreatePortalTicketPayload,
+): Promise<Ticket> {
+  const res = await apiClient.post<Ticket>("/it/tickets/my", payload);
+  return res.data;
+}

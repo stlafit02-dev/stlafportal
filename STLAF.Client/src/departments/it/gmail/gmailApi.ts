@@ -152,3 +152,19 @@ export async function createAppPassword(
   );
   return res.data;
 }
+
+export interface RegisteredEmployeeOption {
+  id: string;
+  fullName: string;
+  companyId: string;
+  department: string;
+}
+
+export async function fetchRegisteredEmployees(): Promise<
+  RegisteredEmployeeOption[]
+> {
+  const res = await apiClient.get<RegisteredEmployeeOption[]>(
+    "/it/gmail/registered-employees",
+  );
+  return res.data;
+}

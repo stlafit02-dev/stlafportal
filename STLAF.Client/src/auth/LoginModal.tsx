@@ -11,12 +11,12 @@ interface LoginModalProps {
 }
 
 const DEPARTMENT_ROUTES: Record<string, string> = {
-  IT: "/dashboard",
-  HRAdmin: "/dashboard/hr-admin",
-  Litigation: "/dashboard/litigation",
-  Accounting: "/dashboard/accounting",
-  Corporate: "/dashboard/corporate",
-  Marketing: "/dashboard/marketing",
+  IT: "/it",
+  HRAdmin: "/hr-admin",
+  Litigation: "/litigation",
+  Accounting: "/accounting",
+  Corporate: "/corporate",
+  Marketing: "/marketing",
 };
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
@@ -38,8 +38,11 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       const route = DEPARTMENT_ROUTES[storedUser.department] || "/";
       onClose();
       navigate(route);
-    } catch {
-      setError("Invalid email or password.");
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Invalid email or password.";
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -52,14 +55,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
       <form onSubmit={handleSubmit} className="login-form">
         <div className="field-group">
-          <label className="field-label">Email</label>
+          <label className="field-label">Company ID or Email</label>
           <input
-            type="email"
+            type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             className="field-input"
-            placeholder="you@stlaf.global"
+            placeholder="e.g. 26-10001 or you@stlaf.global"
           />
         </div>
 

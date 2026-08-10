@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using STLAF.Api.Identity.DTOs;
 using STLAF.Api.Identity.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace STLAF.Api.Identity.Controllers;
 
@@ -18,10 +19,21 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequestDto request)
     {
-        var result = await _authService.LoginAsync(request);
-        if (result is null)
-            return Unauthorized(new { message = "Invalid email or password." });
+        var outcome = await _authService.LoginAsync(request);
 
-        return Ok(result);
+        if (outcome.Result is null)
+            return Unauthorized(new { message = outcome.ErrorMessage ?? "Invalid email or password." });
+
+        return Ok(outcome.Result);
+    }
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+    {
+        var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
+        var (success, error) = await _authService.ChangePasswordAsync(userId, dto);
+
+        if (!success) return BadRequest(new { message = error });
+        return Ok(new { message = "Password updated successfully." });
     }
 }

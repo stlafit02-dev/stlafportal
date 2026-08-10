@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using STLAF.Api.Data;
+using STLAF.Api.Departments.HRAdmin.Entities;
 using STLAF.Api.Departments.IT.DTOs;
 using STLAF.Api.Departments.IT.Entities;
 
@@ -49,9 +50,7 @@ public class TicketingService : ITicketingService
 
     public async Task<TicketDto> CreateAsync(CreateTicketDto dto)
     {
-        var year = DateTime.UtcNow.Year;
-        var countThisYear = await _db.Tickets.CountAsync(t => t.DateSubmitted.Year == year);
-        var ticketNumber = $"TKT-{year}-{(countThisYear + 1):D2}";
+        var ticketNumber = await GenerateTicketNumberAsync();
 
         var ticket = new Ticket
         {
@@ -109,6 +108,84 @@ public class TicketingService : ITicketingService
             .ToListAsync();
     }
 
+    public async Task<bool> DeleteAsync(Guid ticketId)
+    {
+        var ticket = await _db.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
+        if (ticket is null) return false;
+
+        _db.Tickets.Remove(ticket);
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    // ---------- Portal (employee self-service) ----------
+
+    public async Task<EmployeeTicketProfileDto?> GetMyProfileAsync(Guid userId)
+    {
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (employee is null) return null;
+
+        return new EmployeeTicketProfileDto
+        {
+            FullName = $"{employee.FirstName} {employee.LastName}",
+            CompanyEmail = employee.CompanyEmail ?? employee.PersonalEmail ?? "",
+            ViberNumber = employee.MobileNumber,
+            Department = employee.Department
+        };
+    }
+
+    public async Task<List<TicketDto>> GetMyTicketsAsync(Guid userId)
+    {
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (employee is null) return new List<TicketDto>();
+
+        var tickets = await _db.Tickets
+            .Where(t => t.SubmittedByEmployeeId == employee.Id)
+            .OrderByDescending(t => t.DateSubmitted)
+            .ToListAsync();
+
+        return await ToDtoListAsync(tickets);
+    }
+
+    public async Task<TicketDto> CreateFromPortalAsync(Guid userId, CreatePortalTicketDto dto)
+    {
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId)
+            ?? throw new InvalidOperationException("No employee record linked to this account.");
+
+        var ticketNumber = await GenerateTicketNumberAsync();
+
+        var ticket = new Ticket
+        {
+            TicketNumber = ticketNumber,
+            Name = $"{employee.FirstName} {employee.LastName}",
+            CompanyEmail = employee.CompanyEmail ?? employee.PersonalEmail ?? "",
+            ViberNumber = employee.MobileNumber,
+            Description = dto.Description,
+            Category = dto.Category,
+            Priority = dto.Priority,
+            Status = "Open",
+            Department = employee.Department,
+            DateSubmitted = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow,
+            SubmittedByEmployeeId = employee.Id
+        };
+
+        _db.Tickets.Add(ticket);
+        await _db.SaveChangesAsync();
+
+        var list = await ToDtoListAsync(new List<Ticket> { ticket });
+        return list[0];
+    }
+
+    // ---------- Helpers ----------
+
+    private async Task<string> GenerateTicketNumberAsync()
+    {
+        var year = DateTime.UtcNow.Year;
+        var countThisYear = await _db.Tickets.CountAsync(t => t.DateSubmitted.Year == year);
+        return $"TKT-{year}-{(countThisYear + 1):D2}";
+    }
+
     private async Task<List<TicketDto>> ToDtoListAsync(List<Ticket> tickets)
     {
         var assigneeIds = tickets
@@ -140,14 +217,5 @@ public class TicketingService : ITicketingService
             DateSubmitted = t.DateSubmitted,
             UpdatedDate = t.UpdatedDate
         }).ToList();
-    }
-    public async Task<bool> DeleteAsync(Guid ticketId)
-    {
-        var ticket = await _db.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
-        if (ticket is null) return false;
-
-        _db.Tickets.Remove(ticket);
-        await _db.SaveChangesAsync();
-        return true;
     }
 }

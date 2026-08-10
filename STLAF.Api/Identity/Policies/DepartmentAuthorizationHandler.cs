@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using STLAF.Api.Data;
 
 namespace STLAF.Api.Identity.Policies;
 
@@ -16,7 +18,6 @@ public class DepartmentAuthorizationHandler : AuthorizationHandler<DepartmentReq
         var userDepartment = context.User.FindFirst("department")?.Value;
         var userRole = context.User.FindFirst("role")?.Value;
 
-        // SuperAdmin can access any department; everyone else must match
         if (userRole == "SuperAdmin" ||
             (userDepartment != null &&
              userDepartment.Equals(requirement.Department, StringComparison.OrdinalIgnoreCase)))

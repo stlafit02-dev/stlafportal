@@ -76,12 +76,13 @@
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .ticketing-loading,
 .ticketing-empty {
-  min-height: 790px;
-  padding: 0;
+  height: 720px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,8 +91,7 @@
 }
 
 .ticketing-table-wrap {
-  min-height: 720px;
-  max-height: 720px;
+  height: 720px;
   overflow-y: auto;
   overflow-x: auto;
 }
@@ -210,17 +210,6 @@
 @media (max-width: 900px) {
   .ticketing-table-panel {
     padding: 16px;
-  }
-}
-
-@media (max-width: 700px) {
-  .ticketing-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-box {
-    max-width: none;
   }
 }
 

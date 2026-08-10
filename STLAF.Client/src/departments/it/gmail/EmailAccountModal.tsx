@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Modal } from "../../../common/components/Modal/Modal";
 import { Spinner } from "../../../common/components/Loader/Loader";
 import {
   createEmailAccount,
+  fetchRegisteredEmployees,
   type GwsAccount,
   type EmailAccount,
+  type RegisteredEmployeeOption,
 } from "./gmailApi";
 import "./GmailForms.css";
 import { generateEmailAlias, EMAIL_DOMAIN } from "./generateAlias";
@@ -39,6 +41,25 @@ export function EmailAccountModal({
   const [aliasManuallyEdited, setAliasManuallyEdited] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [employees, setEmployees] = useState<RegisteredEmployeeOption[]>([]);
+  const [isNameDropdownOpen, setIsNameDropdownOpen] = useState(false);
+  const nameFieldRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchRegisteredEmployees().then(setEmployees);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (nameFieldRef.current && !nameFieldRef.current.contains(e.target as Node)) {
+        setIsNameDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   function updateField<K extends keyof typeof form>(
     field: K,
@@ -47,10 +68,24 @@ export function EmailAccountModal({
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  function applyNameToAlias(newName: string) {
+    updateField("fullName", newName);
+    if (!aliasManuallyEdited) {
+      const alias = generateEmailAlias(newName);
+      updateField("stlafEmail", alias ? `${alias}@${EMAIL_DOMAIN}` : "");
+    }
+  }
+
+  function handleSelectEmployee(emp: RegisteredEmployeeOption) {
+    applyNameToAlias(emp.fullName);
+    setIsNameDropdownOpen(false);
+  }
+
   function resetAndClose() {
     setForm(emptyForm);
     setAliasManuallyEdited(false);
     setError(null);
+    setIsNameDropdownOpen(false);
     onClose();
   }
 
@@ -85,31 +120,55 @@ export function EmailAccountModal({
 
   const selectedGws = gwsAccounts.find((g) => g.id === form.gwsAccountId);
 
+  const filteredEmployees = form.fullName.trim() === ""
+    ? employees
+    : employees.filter((emp) =>
+        emp.fullName.toLowerCase().includes(form.fullName.trim().toLowerCase()),
+      );
+
   return (
     <Modal isOpen={isOpen} onClose={resetAndClose}>
       <div className="gmail-modal">
         <h2 className="gmail-modal-title">Add Employee Email Account</h2>
         <form onSubmit={handleSubmit} className="gmail-form">
           <div className="gmail-grid">
-            <div className="gmail-field">
+            <div className="gmail-field" ref={nameFieldRef} style={{ position: "relative" }}>
               <label className="gmail-label">Full Name</label>
               <input
                 type="text"
                 value={form.fullName}
                 onChange={(e) => {
-                  const newName = e.target.value;
-                  updateField("fullName", newName);
-                  if (!aliasManuallyEdited) {
-                    const alias = generateEmailAlias(newName);
-                    updateField(
-                      "stlafEmail",
-                      alias ? `${alias}@${EMAIL_DOMAIN}` : "",
-                    );
-                  }
+                  applyNameToAlias(e.target.value);
+                  setIsNameDropdownOpen(true);
                 }}
+                onFocus={() => setIsNameDropdownOpen(true)}
                 required
                 className="gmail-input"
+                placeholder="Type to search employees…"
+                autoComplete="off"
               />
+              {isNameDropdownOpen && filteredEmployees.length > 0 && (
+                <div className="employee-autocomplete-list">
+                  {filteredEmployees.map((emp) => (
+                    <button
+                      key={emp.id}
+                      type="button"
+                      className="employee-autocomplete-item"
+                      onClick={() => handleSelectEmployee(emp)}
+                    >
+                      <span className="employee-autocomplete-name">{emp.fullName}</span>
+                      <span className="employee-autocomplete-meta">
+                        {emp.companyId} · {emp.department}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {isNameDropdownOpen && form.fullName.trim() !== "" && filteredEmployees.length === 0 && (
+                <div className="employee-autocomplete-list">
+                  <div className="employee-autocomplete-empty">No matching employees</div>
+                </div>
+              )}
             </div>
 
             <div className="gmail-field">

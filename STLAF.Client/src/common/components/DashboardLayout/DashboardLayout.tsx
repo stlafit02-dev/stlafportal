@@ -4,13 +4,16 @@ import { ThemeToggle } from "../ThemeToggle/ThemeToggle";
 import { PageLoader } from "../Loader/Loader";
 import { NavLink, useLocation } from "react-router-dom";
 import { useTheme } from "../../../theme/useTheme";
+import { useTicketModal } from "../../tickets/useTicketModal";
 import logoDark from "../../../assets/dark.png";
 import logoLight from "../../../assets/light.png";
+import { ChangePasswordModal } from "../../../auth/ChangePasswordModal";
 import "./DashboardLayout.css";
 
 export interface NavItem {
   label: string;
   to?: string;
+  action?: "submitTicket";
   children?: { label: string; to: string }[];
 }
 
@@ -72,12 +75,35 @@ function NavGroup({
   );
 }
 
+function TicketNavButton({
+  label,
+  onNavigate,
+}: {
+  label: string;
+  onNavigate: () => void;
+}) {
+  const { open } = useTicketModal();
+  return (
+    <button
+      className="nav-item"
+      onClick={() => {
+        open();
+        onNavigate();
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 export function DashboardLayout({
   departmentLabel,
   navItems,
   children,
 }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, logout, isLoggingOut } = useAuth();
   const { theme } = useTheme();
   const logoSrc = theme === "dark" ? logoDark : logoLight;
@@ -109,7 +135,6 @@ export function DashboardLayout({
           </svg>
         </button>
         <span className="mobile-topbar-spacer" />
-        <div style={{ width: 22 }} />
       </div>
 
       {/* Backdrop for mobile sidebar */}
@@ -146,8 +171,17 @@ export function DashboardLayout({
         <p className="sidebar-department">{departmentLabel}</p>
 
         <nav className="sidebar-nav">
-          {navItems.map((item) =>
-            item.children ? (
+          {navItems.map((item) => {
+            if (item.action === "submitTicket") {
+              return (
+                <TicketNavButton
+                  key={item.label}
+                  label={item.label}
+                  onNavigate={() => setIsSidebarOpen(false)}
+                />
+              );
+            }
+            return item.children ? (
               <NavGroup
                 key={item.label}
                 item={item}
@@ -157,6 +191,7 @@ export function DashboardLayout({
               <NavLink
                 key={item.to}
                 to={item.to!}
+                end
                 className={({ isActive }) =>
                   `nav-item ${isActive ? "nav-item-active" : ""}`
                 }
@@ -164,30 +199,74 @@ export function DashboardLayout({
               >
                 {item.label}
               </NavLink>
-            ),
-          )}
+            );
+          })}
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-theme-row">
-            <span className="sidebar-theme-label">Theme</span>
-            <ThemeToggle />
-          </div>
-
-          <div className="sidebar-user">
-            <div className="user-info">
-              <span className="user-name">{user?.fullName}</span>
-              <span className="user-role">{user?.role}</span>
-            </div>
-            <button className="logout-btn" onClick={logout}>
-              Logout
+          <div className="user-menu">
+            <button
+              className="user-menu-trigger"
+              onClick={() => setIsUserMenuOpen((prev) => !prev)}
+            >
+              <span className="user-avatar">
+                {(user?.fullName ?? "?").charAt(0).toUpperCase()}
+              </span>
+              <span className="user-menu-info">
+                <span className="user-name">{user?.fullName}</span>
+                <span className="user-role">
+                  {user?.officePosition || user?.role}
+                </span>
+              </span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className={`user-menu-chevron ${isUserMenuOpen ? "user-menu-chevron-open" : ""}`}
+              >
+                <polyline points="18 15 12 9 6 15" />
+              </svg>
             </button>
+
+            {isUserMenuOpen && (
+              <div className="user-menu-panel">
+                <div className="user-menu-theme-row">
+                  <span className="sidebar-theme-label">Theme</span>
+                  <ThemeToggle />
+                </div>
+
+                <button
+                  className="user-menu-item"
+                  onClick={() => {
+                    setIsChangePasswordOpen(true);
+                    setIsUserMenuOpen(false);
+                  }}
+                >
+                  Change Password
+                </button>
+
+                <button
+                  className="user-menu-item user-menu-item-danger"
+                  onClick={logout}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </aside>
 
       {/* Main content */}
       <main className="dashboard-content">{children}</main>
+
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
     </div>
   );
 }

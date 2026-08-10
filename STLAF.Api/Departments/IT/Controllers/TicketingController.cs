@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using STLAF.Api.Departments.IT.DTOs;
 using STLAF.Api.Departments.IT.Services;
+using System.Security.Claims;
 
 namespace STLAF.Api.Departments.IT.Controllers;
 
@@ -15,6 +16,8 @@ public class TicketingController : ControllerBase
     {
         _service = service;
     }
+
+    private Guid CurrentUserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
 
     // Public — anyone in the firm can submit a ticket without logging in
     [HttpPost]
@@ -45,7 +48,7 @@ public class TicketingController : ControllerBase
 
     // IT-only — full ticket list including closed
     [HttpGet]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> GetAll()
     {
         var tickets = await _service.GetAllAsync();
@@ -54,7 +57,7 @@ public class TicketingController : ControllerBase
 
     // IT-only — list of IT staff for the assignee dropdown
     [HttpGet("staff")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> GetStaff()
     {
         var staff = await _service.GetItStaffAsync();
@@ -63,7 +66,7 @@ public class TicketingController : ControllerBase
 
     // IT-only — change status
     [HttpPatch("{id}/status")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> UpdateStatus(Guid id, UpdateTicketStatusDto dto)
     {
         var result = await _service.UpdateStatusAsync(id, dto.Status);
@@ -73,19 +76,39 @@ public class TicketingController : ControllerBase
 
     // IT-only — assign/reassign
     [HttpPatch("{id}/assign")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Assign(Guid id, AssignTicketDto dto)
     {
         var result = await _service.AssignAsync(id, dto.AssignedToId);
         if (result is null) return NotFound();
         return Ok(result);
     }
+
     [HttpDelete("{id}")]
-    [Authorize(Policy = "IT")]
+    [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var deleted = await _service.DeleteAsync(id);
         if (!deleted) return NotFound();
         return NoContent();
     }
+
+    // ---------- Portal (employee self-service) ----------
+
+    [HttpGet("my-profile")]
+    [Authorize]
+    public async Task<IActionResult> GetMyProfile()
+    {
+        var profile = await _service.GetMyProfileAsync(CurrentUserId);
+        if (profile is null) return NotFound();
+        return Ok(profile);
+    }
+
+    [HttpGet("my")]
+    [Authorize]
+    public async Task<IActionResult> GetMyTickets() => Ok(await _service.GetMyTicketsAsync(CurrentUserId));
+
+    [HttpPost("my")]
+    [Authorize]
+    public async Task<IActionResult> CreateMyTicket(CreatePortalTicketDto dto) => Ok(await _service.CreateFromPortalAsync(CurrentUserId, dto));
 }
