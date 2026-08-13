@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Modal } from "../../../common/components/Modal/Modal";
 import { Spinner } from "../../../common/components/Loader/Loader";
 import { updateEmployee, type Employee } from "./employeeApi";
+import { getDepartmentLabel } from "../../../common/departmentLabels";
 import "../../it/gmail/GmailForms.css";
 
 const DEPARTMENTS = [
@@ -40,8 +41,11 @@ export function EmployeeEditModal({
   const [nationality, setNationality] = useState(current.nationality);
   const [department, setDepartment] = useState(current.department);
   const [officePosition, setOfficePosition] = useState(current.officePosition);
-  const [personalEmail, setPersonalEmail] = useState(
-    current.personalEmail ?? "",
+  const [emergencyContactName, setEmergencyContactName] = useState(
+    current.emergencyContactName ?? "",
+  );
+  const [emergencyContactNumber, setEmergencyContactNumber] = useState(
+    current.emergencyContactNumber ?? "",
   );
   const [companyEmail, setCompanyEmail] = useState(current.companyEmail ?? "");
   const [startDate, setStartDate] = useState(current.startDate.slice(0, 10));
@@ -66,7 +70,8 @@ export function EmployeeEditModal({
         nationality,
         department,
         officePosition,
-        personalEmail: personalEmail || undefined,
+        emergencyContactName: emergencyContactName || undefined,
+        emergencyContactNumber: emergencyContactNumber || undefined,
         companyEmail: companyEmail || undefined,
         startDate,
         status,
@@ -186,7 +191,7 @@ export function EmployeeEditModal({
               >
                 {DEPARTMENTS.map((d) => (
                   <option key={d} value={d}>
-                    {d}
+                    {getDepartmentLabel(d)}
                   </option>
                 ))}
               </select>
@@ -198,15 +203,6 @@ export function EmployeeEditModal({
                 value={officePosition}
                 onChange={(e) => setOfficePosition(e.target.value)}
                 required
-                className="gmail-input"
-              />
-            </div>
-            <div className="gmail-field">
-              <label className="gmail-label">Personal Email</label>
-              <input
-                type="email"
-                value={personalEmail}
-                onChange={(e) => setPersonalEmail(e.target.value)}
                 className="gmail-input"
               />
             </div>
@@ -242,6 +238,32 @@ export function EmployeeEditModal({
                   </option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div className="emergency-contact-section">
+            <span className="emergency-contact-heading">Emergency Contact</span>
+            <div className="gmail-grid">
+              <div className="gmail-field">
+                <label className="gmail-label">Contact Person</label>
+                <input
+                  type="text"
+                  value={emergencyContactName}
+                  onChange={(e) => setEmergencyContactName(e.target.value)}
+                  className="gmail-input"
+                  placeholder="Emergency contact name"
+                />
+              </div>
+              <div className="gmail-field">
+                <label className="gmail-label">Number</label>
+                <input
+                  type="tel"
+                  value={emergencyContactNumber}
+                  onChange={(e) => setEmergencyContactNumber(e.target.value)}
+                  className="gmail-input"
+                  placeholder="09XXXXXXXXX"
+                />
+              </div>
             </div>
           </div>
 

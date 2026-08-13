@@ -26,7 +26,8 @@ export interface Employee {
   nationality: string;
   department: string;
   officePosition: string;
-  personalEmail?: string | null;
+  emergencyContactName?: string;
+  emergencyContactNumber?: string;
   companyEmail?: string | null;
   startDate: string;
   status: string;
@@ -44,7 +45,8 @@ export interface CreateEmployeePayload {
   nationality: string;
   department: string;
   officePosition: string;
-  personalEmail?: string;
+  emergencyContactName?: string;
+  emergencyContactNumber?: string;
   companyEmail?: string;
   mobileNumber?: string;
   startDate: string;
@@ -68,7 +70,8 @@ export interface UpdateEmployeePayload {
   nationality: string;
   department: string;
   officePosition: string;
-  personalEmail?: string;
+  emergencyContactName?: string;
+  emergencyContactNumber?: string;
   companyEmail?: string;
   startDate: string;
   status: string;

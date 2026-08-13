@@ -119,9 +119,15 @@ export function EmployeeDetailModal({
             <div className="recycle-static-value mono">{employee.username}</div>
           </div>
           <div className="gmail-field">
-            <label className="gmail-label">Personal Email</label>
+            <label className="gmail-label">Emergency Contact</label>
+            <div className="recycle-static-value">
+              {employee.emergencyContactName || "—"}
+            </div>
+          </div>
+          <div className="gmail-field">
+            <label className="gmail-label">Emergency Number</label>
             <div className="recycle-static-value mono">
-              {employee.personalEmail || "—"}
+              {employee.emergencyContactNumber || "—"}
             </div>
           </div>
           <div className="gmail-field">

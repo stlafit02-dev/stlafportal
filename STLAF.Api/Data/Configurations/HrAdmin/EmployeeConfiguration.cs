@@ -25,6 +25,8 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.Property(x => x.PersonalEmail).HasColumnName("personalemail");
         builder.Property(x => x.CompanyEmail).HasColumnName("companyemail");
         builder.Property(x => x.StartDate).HasColumnName("startdate");
+        builder.Property(x => x.EmergencyContactName).HasColumnName("emergency_contact_name");
+        builder.Property(x => x.EmergencyContactNumber).HasColumnName("emergency_contact_number");
         builder.Property(x => x.Status).HasColumnName("status");
         builder.Property(x => x.UserId).HasColumnName("user_id");
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");

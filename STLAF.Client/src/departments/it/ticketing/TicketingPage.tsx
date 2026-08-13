@@ -47,6 +47,7 @@ export function TicketingPage() {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [pendingDeleteTicket, setPendingDeleteTicket] = useState<Ticket | null>(
     null,
   );
@@ -96,6 +97,13 @@ export function TicketingPage() {
       t.category.toLowerCase().includes(query);
     return matchesStatus && matchesSearch;
   });
+
+  const sortedTickets = [...filteredTickets].sort((a, b) => {
+    const diff =
+      new Date(a.dateSubmitted).getTime() - new Date(b.dateSubmitted).getTime();
+    return sortOrder === "asc" ? diff : -diff;
+  });
+
   function handleDelete(ticket: Ticket) {
     setPendingDeleteTicket(ticket);
   }
@@ -111,6 +119,7 @@ export function TicketingPage() {
     setToastMessage(`${ticket.ticketNumber} deleted.`);
     setIsToastVisible(true);
   }
+
   return (
     <div className="ticketing-page">
       <h1 className="page-title">Ticketing</h1>
@@ -156,7 +165,7 @@ export function TicketingPage() {
           <div className="ticketing-loading">
             <Spinner size="md" />
           </div>
-        ) : filteredTickets.length === 0 ? (
+        ) : sortedTickets.length === 0 ? (
           <div className="ticketing-empty">
             <p>
               {tickets.length === 0
@@ -169,7 +178,42 @@ export function TicketingPage() {
             <table className="ticketing-table">
               <thead>
                 <tr>
-                  <th>Ticket #</th>
+                  <th>
+                    <button
+                      onClick={() =>
+                        setSortOrder((prev) =>
+                          prev === "desc" ? "asc" : "desc",
+                        )
+                      }
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        cursor: "pointer",
+                        color: "inherit",
+                        font: "inherit",
+                      }}
+                    >
+                      Ticket #
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        {sortOrder === "desc" ? (
+                          <path d="M12 5v14M5 12l7 7 7-7" />
+                        ) : (
+                          <path d="M12 19V5M5 12l7-7 7 7" />
+                        )}
+                      </svg>
+                    </button>
+                  </th>
                   <th>Requester</th>
                   <th>Category</th>
                   <th>Priority</th>
@@ -180,7 +224,7 @@ export function TicketingPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredTickets.map((t) => (
+                {sortedTickets.map((t) => (
                   <tr
                     key={t.id}
                     className="ticket-row"
@@ -190,7 +234,6 @@ export function TicketingPage() {
                     <td>
                       <div className="requester-cell">
                         <span>{t.name}</span>
-                        {/* <span className="requester-email">{t.companyEmail}</span> */}
                       </div>
                     </td>
                     <td>
@@ -245,7 +288,7 @@ export function TicketingPage() {
         isVisible={isToastVisible}
         onClose={() => setIsToastVisible(false)}
       />
-      
+
       <ConfirmDialog
         isOpen={!!pendingDeleteTicket}
         title="Delete Ticket"
@@ -259,7 +302,6 @@ export function TicketingPage() {
         onConfirm={confirmDeleteTicket}
         onCancel={() => setPendingDeleteTicket(null)}
       />
-      
     </div>
   );
 }

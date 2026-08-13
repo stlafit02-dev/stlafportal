@@ -8,13 +8,18 @@ import { useTicketModal } from "../../tickets/useTicketModal";
 import logoDark from "../../../assets/dark.png";
 import logoLight from "../../../assets/light.png";
 import { ChangePasswordModal } from "../../../auth/ChangePasswordModal";
+import { useDocumentModal } from "../../documents/useDocumentModal";
 import "./DashboardLayout.css";
 
 export interface NavItem {
   label: string;
   to?: string;
-  action?: "submitTicket";
-  children?: { label: string; to: string }[];
+  action?: "submitTicket" | "submitDocument";
+  children?: {
+    label: string;
+    to?: string;
+    action?: "submitTicket" | "submitDocument";
+  }[];
 }
 
 interface DashboardLayoutProps {
@@ -31,8 +36,8 @@ function NavGroup({
   onNavigate: () => void;
 }) {
   const location = useLocation();
-  const isChildActive = item.children!.some((c) =>
-    location.pathname.startsWith(c.to),
+  const isChildActive = item.children!.some(
+    (c) => c.to && location.pathname.startsWith(c.to),
   );
   const [isOpen, setIsOpen] = useState(isChildActive);
 
@@ -57,18 +62,29 @@ function NavGroup({
       </button>
       {isOpen && (
         <div className="nav-subitems">
-          {item.children!.map((child) => (
-            <NavLink
-              key={child.to}
-              to={child.to}
-              className={({ isActive }) =>
-                `nav-subitem ${isActive ? "nav-subitem-active" : ""}`
-              }
-              onClick={onNavigate}
-            >
-              {child.label}
-            </NavLink>
-          ))}
+          {item.children!.map((child) => {
+            if (child.action === "submitDocument") {
+              return (
+                <DocumentSubItemButton
+                  key={child.label}
+                  label={child.label}
+                  onNavigate={onNavigate}
+                />
+              );
+            }
+            return (
+              <NavLink
+                key={child.to}
+                to={child.to!}
+                className={({ isActive }) =>
+                  `nav-subitem ${isActive ? "nav-subitem-active" : ""}`
+                }
+                onClick={onNavigate}
+              >
+                {child.label}
+              </NavLink>
+            );
+          })}
         </div>
       )}
     </div>
@@ -86,6 +102,49 @@ function TicketNavButton({
   return (
     <button
       className="nav-item"
+      onClick={() => {
+        open();
+        onNavigate();
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function DocumentNavButton({
+  label,
+  onNavigate,
+}: {
+  label: string;
+  onNavigate: () => void;
+}) {
+  const { open } = useDocumentModal();
+  return (
+    <button
+      className="nav-item"
+      onClick={() => {
+        open();
+        onNavigate();
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function DocumentSubItemButton({
+  label,
+  onNavigate,
+}: {
+  label: string;
+  onNavigate: () => void;
+}) {
+  const { open } = useDocumentModal();
+  return (
+    <button
+      className="nav-subitem"
+      style={{ background: "none", border: "none", textAlign: "left", width: "100%", cursor: "pointer" }}
       onClick={() => {
         open();
         onNavigate();
@@ -181,6 +240,15 @@ export function DashboardLayout({
                 />
               );
             }
+            if (item.action === "submitDocument") {
+              return (
+                <DocumentNavButton
+                  key={item.label}
+                  label={item.label}
+                  onNavigate={() => setIsSidebarOpen(false)}
+                />
+              );
+            }
             return item.children ? (
               <NavGroup
                 key={item.label}
@@ -230,14 +298,12 @@ export function DashboardLayout({
                 <polyline points="18 15 12 9 6 15" />
               </svg>
             </button>
-
             {isUserMenuOpen && (
               <div className="user-menu-panel">
                 <div className="user-menu-theme-row">
                   <span className="sidebar-theme-label">Theme</span>
                   <ThemeToggle />
                 </div>
-
                 <button
                   className="user-menu-item"
                   onClick={() => {
@@ -247,7 +313,6 @@ export function DashboardLayout({
                 >
                   Change Password
                 </button>
-
                 <button
                   className="user-menu-item user-menu-item-danger"
                   onClick={logout}

@@ -29,7 +29,8 @@ public class EmployeeDto
     public string Nationality { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
     public string OfficePosition { get; set; } = string.Empty;
-    public string? PersonalEmail { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactNumber { get; set; }
     public string? CompanyEmail { get; set; }
     public DateTime StartDate { get; set; }
     public string Status { get; set; } = string.Empty;
@@ -49,7 +50,8 @@ public class CreateEmployeeDto
     public string Nationality { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
     public string OfficePosition { get; set; } = string.Empty;
-    public string? PersonalEmail { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactNumber { get; set; }
     public string CompanyEmail { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
     public string Status { get; set; } = "Active";
@@ -74,7 +76,8 @@ public class UpdateEmployeeDto
     public string Nationality { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
     public string OfficePosition { get; set; } = string.Empty;
-    public string? PersonalEmail { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactNumber { get; set; }
     public string CompanyEmail { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
     public string Status { get; set; } = string.Empty;

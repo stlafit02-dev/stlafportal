@@ -64,6 +64,97 @@ namespace STLAF.Api.Migrations
                     b.ToTable("announcements", (string)null);
                 });
 
+            modelBuilder.Entity("STLAF.Api.Common.Entities.DocumentRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeadlineDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deadline_date");
+
+                    b.Property<string>("DocumentLink")
+                        .HasColumnType("text")
+                        .HasColumnName("document_link");
+
+                    b.Property<DateTime?>("EaDecidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ea_decided_at");
+
+                    b.Property<Guid?>("EaDecidedByEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ea_decided_by_employee_id");
+
+                    b.Property<string>("EaDecisionNotes")
+                        .HasColumnType("text")
+                        .HasColumnName("ea_decision_notes");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_id");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("text")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("FileObjectKey")
+                        .HasColumnType("text")
+                        .HasColumnName("file_object_key");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("file_url");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("note");
+
+                    b.Property<DateTime?>("PartnerDecidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("partner_decided_at");
+
+                    b.Property<Guid?>("PartnerDecidedByEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("partner_decided_by_employee_id");
+
+                    b.Property<string>("PartnerDecisionNotes")
+                        .HasColumnType("text")
+                        .HasColumnName("partner_decision_notes");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<string>("TrackingNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tracking_number");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrackingNumber")
+                        .IsUnique();
+
+                    b.ToTable("document_requests", (string)null);
+                });
+
             modelBuilder.Entity("STLAF.Api.Common.Entities.ModuleAccessPosition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -168,6 +259,14 @@ namespace STLAF.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("department");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasColumnType("text")
+                        .HasColumnName("emergency_contact_name");
+
+                    b.Property<string>("EmergencyContactNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("emergency_contact_number");
 
                     b.Property<string>("FirstName")
                         .IsRequired()

@@ -157,7 +157,7 @@ public class AssetService : IAssetService
 
     private string BuildQrUrl(string assetTag)
     {
-        var baseUrl = _config["App:FrontendBaseUrl"]?.TrimEnd('/') ?? "http://localhost:5173";
+        var baseUrl = _config["Frontend:BaseUrl"]?.TrimEnd('/') ?? "http://localhost:5173";
         return $"{baseUrl}/assets/{assetTag}";
     }
 

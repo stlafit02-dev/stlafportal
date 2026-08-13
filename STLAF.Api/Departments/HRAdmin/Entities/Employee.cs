@@ -22,6 +22,8 @@ public class Employee : BaseEntity
     public string? PersonalEmail { get; set; }
     public string? CompanyEmail { get; set; }
     public DateTime StartDate { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactNumber { get; set; }
     public string Status { get; set; } = "Active";
 
     public Guid? UserId { get; set; }
