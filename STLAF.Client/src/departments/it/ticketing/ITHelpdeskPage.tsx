@@ -12,7 +12,8 @@ import { Toast } from "../../../common/components/Toast/Toast";
 import { ThemeToggle } from "../../../common/components/ThemeToggle/ThemeToggle";
 import { SLA_MINUTES, formatSlaDuration } from "./slaConfig";
 
-const CATEGORIES = ["Hardware", "Software", "Network", "Email", "Other"];
+const CATEGORIES = ["Technical Support", "Network - Access / Issue", "Account & Access", "Installation / Setup", 
+  "Booking / Reservation", "Email Services", "Website Development" ];
 const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
 const DEPARTMENTS = [
   "IT",
@@ -21,7 +22,6 @@ const DEPARTMENTS = [
   "Accounting",
   "Corporate",
   "Marketing",
-  "Partner",
 ];
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
@@ -275,7 +275,6 @@ export function ITHelpdeskPage() {
                     <th>Description</th>
                     <th>Category</th>
                     <th>Priority</th>
-                    <th>SLA</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -297,7 +296,6 @@ export function ITHelpdeskPage() {
                           {t.priority}
                         </span>
                       </td>
-                      <td>{formatSlaDuration(SLA_MINUTES[t.priority] ?? SLA_MINUTES.Low)}</td>
                       <td>
                         <span
                           className={`status-badge ${STATUS_META[t.status]?.className ?? ""}`}
