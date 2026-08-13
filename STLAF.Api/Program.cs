@@ -11,7 +11,6 @@ using STLAF.Api.Departments.IT.Services;
 using STLAF.Api.Departments.IT.BackgroundJobs;
 using STLAF.Api.Departments.HRAdmin.Services;
 using STLAF.Api.Common.Services;
-using STLAF.Api.Common.Entities;
 
 DotNetEnv.Env.Load();
 
@@ -53,6 +52,7 @@ builder.Services.AddScoped<IOvertimeService, OvertimeService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUndertimeService, UndertimeService>();
 builder.Services.AddScoped<IFileStorageService, BackblazeFileStorageService>();
+builder.Services.AddScoped<IDocumentRequestService, DocumentRequestService>();
 
 
 // Authentication (JWT)
@@ -111,14 +111,16 @@ builder.Services.AddAuthorization(options =>
         "hr-reports",
         "it-ticketing",
         "it-assets",
-        "it-gmail"
+        "it-gmail",
+        "document-ea-review",
+        "document-partner-review"
     };
 
-        foreach (var module in modules)
-        {
-            options.AddPolicy(module, policy =>
-                policy.Requirements.Add(new ModuleRequirement(module)));
-        }
+    foreach (var module in modules)
+    {
+        options.AddPolicy(module, policy =>
+            policy.Requirements.Add(new ModuleRequirement(module)));
+    }
 });
 
 

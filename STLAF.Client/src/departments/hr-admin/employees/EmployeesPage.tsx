@@ -16,6 +16,7 @@ import "../../it/gmail/GmailManagementPage.css";
 import { EmployeeDetailModal } from "./EmployeeDetailModal";
 import "./EmployeesPage.css";
 import { EmployeeLeaveCreditsModal } from "./EmployeeLeaveCreditsModal";
+import { getDepartmentLabel } from "../../../common/departmentLabels";
 
 export function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -147,7 +148,7 @@ export function EmployeesPage() {
           <option value="All">All Departments</option>
           {departments.map((d) => (
             <option key={d} value={d}>
-              {d}
+              {getDepartmentLabel(d)}
             </option>
           ))}
         </select>
@@ -195,7 +196,7 @@ export function EmployeesPage() {
                     {e.firstName} {e.middleName ? e.middleName[0] + ". " : ""}
                     {e.lastName}
                   </td>
-                  <td>{e.department}</td>
+                  <td>{getDepartmentLabel(e.department)}</td>
                   <td>{e.officePosition}</td>
                   <td className="mono-cell">
                     {e.companyEmail || (

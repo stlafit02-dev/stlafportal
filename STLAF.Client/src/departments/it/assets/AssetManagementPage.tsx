@@ -26,6 +26,7 @@ export function AssetManagementPage() {
   const [qrAssetId, setQrAssetId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [toastMessage, setToastMessage] = useState("");
   const [isToastVisible, setIsToastVisible] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Asset | null>(null);
@@ -75,6 +76,12 @@ export function AssetManagementPage() {
       a.serialNumber.toLowerCase().includes(query) ||
       (a.assignedTo ?? "").toLowerCase().includes(query);
     return matchesType && matchesSearch;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    const diff =
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    return sortOrder === "asc" ? diff : -diff;
   });
 
   const viewAsset = assets.find((a) => a.id === viewAssetId) ?? null;
@@ -143,7 +150,7 @@ export function AssetManagementPage() {
           <div className="asset-loading">
             <Spinner size="md" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : sorted.length === 0 ? (
           <div className="asset-empty">
             <p>
               {assets.length === 0
@@ -156,7 +163,42 @@ export function AssetManagementPage() {
             <table className="asset-table">
               <thead>
                 <tr>
-                  <th>Asset ID</th>
+                  <th>
+                    <button
+                      onClick={() =>
+                        setSortOrder((prev) =>
+                          prev === "desc" ? "asc" : "desc",
+                        )
+                      }
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        cursor: "pointer",
+                        color: "inherit",
+                        font: "inherit",
+                      }}
+                    >
+                      Asset ID
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        {sortOrder === "desc" ? (
+                          <path d="M12 5v14M5 12l7 7 7-7" />
+                        ) : (
+                          <path d="M12 19V5M5 12l7-7 7 7" />
+                        )}
+                      </svg>
+                    </button>
+                  </th>
                   <th>Name</th>
                   <th>Type</th>
                   <th>Brand / Model</th>
@@ -169,7 +211,7 @@ export function AssetManagementPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((a) => (
+                {sorted.map((a) => (
                   <tr key={a.id}>
                     <td>
                       <button

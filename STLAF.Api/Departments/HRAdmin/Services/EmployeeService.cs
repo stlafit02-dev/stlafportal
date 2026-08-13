@@ -116,7 +116,8 @@ public class EmployeeService : IEmployeeService
             Nationality = dto.Nationality,
             Department = dto.Department,
             OfficePosition = dto.OfficePosition,
-            PersonalEmail = dto.PersonalEmail,
+            EmergencyContactName = dto.EmergencyContactName,
+            EmergencyContactNumber = dto.EmergencyContactNumber,
             CompanyEmail = dto.CompanyEmail,
             StartDate = DateTime.SpecifyKind(dto.StartDate, DateTimeKind.Utc),
             Status = dto.Status,
@@ -167,7 +168,8 @@ public class EmployeeService : IEmployeeService
         employee.Nationality = dto.Nationality;
         employee.Department = dto.Department;
         employee.OfficePosition = dto.OfficePosition;
-        employee.PersonalEmail = dto.PersonalEmail;
+        employee.EmergencyContactName = dto.EmergencyContactName;
+        employee.EmergencyContactNumber = dto.EmergencyContactNumber;
         employee.CompanyEmail = dto.CompanyEmail;
         employee.MobileNumber = dto.MobileNumber;
         employee.StartDate = DateTime.SpecifyKind(dto.StartDate, DateTimeKind.Utc);
@@ -241,7 +243,8 @@ public class EmployeeService : IEmployeeService
         Nationality = e.Nationality,
         Department = e.Department,
         OfficePosition = e.OfficePosition,
-        PersonalEmail = e.PersonalEmail,
+        EmergencyContactName = e.EmergencyContactName,
+        EmergencyContactNumber = e.EmergencyContactNumber,
         CompanyEmail = e.CompanyEmail,
         StartDate = e.StartDate,
         Status = e.Status,

@@ -6,6 +6,7 @@ import {
   type EmployeeCategory,
   type CreateEmployeeResult,
 } from "./employeeApi";
+import { getDepartmentLabel } from "../../../common/departmentLabels";
 import "../../it/gmail/GmailForms.css";
 import "./EmployeeFormModal.css";
 
@@ -41,7 +42,8 @@ const emptyForm = {
   nationality: "",
   department: "",
   officePosition: "",
-  personalEmail: "",
+  emergencyContactName: "",
+  emergencyContactNumber: "",
   companyEmail: "",
   startDate: "",
   status: "Active",
@@ -101,7 +103,8 @@ export function EmployeeFormModal({
         nationality: form.nationality,
         department: form.department,
         officePosition: form.officePosition,
-        personalEmail: form.personalEmail || undefined,
+        emergencyContactName: form.emergencyContactName || undefined,
+        emergencyContactNumber: form.emergencyContactNumber || undefined,
         companyEmail: form.companyEmail || undefined,
         startDate: form.startDate,
         status: form.status,
@@ -337,7 +340,7 @@ export function EmployeeFormModal({
                     </option>
                     {DEPARTMENTS.map((d) => (
                       <option key={d} value={d}>
-                        {d}
+                        {getDepartmentLabel(d)}
                       </option>
                     ))}
                   </select>
@@ -351,19 +354,6 @@ export function EmployeeFormModal({
                       updateField("officePosition", e.target.value)
                     }
                     required
-                    className="gmail-input"
-                  />
-                </div>
-                <div className="gmail-field">
-                  <label className="gmail-label">
-                    Personal Email (optional)
-                  </label>
-                  <input
-                    type="email"
-                    value={form.personalEmail}
-                    onChange={(e) =>
-                      updateField("personalEmail", e.target.value)
-                    }
                     className="gmail-input"
                   />
                 </div>
@@ -404,6 +394,36 @@ export function EmployeeFormModal({
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              <div className="emergency-contact-section">
+                <span className="emergency-contact-heading">Emergency Contact</span>
+                <div className="gmail-grid">
+                  <div className="gmail-field">
+                    <label className="gmail-label">Contact Person</label>
+                    <input
+                      type="text"
+                      value={form.emergencyContactName}
+                      onChange={(e) =>
+                        updateField("emergencyContactName", e.target.value)
+                      }
+                      className="gmail-input"
+                      placeholder="Emergency contact name"
+                    />
+                  </div>
+                  <div className="gmail-field">
+                    <label className="gmail-label">Number</label>
+                    <input
+                      type="tel"
+                      value={form.emergencyContactNumber}
+                      onChange={(e) =>
+                        updateField("emergencyContactNumber", e.target.value)
+                      }
+                      className="gmail-input"
+                      placeholder="09XXXXXXXXX"
+                    />
+                  </div>
                 </div>
               </div>
 

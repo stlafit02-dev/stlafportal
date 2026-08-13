@@ -17,6 +17,7 @@ const DEPARTMENT_ROUTES: Record<string, string> = {
   Accounting: "/accounting",
   Corporate: "/corporate",
   Marketing: "/marketing",
+  Partner: "/partner",
 };
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {

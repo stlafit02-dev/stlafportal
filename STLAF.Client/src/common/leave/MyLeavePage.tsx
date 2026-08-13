@@ -21,6 +21,7 @@ import { Spinner } from "../components/Loader/Loader";
 import { Toast } from "../components/Toast/Toast";
 import "../../departments/it/gmail/GmailManagementPage.css";
 import "./LeavePage.css";
+import "./MyLeaveFilters.css";
 
 const STATUS_META: Record<string, string> = {
   Pending: "badge-pending",
@@ -137,7 +138,10 @@ export function MyLeavePage() {
             {profile.fullName} · {profile.department} · {profile.companyId}
           </p>
         </div>
-        <button className="gmail-primary-btn" onClick={() => setIsRequestModalOpen(true)}>
+        <button
+          className="gmail-primary-btn"
+          onClick={() => setIsRequestModalOpen(true)}
+        >
           + Request Leave
         </button>
       </div>
@@ -145,16 +149,23 @@ export function MyLeavePage() {
       {isBlocked && (
         <div className="medical-block-banner">
           <div className="medical-block-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
             </svg>
           </div>
           <div>
             <p className="medical-block-title">Pending Medical Certificate</p>
             <p className="medical-block-text">
-              You have a fit-to-work medical certificate that still needs to be uploaded
-              (PDF only, max 3.5 MB) and verified by HR. Until then, any new leave you
-              submit will automatically be recorded as unpaid.
+              You have a fit-to-work medical certificate that still needs to be
+              uploaded (PDF only, max 3.5 MB) and verified by HR. Until then,
+              any new leave you submit will automatically be recorded as unpaid.
             </p>
             {medicalCerts
               .filter((c) => c.status !== "Verified")
@@ -169,9 +180,14 @@ export function MyLeavePage() {
                         ? "Awaiting HR Verification"
                         : "Rejected — re-upload required"}
                   </span>
-                  {(c.status === "PendingUpload" || c.status === "Rejected") && (
+                  {(c.status === "PendingUpload" ||
+                    c.status === "Rejected") && (
                     <label className="medical-upload-btn">
-                      {uploadingCertId === c.id ? <Spinner size="sm" /> : "Upload PDF"}
+                      {uploadingCertId === c.id ? (
+                        <Spinner size="sm" />
+                      ) : (
+                        "Upload PDF"
+                      )}
                       <input
                         type="file"
                         accept="application/pdf"
@@ -189,7 +205,9 @@ export function MyLeavePage() {
                           }
 
                           if (file.size > 3.5 * 1024 * 1024) {
-                            setToastMessage("File is too large. Maximum size is 3.5 MB.");
+                            setToastMessage(
+                              "File is too large. Maximum size is 3.5 MB.",
+                            );
                             setIsToastVisible(true);
                             e.target.value = "";
                             return;
@@ -211,8 +229,12 @@ export function MyLeavePage() {
         {balances.map((b) => (
           <div key={b.leaveTypeId} className="leave-balance-card">
             <span className="leave-balance-name">{b.leaveTypeName}</span>
-            <span className="leave-balance-remaining">{b.remainingCredits}</span>
-            <span className="leave-balance-sub">of {b.defaultCredits} remaining</span>
+            <span className="leave-balance-remaining">
+              {b.remainingCredits}
+            </span>
+            <span className="leave-balance-sub">
+              of {b.defaultCredits} remaining
+            </span>
           </div>
         ))}
       </div>
@@ -220,35 +242,35 @@ export function MyLeavePage() {
       <section className="gmail-section">
         <h2 className="gmail-section-title">My Requests</h2>
 
-        <div className="gmail-grid" style={{ marginBottom: 16 }}>
-          <div className="gmail-field">
-            <label className="gmail-label">Type</label>
+        <div className="ml-filter-bar">
+          <div className="ml-filter-field">
+            <span className="ml-filter-label">Type</span>
             <select
               value={paidFilter}
               onChange={(e) => setPaidFilter(e.target.value as "all" | "paid" | "unpaid")}
-              className="gmail-input"
+              className="ml-filter-input"
             >
               <option value="all">All</option>
               <option value="paid">Paid Leave</option>
               <option value="unpaid">Unpaid Leave</option>
             </select>
           </div>
-          <div className="gmail-field">
-            <label className="gmail-label">From</label>
+          <div className="ml-filter-field">
+            <span className="ml-filter-label">From</span>
             <input
               type="date"
               value={filterStartDate}
               onChange={(e) => setFilterStartDate(e.target.value)}
-              className="gmail-input"
+              className="ml-filter-input"
             />
           </div>
-          <div className="gmail-field">
-            <label className="gmail-label">To</label>
+          <div className="ml-filter-field">
+            <span className="ml-filter-label">To</span>
             <input
               type="date"
               value={filterEndDate}
               onChange={(e) => setFilterEndDate(e.target.value)}
-              className="gmail-input"
+              className="ml-filter-input"
             />
           </div>
         </div>
@@ -275,24 +297,40 @@ export function MyLeavePage() {
                   <tr key={r.id}>
                     <td>{r.leaveTypeName}</td>
                     <td>
-                      {new Date(r.startDate).toLocaleDateString()} – {new Date(r.endDate).toLocaleDateString()}
+                      {new Date(r.startDate).toLocaleDateString()} –{" "}
+                      {new Date(r.endDate).toLocaleDateString()}
                     </td>
                     <td>{r.days}</td>
                     <td>
-                      <span className={`status-badge ${r.isPaid ? "badge-active" : "badge-pending"}`}>
+                      <span
+                        className={`status-badge ${r.isPaid ? "badge-active" : "badge-pending"}`}
+                      >
                         {r.isPaid ? "Paid" : "Unpaid"}
                       </span>
                     </td>
                     <td>
-                      <span className={`status-badge ${STATUS_META[r.status] ?? ""}`}>
-                        {r.status === "RetractionRequested" ? "Retraction Pending" : r.status}
+                      <span
+                        className={`status-badge ${STATUS_META[r.status] ?? ""}`}
+                      >
+                        {r.status === "RetractionRequested"
+                          ? "Retraction Pending"
+                          : r.status}
                       </span>
                     </td>
-                    <td>{r.decidedByName || <span className="unassigned-text">—</span>}</td>
-                    <td className="email-date-cell">{new Date(r.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      {r.decidedByName || (
+                        <span className="unassigned-text">—</span>
+                      )}
+                    </td>
+                    <td className="email-date-cell">
+                      {new Date(r.createdAt).toLocaleDateString()}
+                    </td>
                     <td>
                       {r.status === "Approved" && (
-                        <button className="ls-test-btn" onClick={() => setRetractTarget(r)}>
+                        <button
+                          className="ls-test-btn"
+                          onClick={() => setRetractTarget(r)}
+                        >
                           Retract
                         </button>
                       )}

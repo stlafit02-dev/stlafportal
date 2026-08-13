@@ -19,6 +19,23 @@ const PRIORITY_CLASS: Record<string, string> = {
   Urgent: "priority-urgent",
 };
 
+function formatDuration(startIso: string, endIso: string): string {
+  const start = new Date(startIso).getTime();
+  const end = new Date(endIso).getTime();
+  const totalMinutes = Math.max(0, Math.round((end - start) / 60000));
+
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0 || parts.length === 0) parts.push(`${minutes}m`);
+
+  return parts.join(" ");
+}
+
 interface TicketDetailModalProps {
   ticket: Ticket | null;
   staff: ItStaff[];
@@ -39,7 +56,6 @@ export function TicketDetailModal({
   if (!ticket) return null;
 
   const isClosed = ticket.status === "Closed";
-
   return (
     <Modal isOpen={!!ticket} onClose={onClose}>
       <div className="ticket-modal">
@@ -93,11 +109,16 @@ export function TicketDetailModal({
             <span className="meta-value">{ticket.category}</span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">Submitted</span>
+            <span className="meta-label">
+              {isClosed ? "Resolution Time" : "Submitted"}
+            </span>
             <span className="meta-value">
-              {new Date(ticket.dateSubmitted).toLocaleString()}
+              {isClosed
+                ? formatDuration(ticket.dateSubmitted, ticket.updatedDate)
+                : new Date(ticket.dateSubmitted).toLocaleString()}
             </span>
           </div>
+          
         </div>
 
         <div className="ticket-modal-description">

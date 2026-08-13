@@ -9,7 +9,7 @@ function leaveChildren(
   deptSlug: string,
   showApprovals: boolean,
   showFinalApprovals: boolean,
-): NavItem["children"] {
+): { label: string; to: string }[] {
   const items: { label: string; to: string }[] = [
     { label: "My Leave", to: `/${deptSlug}/leave/my-leave` },
     { label: "My Overtime", to: `/${deptSlug}/leave/overtime` },
@@ -25,29 +25,17 @@ function leaveChildren(
   return items;
 }
 
-function sharedNav(
-  deptSlug: string,
-  showApprovals: boolean,
-  showFinalApprovals: boolean,
-): NavItem[] {
-  return [
-    { label: "Submit Ticket", action: "submitTicket" },
-    {
-      label: "Leave & Overtime",
-      children: leaveChildren(deptSlug, showApprovals, showFinalApprovals),
-    },
-  ];
-}
-
 interface ModuleChildItem {
   label: string;
-  to: string;
+  to?: string;
+  action?: "submitDocument";
   module?: string;
 }
 
 interface ModuleNavItem {
   label: string;
-  to: string;
+  to?: string;
+  action?: "submitTicket" | "submitDocument";
   module?: string;
   children?: ModuleChildItem[];
 }
@@ -102,12 +90,23 @@ function deptModuleNav(department: string): ModuleNavItem[] {
         },
         { label: "Reports", to: "/hr-admin/reports", module: "hr-reports" },
       ];
+    case "Partner":
+      return [
+        {
+          label: "Dashboard",
+          to: "/partner",
+          module: "document-partner-review",
+        },
+        {
+          label: "Repository",
+          to: "/partner/repository",
+          module: "document-partner-review",
+        },
+      ];
     default:
       return [{ label: "Overview", to: `/${departmentSlug(department)}` }];
   }
 }
-
-const RESTRICTED_DEPARTMENTS = ["IT", "HRAdmin"];
 
 export function buildNavItems(
   department: string,
@@ -118,12 +117,10 @@ export function buildNavItems(
   showFinalApprovals: boolean,
 ): NavItem[] {
   const deptSlug = departmentSlug(department);
-  const shared = sharedNav(deptSlug, showApprovals, showFinalApprovals);
   const isBypassed = role === "SuperAdmin" || role === "DeptAdmin";
 
   const isModuleAllowed = (module?: string): boolean => {
     if (!module) return true;
-    if (!RESTRICTED_DEPARTMENTS.includes(department)) return true;
     return (
       isBypassed ||
       (!!officePosition &&
@@ -133,24 +130,59 @@ export function buildNavItems(
     );
   };
 
-  const rawItems = deptModuleNav(department);
+  const managementApprovalChildren: ModuleChildItem[] = (
+    [
+      { label: "Submit Document", action: "submitDocument" as const },
+      { label: "My Documents", to: "/documents/my-documents" },
+      {
+        label: "EA Review",
+        to: "/documents/ea-review",
+        module: "document-ea-review",
+      },
+    ] satisfies ModuleChildItem[]
+  ).filter((c) => isModuleAllowed(c.module));
 
-  const filtered: NavItem[] = rawItems
+  const isPartner = department === "Partner";
+
+  const rawItems: ModuleNavItem[] = [
+    ...deptModuleNav(department),
+    { label: "Submit Ticket", action: "submitTicket" },
+    ...(isPartner
+      ? []
+      : [
+          {
+            label: "Leave & Overtime",
+            children: leaveChildren(
+              deptSlug,
+              showApprovals,
+              showFinalApprovals,
+            ),
+          },
+        ]),
+    ...(!isPartner && managementApprovalChildren.length > 0
+      ? [{ label: "Management Approval", children: managementApprovalChildren }]
+      : []),
+  ];
+
+  return rawItems
     .filter((item) => isModuleAllowed(item.module))
-    .map((item): NavItem | null => {
+    .map((item): NavItem => {
       if (item.children) {
-        const visibleChildren = item.children.filter((c) =>
-          isModuleAllowed(c.module),
-        );
-        if (visibleChildren.length === 0) return null;
         return {
           label: item.label,
-          children: visibleChildren.map((c) => ({ label: c.label, to: c.to })),
+          children: item.children
+            .filter((c) => isModuleAllowed(c.module))
+            .map((c) =>
+              c.action
+                ? { label: c.label, action: c.action }
+                : { label: c.label, to: c.to! },
+            ),
         };
       }
-      return { label: item.label, to: item.to };
+      if (item.action) {
+        return { label: item.label, action: item.action };
+      }
+      return { label: item.label, to: item.to! };
     })
-    .filter((item): item is NavItem => item !== null);
-
-  return [...filtered, ...shared];
+    .filter((item) => !item.children || item.children.length > 0);
 }

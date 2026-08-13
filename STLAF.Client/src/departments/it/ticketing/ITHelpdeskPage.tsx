@@ -10,6 +10,7 @@ import { Spinner } from "../../../common/components/Loader/Loader";
 import "./ITHelpdeskPage.css";
 import { Toast } from "../../../common/components/Toast/Toast";
 import { ThemeToggle } from "../../../common/components/ThemeToggle/ThemeToggle";
+import { SLA_MINUTES, formatSlaDuration } from "./slaConfig";
 
 const CATEGORIES = ["Hardware", "Software", "Network", "Email", "Other"];
 const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
@@ -218,6 +219,11 @@ export function ITHelpdeskPage() {
                 </option>
               ))}
             </select>
+            {form.priority && (
+              <p style={{ fontSize: 12, color: "#b91c1c", margin: "-8px 0 4px 8px" }}>
+                Response Time (SLA): {formatSlaDuration(SLA_MINUTES[form.priority] ?? SLA_MINUTES.Low)}
+              </p>
+            )}
             <textarea
               placeholder="Description"
               value={form.description}
@@ -269,6 +275,7 @@ export function ITHelpdeskPage() {
                     <th>Description</th>
                     <th>Category</th>
                     <th>Priority</th>
+                    <th>SLA</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -290,6 +297,7 @@ export function ITHelpdeskPage() {
                           {t.priority}
                         </span>
                       </td>
+                      <td>{formatSlaDuration(SLA_MINUTES[t.priority] ?? SLA_MINUTES.Low)}</td>
                       <td>
                         <span
                           className={`status-badge ${STATUS_META[t.status]?.className ?? ""}`}
