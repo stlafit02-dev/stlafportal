@@ -74,6 +74,15 @@ public class TicketingController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPatch("{id}/remarks")]
+    [Authorize(Policy = "it-ticketing")]
+    public async Task<IActionResult> AddRemark(Guid id, AddTicketRemarkDto dto)
+    {
+        var result = await _service.AddRemarkAsync(id, dto.Remarks);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+
     // IT-only — assign/reassign
     [HttpPatch("{id}/assign")]
     [Authorize(Policy = "it-ticketing")]

@@ -35,6 +35,7 @@ export function EmployeesPage() {
   const [toastMessage, setToastMessage] = useState("");
   const [isToastVisible, setIsToastVisible] = useState(false);
   const [creditsEmployee, setCreditsEmployee] = useState<Employee | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   async function loadAll() {
     setIsLoading(true);
@@ -85,6 +86,12 @@ export function EmployeesPage() {
       e.companyId.toLowerCase().includes(query) ||
       (e.companyEmail ?? "").toLowerCase().includes(query);
     return matchesStatus && matchesDept && matchesSearch;
+  });
+  const sorted = [...filtered].sort((a, b) => {
+    const cmp = a.companyId.localeCompare(b.companyId, undefined, {
+      numeric: true,
+    });
+    return sortOrder === "asc" ? cmp : -cmp;
   });
 
   if (isLoading) {
@@ -175,7 +182,40 @@ export function EmployeesPage() {
           <table className="gmail-table">
             <thead>
               <tr>
-                <th>Company ID</th>
+                <th>
+                  <button
+                    onClick={() =>
+                      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+                    }
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      cursor: "pointer",
+                      color: "inherit",
+                      font: "inherit",
+                    }}
+                  >
+                    Company ID
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      {sortOrder === "asc" ? (
+                        <path d="M12 19V5M5 12l7-7 7 7" />
+                      ) : (
+                        <path d="M12 5v14M5 12l7 7 7-7" />
+                      )}
+                    </svg>
+                  </button>
+                </th>
                 <th>Full Name</th>
                 <th>Department</th>
                 <th>Position</th>
@@ -185,7 +225,7 @@ export function EmployeesPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((e) => (
+              {sorted.map((e) => (
                 <tr
                   key={e.id}
                   className="asset-row"

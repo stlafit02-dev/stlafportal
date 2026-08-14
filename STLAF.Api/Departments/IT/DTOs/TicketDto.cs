@@ -16,6 +16,7 @@ public class TicketDto
     public string? AssignedToName { get; set; }
     public DateTime DateSubmitted { get; set; }
     public DateTime UpdatedDate { get; set; }
+    public string? Remarks { get; set; }
 }
 
 public class CreateTicketDto
@@ -41,6 +42,7 @@ public class TicketSummaryDto
 public class UpdateTicketStatusDto
 {
     public string Status { get; set; } = string.Empty;
+    public string? Remarks { get; set; }
 }
 
 public class AssignTicketDto
@@ -67,4 +69,9 @@ public class CreatePortalTicketDto
     public string Category { get; set; } = string.Empty;
     public string Priority { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+}
+
+public class AddTicketRemarkDto
+{
+    public string Remarks { get; set; } = string.Empty;
 }

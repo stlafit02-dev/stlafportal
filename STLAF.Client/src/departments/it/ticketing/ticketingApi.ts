@@ -15,6 +15,7 @@ export interface Ticket {
   assignedToName?: string | null;
   dateSubmitted: string;
   updatedDate: string;
+  remarks?: string | null;
 }
 
 export interface TicketSummary {
@@ -78,6 +79,11 @@ export async function updateTicketStatus(
   const res = await apiClient.patch<Ticket>(`/it/tickets/${id}/status`, {
     status,
   });
+  return res.data;
+}
+
+export async function addTicketRemark(id: string, remarks: string): Promise<Ticket> {
+  const res = await apiClient.patch<Ticket>(`/it/tickets/${id}/remarks`, { remarks });
   return res.data;
 }
 
