@@ -50,6 +50,7 @@ export function EmailAccountPage() {
 
   function handleCreated(account: EmailAccount) {
     setEmailAccounts((prev) => [account, ...prev]);
+    fetchGwsAccounts().then(setGwsAccounts);
   }
 
   function handleSaved(account: EmailAccount) {

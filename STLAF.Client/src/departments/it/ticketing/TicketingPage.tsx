@@ -4,6 +4,7 @@ import {
   fetchItStaff,
   updateTicketStatus,
   assignTicket,
+  addTicketRemark,
   type Ticket,
   type ItStaff,
 } from "./ticketingApi";
@@ -73,6 +74,13 @@ export function TicketingPage() {
     setIsToastVisible(true);
   }
 
+  async function handleAddRemark(ticketId: string, remarks: string) {
+    const updated = await addTicketRemark(ticketId, remarks);
+    setTickets((prev) => prev.map((t) => (t.id === ticketId ? updated : t)));
+    setToastMessage(`Remark added to ${updated.ticketNumber}.`);
+    setIsToastVisible(true);
+  }
+
   async function handleAssignChange(ticketId: string, assignedToId: string) {
     const updated = await assignTicket(ticketId, assignedToId || null);
     setTickets((prev) => prev.map((t) => (t.id === ticketId ? updated : t)));
@@ -99,9 +107,10 @@ export function TicketingPage() {
   });
 
   const sortedTickets = [...filteredTickets].sort((a, b) => {
-    const diff =
-      new Date(a.dateSubmitted).getTime() - new Date(b.dateSubmitted).getTime();
-    return sortOrder === "asc" ? diff : -diff;
+    const cmp = a.ticketNumber.localeCompare(b.ticketNumber, undefined, {
+      numeric: true,
+    });
+    return sortOrder === "asc" ? cmp : -cmp;
   });
 
   function handleDelete(ticket: Ticket) {
@@ -281,6 +290,7 @@ export function TicketingPage() {
         onClose={() => setSelectedTicketId(null)}
         onStatusChange={handleStatusChange}
         onAssignChange={handleAssignChange}
+        onAddRemark={handleAddRemark}
         onDelete={handleDelete}
       />
       <Toast

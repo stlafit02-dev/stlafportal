@@ -53,7 +53,9 @@
   font-size: 14px;
   color: var(--text-primary);
   font-family: "Inter", sans-serif;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .field-input::placeholder {
@@ -74,7 +76,11 @@
 
 .login-submit {
   margin-top: 6px;
-  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  background: linear-gradient(
+    135deg,
+    var(--accent-gold-bright),
+    var(--accent-gold)
+  );
   color: var(--bg-primary);
   border: none;
   padding: 13px;
@@ -83,7 +89,10 @@
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(204, 170, 73, 0.25);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .login-submit:hover:not(:disabled) {
@@ -106,4 +115,56 @@
   .field-input {
     transition: none;
   }
+}
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input-wrap .field-input {
+  width: 100%;
+  padding-right: 40px;
+  box-sizing: border-box;
+}
+
+.password-toggle-inset {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle-inset:hover {
+  color: var(--text-primary);
+}
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input-wrap .field-input {
+  padding-right: 40px;
+}
+
+.password-toggle-inset {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle-inset:hover {
+  color: var(--text-primary);
 }

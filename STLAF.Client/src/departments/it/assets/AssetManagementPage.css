@@ -146,7 +146,7 @@
 .asset-table thead th {
   position: sticky;
   top: 0;
-  background: var(--bg-card);
+  background: var(--bg-card-solid);
   text-align: left;
   font-size: 11px;
   letter-spacing: 0.4px;

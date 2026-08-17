@@ -17,4 +17,5 @@ public class Ticket : BaseEntity
     public Guid? SubmittedByEmployeeId { get; set; }
     public DateTime DateSubmitted { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedDate { get; set; } = DateTime.UtcNow;
+    public string? Remarks { get; set; }
 }

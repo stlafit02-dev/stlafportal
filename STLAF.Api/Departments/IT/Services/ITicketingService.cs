@@ -9,6 +9,7 @@ public interface ITicketingService
     Task<TicketSummaryDto> GetSummaryAsync();
     Task<TicketDto> CreateAsync(CreateTicketDto dto);
     Task<TicketDto?> UpdateStatusAsync(Guid ticketId, string status);
+    Task<TicketDto?> AddRemarkAsync(Guid ticketId, string remarks);
     Task<TicketDto?> AssignAsync(Guid ticketId, Guid? assignedToId);
     Task<List<ItStaffDto>> GetItStaffAsync();
     Task<EmployeeTicketProfileDto?> GetMyProfileAsync(Guid userId);

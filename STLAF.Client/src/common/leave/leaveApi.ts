@@ -51,6 +51,7 @@ export interface CreateLeaveRequestPayload {
   endDate: string;
   reason: string;
   isPaid: boolean;
+  isHalfDay: boolean;
 }
 
 export interface DecideLeaveRequestPayload {

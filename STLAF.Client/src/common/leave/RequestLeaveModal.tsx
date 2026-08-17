@@ -29,9 +29,12 @@ export function RequestLeaveModal({
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
   const [isPaid, setIsPaid] = useState(true);
+  const [isHalfDay, setIsHalfDay] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showMedicalBlockModal, setShowMedicalBlockModal] = useState(false);
+
+  const isSingleDay = startDate !== "" && startDate === endDate;
 
   function resetAndClose() {
     setLeaveTypeId("");
@@ -39,8 +42,19 @@ export function RequestLeaveModal({
     setEndDate("");
     setReason("");
     setIsPaid(true);
+    setIsHalfDay(false);
     setError(null);
     onClose();
+  }
+
+  function handleStartDateChange(value: string) {
+    setStartDate(value);
+    if (value !== endDate) setIsHalfDay(false);
+  }
+
+  function handleEndDateChange(value: string) {
+    setEndDate(value);
+    if (value !== startDate) setIsHalfDay(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -60,6 +74,7 @@ export function RequestLeaveModal({
         endDate,
         reason,
         isPaid,
+        isHalfDay: isSingleDay ? isHalfDay : false,
       });
       onCreated(request);
       resetAndClose();
@@ -121,7 +136,7 @@ export function RequestLeaveModal({
               <input
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => handleStartDateChange(e.target.value)}
                 required
                 className="gmail-input"
               />
@@ -131,12 +146,28 @@ export function RequestLeaveModal({
               <input
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => handleEndDateChange(e.target.value)}
                 required
                 className="gmail-input"
               />
             </div>
           </div>
+
+          {isSingleDay && (
+            <div className="gmail-field">
+              <label className="gmail-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={isHalfDay}
+                  onChange={(e) => setIsHalfDay(e.target.checked)}
+                />
+                Half Day (0.5)
+              </label>
+              <p style={{ fontSize: 11.5, color: "var(--text-muted)", margin: "4px 0 0" }}>
+                Only available for a single-day request. Uncheck for a full day (1.0).
+              </p>
+            </div>
+          )}
 
           <div className="gmail-field">
             <label className="gmail-label">Reason</label>

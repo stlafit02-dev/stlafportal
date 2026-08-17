@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using STLAF.Api.Data;
@@ -11,9 +12,11 @@ using STLAF.Api.Data;
 namespace STLAF.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260814072514_AddTicketRemarks")]
+    partial class AddTicketRemarks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -377,8 +380,8 @@ namespace STLAF.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<decimal>("Credits")
-                        .HasColumnType("numeric")
+                    b.Property<int>("Credits")
+                        .HasColumnType("integer")
                         .HasColumnName("credits");
 
                     b.Property<Guid>("EmployeeId")
@@ -474,8 +477,8 @@ namespace STLAF.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<decimal>("Days")
-                        .HasColumnType("numeric")
+                    b.Property<int>("Days")
+                        .HasColumnType("integer")
                         .HasColumnName("days");
 
                     b.Property<DateTime?>("DecidedAt")
@@ -568,8 +571,8 @@ namespace STLAF.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<decimal>("DefaultCredits")
-                        .HasColumnType("numeric")
+                    b.Property<int>("DefaultCredits")
+                        .HasColumnType("integer")
                         .HasColumnName("default_credits");
 
                     b.Property<string>("Name")

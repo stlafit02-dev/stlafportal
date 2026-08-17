@@ -87,6 +87,25 @@ public class TicketingService : ITicketingService
         return list[0];
     }
 
+    public async Task<TicketDto?> AddRemarkAsync(Guid ticketId, string remarks)
+    {
+        var ticket = await _db.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
+        if (ticket is null) return null;
+
+        if (!string.IsNullOrWhiteSpace(remarks))
+        {
+            var timestamp = DateTime.UtcNow.ToString("MMM d, yyyy h:mm tt");
+            var entry = $"[{timestamp}] {remarks}";
+            ticket.Remarks = string.IsNullOrWhiteSpace(ticket.Remarks)
+                ? entry
+                : $"{ticket.Remarks}\n{entry}";
+            await _db.SaveChangesAsync();
+        }
+
+        var list = await ToDtoListAsync(new List<Ticket> { ticket });
+        return list[0];
+    }
+
     public async Task<TicketDto?> AssignAsync(Guid ticketId, Guid? assignedToId)
     {
         var ticket = await _db.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
@@ -212,10 +231,11 @@ public class TicketingService : ITicketingService
             Department = t.Department,
             AssignedToId = t.AssignedTo,
             AssignedToName = t.AssignedTo.HasValue && assignees.TryGetValue(t.AssignedTo.Value, out var name)
-                ? name
-                : null,
+      ? name
+      : null,
             DateSubmitted = t.DateSubmitted,
-            UpdatedDate = t.UpdatedDate
+            UpdatedDate = t.UpdatedDate,
+            Remarks = t.Remarks
         }).ToList();
     }
 }

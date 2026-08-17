@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Modal } from "../../../common/components/Modal/Modal";
 import type { Ticket, ItStaff } from "./ticketingApi";
 import "./TicketDetailModal.css";
@@ -42,6 +43,7 @@ interface TicketDetailModalProps {
   onClose: () => void;
   onStatusChange: (ticketId: string, status: string) => void;
   onAssignChange: (ticketId: string, assignedToId: string) => void;
+  onAddRemark: (ticketId: string, remarks: string) => void;
   onDelete: (ticket: Ticket) => void;
 }
 
@@ -51,11 +53,25 @@ export function TicketDetailModal({
   onClose,
   onStatusChange,
   onAssignChange,
+  onAddRemark,
   onDelete,
 }: TicketDetailModalProps) {
+  const [remarkInput, setRemarkInput] = useState("");
+
   if (!ticket) return null;
 
   const isClosed = ticket.status === "Closed";
+  const remarksLog = ticket.remarks
+    ? ticket.remarks.split("\n").filter(Boolean).reverse()
+    : [];
+  const latestRemark = remarksLog[0] ?? null;
+
+  function handleAddRemarkClick() {
+    if (!remarkInput.trim() || !ticket) return;
+    onAddRemark(ticket.id, remarkInput.trim());
+    setRemarkInput("");
+  }
+
   return (
     <Modal isOpen={!!ticket} onClose={onClose}>
       <div className="ticket-modal">
@@ -118,13 +134,95 @@ export function TicketDetailModal({
                 : new Date(ticket.dateSubmitted).toLocaleString()}
             </span>
           </div>
-          
         </div>
 
         <div className="ticket-modal-description">
           <span className="meta-label">Description</span>
           <p className="description-text">{ticket.description}</p>
         </div>
+
+        <div className="ticket-modal-description">
+          <span className="meta-label">Latest Remark</span>
+          <p
+            className="description-text"
+            style={{
+              fontStyle: latestRemark ? "normal" : "italic",
+              opacity: latestRemark ? 1 : 0.6,
+            }}
+          >
+            {latestRemark ?? "No remarks yet."}
+          </p>
+        </div>
+
+        {remarksLog.length > 0 && (
+          <div className="ticket-modal-description">
+            <span className="meta-label">Remarks</span>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                border: "1px solid var(--border-color)",
+                borderRadius: 8,
+                overflow: "hidden",
+              }}
+            >
+              <textarea
+                value={remarkInput}
+                onChange={(e) => setRemarkInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleAddRemarkClick();
+                  }
+                }}
+                rows={2}
+                style={{
+                  width: "100%",
+                  resize: "none",
+                  fontFamily: "inherit",
+                  fontSize: 13,
+                  border: "none",
+                  borderBottom: "1px solid var(--border-color)",
+                  background: "var(--bg-input)",
+                  padding: "10px 12px",
+                  color: "var(--text-primary)",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+                placeholder="Add a note… (Enter to save, Shift+Enter for a new line)"
+                disabled={isClosed}
+              />
+              {remarksLog.length > 0 && (
+                <div
+                  style={{
+                    maxHeight: 160,
+                    overflowY: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  {remarksLog.map((line, i) => (
+                    <p
+                      key={i}
+                      style={{
+                        margin: 0,
+                        fontSize: 12.5,
+                        color: "var(--text-body)",
+                        padding: "8px 12px",
+                        borderBottom:
+                          i === remarksLog.length - 1
+                            ? "none"
+                            : "1px solid var(--border-color)",
+                      }}
+                    >
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="ticket-modal-controls">
           <div className="control-group">

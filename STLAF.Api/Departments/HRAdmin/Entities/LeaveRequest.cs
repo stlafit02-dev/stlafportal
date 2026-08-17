@@ -10,7 +10,7 @@ public class LeaveRequest : BaseEntity
     public LeaveType LeaveType { get; set; } = null!;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public int Days { get; set; }
+    public decimal Days { get; set; }
     public string Reason { get; set; } = string.Empty;
     public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected
     public Guid? DecidedByEmployeeId { get; set; }

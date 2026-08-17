@@ -4,21 +4,21 @@ public class LeaveTypeDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
-    public int DefaultCredits { get; set; }
+    public decimal DefaultCredits { get; set; }
     public int? RequiresMedicalAfterDays { get; set; }
 }
 
 public class CreateLeaveTypeDto
 {
     public string Name { get; set; } = string.Empty;
-    public int DefaultCredits { get; set; }
+    public decimal DefaultCredits { get; set; }
     public int? RequiresMedicalAfterDays { get; set; }
 }
 
 public class UpdateLeaveTypeDto
 {
     public string Name { get; set; } = string.Empty;
-    public int DefaultCredits { get; set; }
+    public decimal DefaultCredits { get; set; }
     public int? RequiresMedicalAfterDays { get; set; }
 }
 
@@ -40,9 +40,9 @@ public class LeaveBalanceDto
 {
     public Guid LeaveTypeId { get; set; }
     public string LeaveTypeName { get; set; } = string.Empty;
-    public int DefaultCredits { get; set; }
-    public int UsedCredits { get; set; }
-    public int RemainingCredits { get; set; }
+    public decimal DefaultCredits { get; set; }
+    public decimal UsedCredits { get; set; }
+    public decimal RemainingCredits { get; set; }
 }
 
 public class LeaveRequestDto
@@ -54,7 +54,7 @@ public class LeaveRequestDto
     public string LeaveTypeName { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public int Days { get; set; }
+    public decimal Days { get; set; }
     public string Reason { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public string? DecidedByName { get; set; }
@@ -76,6 +76,7 @@ public class CreateLeaveRequestDto
     public DateTime EndDate { get; set; }
     public string Reason { get; set; } = string.Empty;
     public bool IsPaid { get; set; }
+    public bool IsHalfDay { get; set; }
 }
 
 public class DecideLeaveRequestDto
@@ -129,15 +130,15 @@ public class EmployeeLeaveCreditDto
 {
     public Guid LeaveTypeId { get; set; }
     public string LeaveTypeName { get; set; } = string.Empty;
-    public int DefaultCredits { get; set; }
-    public int? OverrideCredits { get; set; }
-    public int EffectiveCredits { get; set; }
+    public decimal DefaultCredits { get; set; }
+    public decimal? OverrideCredits { get; set; }
+    public decimal EffectiveCredits { get; set; }
 }
 
 public class SetEmployeeLeaveCreditDto
 {
     public Guid LeaveTypeId { get; set; }
-    public int? Credits { get; set; } // null = remove override, fall back to default
+    public decimal? Credits { get; set; } // null = remove override, fall back to default
 }
 
 public class RequestRetractionDto

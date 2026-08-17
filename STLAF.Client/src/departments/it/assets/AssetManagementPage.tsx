@@ -79,9 +79,10 @@ export function AssetManagementPage() {
   });
 
   const sorted = [...filtered].sort((a, b) => {
-    const diff =
-      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    return sortOrder === "asc" ? diff : -diff;
+    const cmp = a.assetTag.localeCompare(b.assetTag, undefined, {
+      numeric: true,
+    });
+    return sortOrder === "asc" ? cmp : -cmp;
   });
 
   const viewAsset = assets.find((a) => a.id === viewAssetId) ?? null;

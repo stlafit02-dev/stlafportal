@@ -25,7 +25,7 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(x => x.UpdatedDate).HasColumnName("updated_date");
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
-
+        builder.Property(x => x.Remarks).HasColumnName("remarks");
         builder.HasIndex(x => x.TicketNumber).IsUnique();
     }
 }
