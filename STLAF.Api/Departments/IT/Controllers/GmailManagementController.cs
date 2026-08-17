@@ -117,4 +117,11 @@ public class GmailManagementController : ControllerBase
 
         return Ok(employees);
     }
+    [HttpPost("backfill-employee-emails")]
+    [Authorize(Policy = "it-gmail")]
+    public async Task<IActionResult> BackfillEmployeeEmails()
+    {
+        var count = await _service.BackfillEmployeeCompanyEmailsAsync();
+        return Ok(new { message = $"Updated {count} employee record(s)." });
+    }
 }

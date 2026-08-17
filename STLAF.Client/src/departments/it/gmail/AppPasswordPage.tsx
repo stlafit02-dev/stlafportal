@@ -1,13 +1,28 @@
 import { useEffect, useState } from "react";
-import { fetchGwsAccounts, fetchAppPasswords, type GwsAccount, type AppPasswordEntry } from "./gmailApi";
+import {
+  fetchGwsAccounts,
+  fetchAppPasswords,
+  type GwsAccount,
+  type AppPasswordEntry,
+} from "./gmailApi";
 import { AppPasswordModal } from "./AppPasswordModal";
 import { Spinner } from "../../../common/components/Loader/Loader";
 import "./GmailManagementPage.css";
 import "./AppPasswordPage.css";
 
 const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const STATUS_FILTERS = ["All Status", "Active", "Expired"];
@@ -53,10 +68,23 @@ export function AppPasswordPage() {
   const [gwsFilter, setGwsFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  async function handleCopy(id: string, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 1500);
+    } catch {
+      // clipboard write failed silently — no toast infra wired to this page currently
+    }
+  }
   async function loadAll() {
     setIsLoading(true);
-    const [gws, passwords] = await Promise.all([fetchGwsAccounts(), fetchAppPasswords()]);
+    const [gws, passwords] = await Promise.all([
+      fetchGwsAccounts(),
+      fetchAppPasswords(),
+    ]);
     setGwsAccounts(gws);
     setAppPasswords(passwords);
     setIsLoading(false);
@@ -80,7 +108,8 @@ export function AppPasswordPage() {
 
   const filtered = appPasswords.filter((p) => {
     const matchesGws = gwsFilter === "All" || p.gwsAccountId === gwsFilter;
-    const matchesStatus = statusFilter === "All Status" || p.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "All Status" || p.status === statusFilter;
     return matchesGws && matchesStatus;
   });
 
@@ -102,29 +131,46 @@ export function AppPasswordPage() {
             <h1 className="page-title">App Passwords</h1>
             <p className="page-subtitle">{appPasswords.length} records</p>
           </div>
-          <button className="gmail-primary-btn" onClick={() => setIsModalOpen(true)}>
+          <button
+            className="gmail-primary-btn"
+            onClick={() => setIsModalOpen(true)}
+          >
             + Add Password
           </button>
         </div>
 
         <div className="app-pw-filters">
-          <select value={gwsFilter} onChange={(e) => setGwsFilter(e.target.value)} className="email-gws-filter">
+          <select
+            value={gwsFilter}
+            onChange={(e) => setGwsFilter(e.target.value)}
+            className="email-gws-filter"
+          >
             <option value="All">All GWS</option>
             {gwsAccounts.map((g) => (
-              <option key={g.id} value={g.id}>{g.name}</option>
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
             ))}
           </select>
 
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="email-gws-filter">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="email-gws-filter"
+          >
             {STATUS_FILTERS.map((s) => (
-              <option key={s} value={s}>{s}</option>
+              <option key={s} value={s}>
+                {s}
+              </option>
             ))}
           </select>
         </div>
 
         {groups.length === 0 ? (
           <div className="gmail-empty">
-            {appPasswords.length === 0 ? "No app passwords recorded yet." : "No records match your filters."}
+            {appPasswords.length === 0
+              ? "No app passwords recorded yet."
+              : "No records match your filters."}
           </div>
         ) : (
           <div className="gmail-table-wrap email-table-wrap">
@@ -147,7 +193,9 @@ export function AppPasswordPage() {
                       <tr key={p.id} className={i > 0 ? "app-pw-subrow" : ""}>
                         {i === 0 && (
                           <>
-                            <td rowSpan={group.entries.length}>{group.gwsAccountName}</td>
+                            <td rowSpan={group.entries.length}>
+                              {group.gwsAccountName}
+                            </td>
                             <td rowSpan={group.entries.length}>
                               {MONTH_NAMES[group.month - 1]} {group.year}
                             </td>
@@ -156,40 +204,107 @@ export function AppPasswordPage() {
                         <td>
                           <div className="app-pw-reveal">
                             <span className="mono-cell">
-                              {isRevealed ? p.appPasswordValue : "•••• •••• •••• ••••"}
+                              {isRevealed
+                                ? p.appPasswordValue
+                                : "•••• •••• •••• ••••"}
                             </span>
                             <button
                               type="button"
                               className="password-toggle-btn"
                               onClick={() => toggleReveal(p.id)}
-                              aria-label={isRevealed ? "Hide password" : "Show password"}
+                              aria-label={
+                                isRevealed ? "Hide password" : "Show password"
+                              }
                             >
                               {isRevealed ? (
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <svg
+                                  width="15"
+                                  height="15"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
                                   <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
                                   <line x1="1" y1="1" x2="23" y2="23" />
                                 </svg>
                               ) : (
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <svg
+                                  width="15"
+                                  height="15"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
                                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
                                   <circle cx="12" cy="12" r="3" />
+                                </svg>
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              className="password-toggle-btn"
+                              onClick={() =>
+                                handleCopy(p.id, p.appPasswordValue)
+                              }
+                              aria-label="Copy password"
+                            >
+                              {copiedId === p.id ? (
+                                <svg
+                                  width="15"
+                                  height="15"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="#4FCB84"
+                                  strokeWidth="2"
+                                >
+                                  <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                              ) : (
+                                <svg
+                                  width="15"
+                                  height="15"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <rect
+                                    x="9"
+                                    y="9"
+                                    width="13"
+                                    height="13"
+                                    rx="2"
+                                  />
+                                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                                 </svg>
                               )}
                             </button>
                           </div>
                         </td>
                         <td>
-                          <span className={`status-badge ${p.status === "Active" ? "badge-active" : "badge-expired"}`}>
+                          <span
+                            className={`status-badge ${p.status === "Active" ? "badge-active" : "badge-expired"}`}
+                          >
                             {p.status.toUpperCase()}
                           </span>
                         </td>
-                        <td>{p.notes || <span className="unassigned-text">—</span>}</td>
+                        <td>
+                          {p.notes || (
+                            <span className="unassigned-text">—</span>
+                          )}
+                        </td>
                         <td className="email-date-cell">
-                          {new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          {new Date(p.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
                         </td>
                       </tr>
                     );
-                  })
+                  }),
                 )}
               </tbody>
             </table>

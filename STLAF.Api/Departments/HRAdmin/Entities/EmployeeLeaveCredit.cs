@@ -10,5 +10,5 @@ public class EmployeeLeaveCredit : BaseEntity
     public Guid LeaveTypeId { get; set; }
     public LeaveType LeaveType { get; set; } = null!;
 
-    public int Credits { get; set; }
+    public decimal Credits { get; set; }
 }

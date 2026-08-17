@@ -15,4 +15,5 @@ public interface IGmailService
     Task<int> DeleteExpiredAppPasswordsAsync();
     Task<EmailAccountDto?> UpdateEmailAccountAsync(Guid id, UpdateEmailAccountDto dto, string updatedBy);
     Task<EmailAccountDto?> RecycleEmailAccountAsync(Guid id, RecycleEmailAccountDto dto, string updatedBy);
+    Task<int> BackfillEmployeeCompanyEmailsAsync();
 }

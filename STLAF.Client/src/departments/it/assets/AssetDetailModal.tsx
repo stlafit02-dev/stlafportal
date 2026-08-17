@@ -233,12 +233,6 @@ export function AssetDetailModal({
                   <span className="row-value">{asset.previousUser || "—"}</span>
                 </div>
               )}
-              <div className="detail-item">
-                <span className="detail-label">Previous Owner</span>
-                <span className="detail-value">
-                  {asset.previousUser || "—"}
-                </span>
-              </div>
             </div>
 
             <div className="asset-view-peripherals">

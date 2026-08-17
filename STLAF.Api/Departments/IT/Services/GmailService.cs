@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using STLAF.Api.Data;
+using STLAF.Api.Departments.HRAdmin.Entities;
 using STLAF.Api.Departments.IT.DTOs;
 using STLAF.Api.Departments.IT.Entities;
 
@@ -117,6 +118,10 @@ public class GmailService : IGmailService
         await _db.SaveChangesAsync();
 
         await _db.Entry(account).Reference(e => e.GwsAccount).LoadAsync();
+
+        // Sync the newly assigned STLAF email back onto the matching employee's HR record.
+        await SyncEmployeeCompanyEmailByNameAsync(dto.FullName, dto.StlafEmail);
+
         return ToEmailDto(account);
     }
 
@@ -141,6 +146,8 @@ public class GmailService : IGmailService
         var account = await _db.EmailAccounts.Include(e => e.GwsAccount).FirstOrDefaultAsync(e => e.Id == id);
         if (account is null) return null;
 
+        var oldStlafEmail = account.StlafEmail;
+
         account.OldUser = account.FullName;
         account.OldStlafEmail = account.StlafEmail;
         account.FullName = dto.NewFullName;
@@ -150,6 +157,22 @@ public class GmailService : IGmailService
         account.RecycledAt = DateTime.UtcNow;
         account.UpdatedBy = updatedBy;
         await _db.SaveChangesAsync();
+
+        // Clear the old owner's CompanyEmail (matched by the email address they're losing,
+        // not by name, since the old employee record may not have had a matching name entry).
+        var previousOwner = await _db.Employees.FirstOrDefaultAsync(e => e.CompanyEmail == oldStlafEmail);
+        if (previousOwner is not null)
+        {
+            previousOwner.CompanyEmail = null;
+        }
+
+        // Assign the recycled email to the new owner, matched by name.
+        await SyncEmployeeCompanyEmailByNameAsync(dto.NewFullName, dto.NewStlafEmail);
+
+        if (previousOwner is not null)
+        {
+            await _db.SaveChangesAsync();
+        }
 
         return ToEmailDto(account);
     }
@@ -235,6 +258,59 @@ public class GmailService : IGmailService
             Notes = entry.Notes,
             CreatedAt = entry.CreatedAt
         };
+    }
+
+    // ---------- Employee sync (one-off usage) ----------
+
+    public async Task<int> BackfillEmployeeCompanyEmailsAsync()
+    {
+        var activeEmployees = await _db.Employees.Where(e => e.Status == "Active").ToListAsync();
+        var activeEmails = await _db.EmailAccounts
+            .Where(e => !e.Deleted && e.Status == "Active")
+            .ToListAsync();
+
+        var updated = 0;
+        foreach (var emp in activeEmployees)
+        {
+            if (!string.IsNullOrWhiteSpace(emp.CompanyEmail)) continue;
+
+            var match = FindMatchingEmailAccount(activeEmails, $"{emp.FirstName} {emp.LastName}");
+            if (match is not null)
+            {
+                emp.CompanyEmail = match.StlafEmail;
+                updated++;
+            }
+        }
+
+        if (updated > 0) await _db.SaveChangesAsync();
+        return updated;
+    }
+
+    // ---------- Helpers ----------
+
+    private static string NormalizeName(string name) =>
+        System.Text.RegularExpressions.Regex.Replace(name.Trim(), @"\s+", " ");
+
+    private static EmailAccount? FindMatchingEmailAccount(List<EmailAccount> accounts, string employeeFullName)
+    {
+        var normalizedTarget = NormalizeName(employeeFullName);
+        return accounts.FirstOrDefault(e =>
+            string.Equals(NormalizeName(e.FullName), normalizedTarget, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task SyncEmployeeCompanyEmailByNameAsync(string fullName, string stlafEmail)
+    {
+        var normalizedTarget = NormalizeName(fullName);
+        var activeEmployees = await _db.Employees.Where(e => e.Status == "Active").ToListAsync();
+
+        var matchedEmployee = activeEmployees.FirstOrDefault(e =>
+            string.Equals(NormalizeName($"{e.FirstName} {e.LastName}"), normalizedTarget, StringComparison.OrdinalIgnoreCase));
+
+        if (matchedEmployee is not null)
+        {
+            matchedEmployee.CompanyEmail = stlafEmail;
+            await _db.SaveChangesAsync();
+        }
     }
 
     private static EmailAccountDto ToEmailDto(EmailAccount e) => new()

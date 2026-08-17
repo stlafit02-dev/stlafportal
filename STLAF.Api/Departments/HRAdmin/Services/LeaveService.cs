@@ -290,14 +290,14 @@ public class LeaveService : ILeaveService
         return types.Select(t =>
         {
             var used = approvedThisYear.Where(r => r.LeaveTypeId == t.Id).Sum(r => r.Days);
-            var effectiveCredits = overrides.FirstOrDefault(o => o.LeaveTypeId == t.Id)?.Credits ?? t.DefaultCredits;
+            decimal effectiveCredits = overrides.FirstOrDefault(o => o.LeaveTypeId == t.Id)?.Credits ?? t.DefaultCredits;
             return new LeaveBalanceDto
             {
                 LeaveTypeId = t.Id,
                 LeaveTypeName = t.Name,
                 DefaultCredits = effectiveCredits,
                 UsedCredits = used,
-                RemainingCredits = Math.Max(0, effectiveCredits - used)
+                RemainingCredits = Math.Max(0m, effectiveCredits - used)
             };
         }).ToList();
     }
@@ -326,8 +326,20 @@ public class LeaveService : ILeaveService
         var hasBlocker = await _db.MedicalCertificates
             .AnyAsync(m => m.EmployeeId == employee.Id && m.Status != "Verified");
 
-        var days = CalculateBusinessDays(dto.StartDate, dto.EndDate);
-        if (days < 1) throw new InvalidOperationException("Invalid date range.");
+        decimal days;
+        if (dto.IsHalfDay)
+        {
+            if (dto.StartDate.Date != dto.EndDate.Date)
+                throw new InvalidOperationException("Half-day leave must have the same start and end date.");
+
+            days = 0.5m;
+        }
+        else
+        {
+            days = CalculateBusinessDays(dto.StartDate, dto.EndDate);
+        }
+
+        if (days < 0.5m) throw new InvalidOperationException("Invalid date range.");
 
         // A pending/unverified medical certificate no longer blocks submission —
         // it just forces this leave to be unpaid, regardless of the employee's checkbox choice.
@@ -779,7 +791,8 @@ public class LeaveService : ILeaveService
         VerificationNotes = m.VerificationNotes,
         VerifiedAt = m.VerifiedAt
     };
-    private static int CalculateBusinessDays(DateTime start, DateTime end)
+
+    private static decimal CalculateBusinessDays(DateTime start, DateTime end)
     {
         var days = 0;
         for (var date = start.Date; date <= end.Date; date = date.AddDays(1))
