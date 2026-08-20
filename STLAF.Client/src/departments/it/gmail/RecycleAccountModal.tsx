@@ -16,7 +16,11 @@ interface RecycleAccountModalProps {
   onRecycled: (account: EmailAccount) => void;
 }
 
-export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAccountModalProps) {
+export function RecycleAccountModal({
+  account,
+  onClose,
+  onRecycled,
+}: RecycleAccountModalProps) {
   if (!account) return null;
   const current = account;
 
@@ -28,6 +32,7 @@ export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAcc
   const [employees, setEmployees] = useState<RegisteredEmployeeOption[]>([]);
   const [isNameDropdownOpen, setIsNameDropdownOpen] = useState(false);
   const nameFieldRef = useRef<HTMLDivElement>(null);
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     fetchRegisteredEmployees().then(setEmployees);
@@ -35,7 +40,10 @@ export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAcc
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (nameFieldRef.current && !nameFieldRef.current.contains(e.target as Node)) {
+      if (
+        nameFieldRef.current &&
+        !nameFieldRef.current.contains(e.target as Node)
+      ) {
         setIsNameDropdownOpen(false);
       }
     }
@@ -55,11 +63,12 @@ export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAcc
     setIsNameDropdownOpen(false);
   }
 
-  const filteredEmployees = newFullName.trim() === ""
-    ? employees
-    : employees.filter((emp) =>
-        emp.fullName.toLowerCase().includes(newFullName.trim().toLowerCase()),
-      );
+  const filteredEmployees =
+    newFullName.trim() === ""
+      ? employees
+      : employees.filter((emp) =>
+          emp.fullName.toLowerCase().includes(newFullName.trim().toLowerCase()),
+        );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -70,14 +79,18 @@ export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAcc
       const updated = await recycleEmailAccount(current.id, {
         newFullName,
         newStlafEmail: `${newLocalPart}@${EMAIL_DOMAIN}`,
+        newPassword,
       });
       onRecycled(updated);
       onClose();
       setNewFullName("");
       setNewLocalPart("");
+      setNewPassword("");
       setAliasManuallyEdited(false);
     } catch {
-      setError("Something went wrong recycling this account. Please try again.");
+      setError(
+        "Something went wrong recycling this account. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -96,15 +109,27 @@ export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAcc
           </p>
         </div>
 
-        <span className="recycle-section-label">Moving to Old User Records</span>
+        <span className="recycle-section-label">
+          Moving to Old User Records
+        </span>
         <div className="recycle-preview">
           <div className="recycle-preview-item">
             <span className="recycle-preview-label">Old User</span>
             <span className="recycle-preview-value">{current.fullName}</span>
           </div>
           <div className="recycle-preview-item">
-            <span className="recycle-preview-label">Old STLAF Email (alias)</span>
-            <span className="recycle-preview-value mono">{current.stlafEmail}</span>
+            <span className="recycle-preview-label">
+              Old STLAF Email (alias)
+            </span>
+            <span className="recycle-preview-value mono">
+              {current.stlafEmail}
+            </span>
+          </div>
+          <div className="recycle-preview-item">
+            <span className="recycle-preview-label">Old Password</span>
+            <span className="recycle-preview-value mono">
+              {current.password}
+            </span>
           </div>
         </div>
 
@@ -113,11 +138,19 @@ export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAcc
           <div className="recycle-static-value mono">{current.localGmail}</div>
         </div>
 
-        <span className="recycle-section-label recycle-new-section">New User Details</span>
+        <span className="recycle-section-label recycle-new-section">
+          New User Details
+        </span>
 
         <form onSubmit={handleSubmit} className="gmail-form">
-          <div className="gmail-field" ref={nameFieldRef} style={{ position: "relative" }}>
-            <label className="gmail-label">New Full Name <span className="required-mark">*</span></label>
+          <div
+            className="gmail-field"
+            ref={nameFieldRef}
+            style={{ position: "relative" }}
+          >
+            <label className="gmail-label">
+              New Full Name <span className="required-mark">*</span>
+            </label>
             <input
               type="text"
               value={newFullName}
@@ -140,7 +173,9 @@ export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAcc
                     className="employee-autocomplete-item"
                     onClick={() => handleSelectEmployee(emp)}
                   >
-                    <span className="employee-autocomplete-name">{emp.fullName}</span>
+                    <span className="employee-autocomplete-name">
+                      {emp.fullName}
+                    </span>
                     <span className="employee-autocomplete-meta">
                       {emp.companyId} · {emp.department}
                     </span>
@@ -148,22 +183,30 @@ export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAcc
                 ))}
               </div>
             )}
-            {isNameDropdownOpen && newFullName.trim() !== "" && filteredEmployees.length === 0 && (
-              <div className="employee-autocomplete-list">
-                <div className="employee-autocomplete-empty">No matching employees</div>
-              </div>
-            )}
+            {isNameDropdownOpen &&
+              newFullName.trim() !== "" &&
+              filteredEmployees.length === 0 && (
+                <div className="employee-autocomplete-list">
+                  <div className="employee-autocomplete-empty">
+                    No matching employees
+                  </div>
+                </div>
+              )}
           </div>
 
           <div className="gmail-field">
-            <label className="gmail-label">New STLAF Email (Alias) <span className="required-mark">*</span></label>
+            <label className="gmail-label">
+              New STLAF Email (Alias) <span className="required-mark">*</span>
+            </label>
             <div className="recycle-email-input">
               <input
                 type="text"
                 value={newLocalPart}
                 onChange={(e) => {
                   setAliasManuallyEdited(true);
-                  setNewLocalPart(e.target.value.toLowerCase().replace(/[^a-z0-9.]/g, ""));
+                  setNewLocalPart(
+                    e.target.value.toLowerCase().replace(/[^a-z0-9.]/g, ""),
+                  );
                 }}
                 required
                 className="gmail-input recycle-local-input"
@@ -171,16 +214,43 @@ export function RecycleAccountModal({ account, onClose, onRecycled }: RecycleAcc
               />
               <span className="recycle-domain">@{EMAIL_DOMAIN}</span>
             </div>
+            <div className="gmail-field">
+              <label className="gmail-label">
+                New Password <span className="required-mark">*</span>
+              </label>
+              <input
+                type="text"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                className="gmail-input"
+                placeholder="Enter new password"
+              />
+            </div>
           </div>
 
           {error && <p className="gmail-error">{error}</p>}
 
           <div className="gmail-actions">
-            <button type="button" className="gmail-cancel-btn" onClick={onClose}>
+            <button
+              type="button"
+              className="gmail-cancel-btn"
+              onClick={onClose}
+            >
               Cancel
             </button>
-            <button type="submit" className="gmail-submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? <span className="btn-loading"><Spinner size="sm" /> Recycling…</span> : "Recycle Account"}
+            <button
+              type="submit"
+              className="gmail-submit-btn"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className="btn-loading">
+                  <Spinner size="sm" /> Recycling…
+                </span>
+              ) : (
+                "Recycle Account"
+              )}
             </button>
           </div>
         </form>

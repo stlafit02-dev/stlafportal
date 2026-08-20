@@ -42,5 +42,9 @@ public class AppDbContext : DbContext
     public DbSet<MedicalCertificate> MedicalCertificates => Set<MedicalCertificate>();
     public DbSet<ModuleAccessPosition> ModuleAccessPositions => Set<ModuleAccessPosition>();
     public DbSet<DocumentRequest> DocumentRequests => Set<DocumentRequest>();
+    public DbSet<IntakeGroup> IntakeGroups => Set<IntakeGroup>();
+    public DbSet<IntakeService> IntakeServices => Set<IntakeService>();
+    public DbSet<IntakeSubmission> IntakeSubmissions => Set<IntakeSubmission>();
+    public DbSet<IntakeSubmissionService> IntakeSubmissionServices => Set<IntakeSubmissionService>();
 
 }

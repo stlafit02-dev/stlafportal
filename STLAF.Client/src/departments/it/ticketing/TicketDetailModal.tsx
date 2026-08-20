@@ -154,75 +154,76 @@ export function TicketDetailModal({
           </p>
         </div>
 
-        {remarksLog.length > 0 && (
-          <div className="ticket-modal-description">
-            <span className="meta-label">Remarks</span>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                border: "1px solid var(--border-color)",
-                borderRadius: 8,
-                overflow: "hidden",
+        <div className="ticket-modal-description">
+          <span className="meta-label">Remarks</span>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              border: "1px solid var(--border-color)",
+              borderRadius: 8,
+              overflow: "hidden",
+            }}
+          >
+            <textarea
+              value={remarkInput}
+              onChange={(e) => setRemarkInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleAddRemarkClick();
+                }
               }}
-            >
-              <textarea
-                value={remarkInput}
-                onChange={(e) => setRemarkInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleAddRemarkClick();
-                  }
-                }}
-                rows={2}
+              rows={2}
+              style={{
+                width: "100%",
+                resize: "none",
+                fontFamily: "inherit",
+                fontSize: 13,
+                border: "none",
+                borderBottom:
+                  remarksLog.length > 0
+                    ? "1px solid var(--border-color)"
+                    : "none",
+                background: "var(--bg-input)",
+                padding: "10px 12px",
+                color: "var(--text-primary)",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+              placeholder="Add a note… (Enter to save, Shift+Enter for a new line)"
+              disabled={isClosed}
+            />
+            {remarksLog.length > 0 && (
+              <div
                 style={{
-                  width: "100%",
-                  resize: "none",
-                  fontFamily: "inherit",
-                  fontSize: 13,
-                  border: "none",
-                  borderBottom: "1px solid var(--border-color)",
-                  background: "var(--bg-input)",
-                  padding: "10px 12px",
-                  color: "var(--text-primary)",
-                  outline: "none",
-                  boxSizing: "border-box",
+                  maxHeight: 160,
+                  overflowY: "auto",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
-                placeholder="Add a note… (Enter to save, Shift+Enter for a new line)"
-                disabled={isClosed}
-              />
-              {remarksLog.length > 0 && (
-                <div
-                  style={{
-                    maxHeight: 160,
-                    overflowY: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  {remarksLog.map((line, i) => (
-                    <p
-                      key={i}
-                      style={{
-                        margin: 0,
-                        fontSize: 12.5,
-                        color: "var(--text-body)",
-                        padding: "8px 12px",
-                        borderBottom:
-                          i === remarksLog.length - 1
-                            ? "none"
-                            : "1px solid var(--border-color)",
-                      }}
-                    >
-                      {line}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
+              >
+                {remarksLog.map((line, i) => (
+                  <p
+                    key={i}
+                    style={{
+                      margin: 0,
+                      fontSize: 12.5,
+                      color: "var(--text-body)",
+                      padding: "8px 12px",
+                      borderBottom:
+                        i === remarksLog.length - 1
+                          ? "none"
+                          : "1px solid var(--border-color)",
+                    }}
+                  >
+                    {line}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         <div className="ticket-modal-controls">
           <div className="control-group">

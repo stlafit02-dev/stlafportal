@@ -52,6 +52,7 @@ export interface UpdateEmailAccountPayload {
 export interface RecycleEmailAccountPayload {
   newFullName: string;
   newStlafEmail: string;
+  newPassword: string;
 }
 
 export interface CreateEmailAccountPayload {

@@ -155,6 +155,216 @@ namespace STLAF.Api.Migrations
                     b.ToTable("document_requests", (string)null);
                 });
 
+            modelBuilder.Entity("STLAF.Api.Common.Entities.IntakeGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("RecipientEmails")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("recipient_emails");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("intake_groups", (string)null);
+                });
+
+            modelBuilder.Entity("STLAF.Api.Common.Entities.IntakeService", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("group_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("intake_services", (string)null);
+                });
+
+            modelBuilder.Entity("STLAF.Api.Common.Entities.IntakeSubmission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("address");
+
+                    b.Property<string>("ClientConcerns")
+                        .HasColumnType("text")
+                        .HasColumnName("client_concerns");
+
+                    b.Property<string>("ClientName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("client_name");
+
+                    b.Property<string>("ClientType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("client_type");
+
+                    b.Property<DateTime>("ConsultationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("consultation_date");
+
+                    b.Property<string>("ConsultationPreference")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("consultation_preference");
+
+                    b.Property<string>("ContactEmail")
+                        .HasColumnType("text")
+                        .HasColumnName("contact_email");
+
+                    b.Property<string>("ContactPerson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("contact_person");
+
+                    b.Property<string>("ContactPhone")
+                        .HasColumnType("text")
+                        .HasColumnName("contact_phone");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text")
+                        .HasColumnName("country");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("designation");
+
+                    b.Property<string>("HowDidYouFindUs")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("how_did_you_find_us");
+
+                    b.Property<string>("Industry")
+                        .HasColumnType("text")
+                        .HasColumnName("industry");
+
+                    b.Property<string>("NumberOfEmployees")
+                        .HasColumnType("text")
+                        .HasColumnName("number_of_employees");
+
+                    b.Property<string>("PreferredTimeSlots")
+                        .HasColumnType("text")
+                        .HasColumnName("preferred_time_slots");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("SupportingDocumentFileName")
+                        .HasColumnType("text")
+                        .HasColumnName("supporting_document_file_name");
+
+                    b.Property<string>("SupportingDocumentUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("supporting_document_url");
+
+                    b.Property<string>("TrackingNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tracking_number");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrackingNumber")
+                        .IsUnique();
+
+                    b.ToTable("intake_submissions", (string)null);
+                });
+
+            modelBuilder.Entity("STLAF.Api.Common.Entities.IntakeSubmissionService", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_id");
+
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("submission_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("SubmissionId");
+
+                    b.ToTable("intake_submission_services", (string)null);
+                });
+
             modelBuilder.Entity("STLAF.Api.Common.Entities.ModuleAccessPosition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1412,6 +1622,36 @@ namespace STLAF.Api.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("STLAF.Api.Common.Entities.IntakeService", b =>
+                {
+                    b.HasOne("STLAF.Api.Common.Entities.IntakeGroup", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("STLAF.Api.Common.Entities.IntakeSubmissionService", b =>
+                {
+                    b.HasOne("STLAF.Api.Common.Entities.IntakeService", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("STLAF.Api.Common.Entities.IntakeSubmission", "Submission")
+                        .WithMany("SelectedServices")
+                        .HasForeignKey("SubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Service");
+
+                    b.Navigation("Submission");
+                });
+
             modelBuilder.Entity("STLAF.Api.Departments.HRAdmin.Entities.Employee", b =>
                 {
                     b.HasOne("STLAF.Api.Departments.HRAdmin.Entities.EmployeeCategory", "Category")
@@ -1652,6 +1892,11 @@ namespace STLAF.Api.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("STLAF.Api.Common.Entities.IntakeSubmission", b =>
+                {
+                    b.Navigation("SelectedServices");
                 });
 
             modelBuilder.Entity("STLAF.Api.Identity.Entities.Department", b =>
