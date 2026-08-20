@@ -152,6 +152,7 @@ public class GmailService : IGmailService
         account.OldStlafEmail = account.StlafEmail;
         account.FullName = dto.NewFullName;
         account.StlafEmail = dto.NewStlafEmail;
+        account.Password = dto.NewPassword;
         account.Status = "Active";
         account.Recycled = true;
         account.RecycledAt = DateTime.UtcNow;

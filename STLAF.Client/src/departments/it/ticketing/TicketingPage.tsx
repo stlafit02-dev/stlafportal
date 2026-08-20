@@ -65,6 +65,8 @@ export function TicketingPage() {
 
   useEffect(() => {
     loadData();
+    const interval = setInterval(loadData, 15000); // refresh every 15 seconds
+    return () => clearInterval(interval);
   }, []);
 
   async function handleStatusChange(ticketId: string, status: string) {

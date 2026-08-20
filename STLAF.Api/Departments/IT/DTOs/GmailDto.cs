@@ -64,6 +64,7 @@ public class RecycleEmailAccountDto
 {
     public string NewFullName { get; set; } = string.Empty;
     public string NewStlafEmail { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
 }
 
 public class AppPasswordDto

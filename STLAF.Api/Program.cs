@@ -53,7 +53,7 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUndertimeService, UndertimeService>();
 builder.Services.AddScoped<IFileStorageService, BackblazeFileStorageService>();
 builder.Services.AddScoped<IDocumentRequestService, DocumentRequestService>();
-
+builder.Services.AddScoped<IIntakeFormService, IntakeFormService>();
 
 // Authentication (JWT)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -132,6 +132,7 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:5173",
+                // "http://localhost:5174",
                 "https://stlafportal.vercel.app"
             )
             .AllowAnyHeader()
