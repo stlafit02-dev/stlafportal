@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using STLAF.Api.Common.DTOs;
 using STLAF.Api.Common.Services;
 
@@ -27,6 +28,7 @@ public class IntakeController : ControllerBase
     [HttpPost("submissions")]
     [AllowAnonymous]
     [RequestSizeLimit(6_000_000)]
+    [EnableRateLimiting("public-submission")]
     public async Task<IActionResult> Submit([FromForm] CreateIntakeSubmissionDto dto, IFormFile? file)
     {
         if (file is not null && file.Length > 5_000_000)

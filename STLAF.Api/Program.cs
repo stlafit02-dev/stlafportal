@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Security.Claims;
 using STLAF.Api.Data;
 using STLAF.Api.Identity.Policies;
 using STLAF.Api.Identity.Services;
@@ -54,6 +57,61 @@ builder.Services.AddScoped<IUndertimeService, UndertimeService>();
 builder.Services.AddScoped<IFileStorageService, BackblazeFileStorageService>();
 builder.Services.AddScoped<IDocumentRequestService, DocumentRequestService>();
 builder.Services.AddScoped<IIntakeFormService, IntakeFormService>();
+
+
+//Rate limiter
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Global default: authenticated requests are partitioned by user ID (each
+    // logged-in employee gets their own bucket, regardless of shared office IP);
+    // unauthenticated requests fall back to IP address.
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    {
+        var userId = httpContext.User.Identity?.IsAuthenticated == true
+            ? httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? httpContext.User.FindFirst("sub")?.Value
+            : null;
+
+        var key = userId is not null
+            ? $"user:{userId}"
+            : $"ip:{httpContext.Connection.RemoteIpAddress}";
+
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 100,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
+
+    // Stricter policy for login — always IP-based, since there's no logged-in
+    // user yet when this endpoint is called. Protects against brute-force attempts.
+    options.AddPolicy("login", httpContext =>
+    {
+        var key = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
+
+    // Stricter policy for public, unauthenticated form submissions (tickets, intake) —
+    // always IP-based, since these have no login gate at all.
+    options.AddPolicy("public-submission", httpContext =>
+    {
+        var key = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
+});
 
 // Authentication (JWT)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -160,7 +218,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
-
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
