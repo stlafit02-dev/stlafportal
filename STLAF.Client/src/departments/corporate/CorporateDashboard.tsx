@@ -10,7 +10,7 @@ export function CorporateDashboard() {
   const { positions } = useModuleAccessPositions();
   const location = useLocation();
   const isOverview = location.pathname === "/corporate";
-  const { showApprovals, showFinalApprovals } = useApprovalStatus();
+  const { showApprovals, showFinalApprovals, showMyInquiries } = useApprovalStatus();
 
   return (
     <DashboardLayout
@@ -22,6 +22,7 @@ export function CorporateDashboard() {
         positions,
         showApprovals,
         showFinalApprovals,
+        showMyInquiries,
       )}
     >
       {isOverview ? (

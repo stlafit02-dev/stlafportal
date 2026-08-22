@@ -10,7 +10,7 @@ export function AccountingDashboard() {
   const { positions } = useModuleAccessPositions();
   const location = useLocation();
   const isOverview = location.pathname === "/accounting";
-  const { showApprovals, showFinalApprovals } = useApprovalStatus();
+  const { showApprovals, showFinalApprovals, showMyInquiries } = useApprovalStatus();
 
   return (
     <DashboardLayout
@@ -22,6 +22,7 @@ export function AccountingDashboard() {
         positions,
         showApprovals,
         showFinalApprovals,
+        showMyInquiries,
       )}
     >
       {isOverview ? (

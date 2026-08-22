@@ -46,5 +46,6 @@ public class AppDbContext : DbContext
     public DbSet<IntakeService> IntakeServices => Set<IntakeService>();
     public DbSet<IntakeSubmission> IntakeSubmissions => Set<IntakeSubmission>();
     public DbSet<IntakeSubmissionService> IntakeSubmissionServices => Set<IntakeSubmissionService>();
+    public DbSet<IntakeFullAccessGrant> IntakeFullAccessGrants => Set<IntakeFullAccessGrant>();
 
 }

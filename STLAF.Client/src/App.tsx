@@ -39,6 +39,7 @@ import { DocumentModalProvider } from "./common/documents/DocumentModalProvider"
 import { MyDocumentsPage } from "./common/documents/MyDocumentsPage";
 import { PartnerDashboardPage } from "./departments/partner/PartnerDashboardPage";
 import { PartnerRepositoryPage } from "./departments/partner/PartnerRepositoryPage";
+import { MyInquiriesPage } from "./common/intake/MyInquiriesPage";
 
 function LeaveRoutes() {
   return (
@@ -133,6 +134,7 @@ function App() {
                     }
                   />
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
                 </Route>
 
                 {/* ---------- HR Admin ---------- */}
@@ -180,6 +182,7 @@ function App() {
                     }
                   />
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
                 </Route>
 
                 {/* ---------- Litigation ---------- */}
@@ -194,6 +197,7 @@ function App() {
                   }
                 >
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
                 </Route>
 
                 {/* ---------- Accounting ---------- */}
@@ -208,6 +212,7 @@ function App() {
                   }
                 >
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
                 </Route>
 
                 {/* ---------- Corporate ---------- */}
@@ -222,6 +227,7 @@ function App() {
                   }
                 >
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
                 </Route>
 
                 {/* ---------- Marketing ---------- */}
@@ -236,6 +242,7 @@ function App() {
                   }
                 >
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
                 </Route>
 
                 {/* ---------- Partner (department) ---------- */}
@@ -266,6 +273,7 @@ function App() {
                     }
                   />
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
                 </Route>
 
                 {/* ---------- Document Review (cross-department, role-based) ---------- */}

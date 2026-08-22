@@ -30,6 +30,7 @@ public class IntakeFormService : IIntakeFormService
     {
         "Google Search", "Referral", "Social Media", "Existing Client", "Website", "Other"
     };
+    private static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
 
     public IntakeFormService(AppDbContext db, IEmailSender emailSender, IFileStorageService fileStorage)
     {
@@ -223,5 +224,117 @@ public class IntakeFormService : IIntakeFormService
         var html = EmailTemplateBuilder.Build("Inquiry Received", bodyHtml, null, null);
 
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, submission.ContactEmail, subject, html);
+    }
+    public async Task<List<IntakeSubmissionSummaryDto>> GetMySubmissionsAsync(Guid userId)
+    {
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (employee is null) return new List<IntakeSubmissionSummaryDto>();
+
+        var hasFullAccess = await _db.IntakeFullAccessGrants
+            .AnyAsync(g => g.CompanyId == employee.CompanyId);
+
+        if (hasFullAccess)
+        {
+            var allSubmissionServices = await _db.IntakeSubmissionServices
+                .Include(ss => ss.Submission)
+                .Include(ss => ss.Service).ThenInclude(s => s.Group)
+                .ToListAsync();
+
+            return allSubmissionServices
+                .GroupBy(ss => ss.SubmissionId)
+                .Select(g =>
+                {
+                    var submission = g.First().Submission;
+                    return new IntakeSubmissionSummaryDto
+                    {
+                        Id = submission.Id,
+                        TrackingNumber = submission.TrackingNumber,
+                        ClientName = submission.ClientName,
+                        ClientType = submission.ClientType,
+                        ContactPerson = submission.ContactPerson,
+                        ContactEmail = submission.ContactEmail,
+                        ContactPhone = submission.ContactPhone,
+                        Status = submission.Status,
+                        CreatedAt = submission.CreatedAt,
+                        ConsultationDate = submission.ConsultationDate,
+                        ConsultationPreference = submission.ConsultationPreference,
+                        MatchedServices = g.Select(ss => ss.Service.Name).ToList(),
+                        Categories = g.Select(ss => ss.Service.Group.Category).Distinct().ToList()
+                    };
+                })
+                .OrderByDescending(r => r.CreatedAt)
+                .ToList();
+        }
+
+        if (string.IsNullOrWhiteSpace(employee.CompanyEmail))
+            return new List<IntakeSubmissionSummaryDto>();
+
+        var myEmail = NormalizeEmail(employee.CompanyEmail);
+
+        var allGroups = await _db.IntakeGroups.ToListAsync();
+        var myGroupIds = allGroups
+            .Where(g => g.RecipientEmails
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(NormalizeEmail)
+                .Contains(myEmail))
+            .Select(g => g.Id)
+            .ToHashSet();
+
+        if (myGroupIds.Count == 0) return new List<IntakeSubmissionSummaryDto>();
+
+        var myServiceIds = await _db.IntakeServices
+            .Where(s => myGroupIds.Contains(s.GroupId))
+            .Select(s => s.Id)
+            .ToListAsync();
+
+        var relevant = await _db.IntakeSubmissionServices
+            .Where(ss => myServiceIds.Contains(ss.ServiceId))
+            .Include(ss => ss.Submission)
+            .Include(ss => ss.Service)
+            .ToListAsync();
+
+        return relevant
+            .GroupBy(ss => ss.SubmissionId)
+            .Select(g =>
+            {
+                var submission = g.First().Submission;
+                return new IntakeSubmissionSummaryDto
+                {
+                    Id = submission.Id,
+                    TrackingNumber = submission.TrackingNumber,
+                    ClientName = submission.ClientName,
+                    ClientType = submission.ClientType,
+                    ContactPerson = submission.ContactPerson,
+                    ContactEmail = submission.ContactEmail,
+                    ContactPhone = submission.ContactPhone,
+                    Status = submission.Status,
+                    CreatedAt = submission.CreatedAt,
+                    ConsultationDate = submission.ConsultationDate,
+                    ConsultationPreference = submission.ConsultationPreference,
+                    MatchedServices = g.Select(ss => ss.Service.Name).ToList(),
+                    Categories = g.Select(ss => ss.Service.Group.Category).Distinct().ToList()
+                };
+            })
+            .OrderByDescending(r => r.CreatedAt)
+            .ToList();
+    }
+    public async Task<bool> IsPointPersonAsync(Guid userId)
+    {
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (employee is null) return false;
+
+        var hasFullAccess = await _db.IntakeFullAccessGrants
+            .AnyAsync(g => g.CompanyId == employee.CompanyId);
+        if (hasFullAccess) return true;
+
+        if (string.IsNullOrWhiteSpace(employee.CompanyEmail)) return false;
+
+        var myEmail = NormalizeEmail(employee.CompanyEmail);
+
+        var allGroups = await _db.IntakeGroups.ToListAsync();
+        return allGroups.Any(g => g.RecipientEmails
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(NormalizeEmail)
+            .Contains(myEmail));
     }
 }

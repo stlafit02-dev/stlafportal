@@ -11,7 +11,7 @@ namespace STLAF.Api.Common.Controllers;
 public class IntakeController : ControllerBase
 {
     private readonly IIntakeFormService _service;
-
+    private Guid CurrentUserId => Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
     public IntakeController(IIntakeFormService service)
     {
         _service = service;
@@ -45,4 +45,10 @@ public class IntakeController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+    [HttpGet("my-submissions")]
+    [Authorize]
+    public async Task<IActionResult> GetMySubmissions() => Ok(await _service.GetMySubmissionsAsync(CurrentUserId));
+    [HttpGet("am-i-point-person")]
+    [Authorize]
+    public async Task<IActionResult> AmIPointPerson() => Ok(await _service.IsPointPersonAsync(CurrentUserId));
 }

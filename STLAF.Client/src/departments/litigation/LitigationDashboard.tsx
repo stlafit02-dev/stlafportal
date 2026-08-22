@@ -10,7 +10,7 @@ export function LitigationDashboard() {
   const { positions } = useModuleAccessPositions();
   const location = useLocation();
   const isOverview = location.pathname === "/litigation";
-  const { showApprovals, showFinalApprovals } = useApprovalStatus();
+  const { showApprovals, showFinalApprovals, showMyInquiries } = useApprovalStatus();
 
   return (
     <DashboardLayout
@@ -22,6 +22,7 @@ export function LitigationDashboard() {
         positions,
         showApprovals,
         showFinalApprovals,
+        showMyInquiries,
       )}
     >
       {isOverview ? (

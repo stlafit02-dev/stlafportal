@@ -8,7 +8,7 @@ import { useApprovalStatus } from "../../common/leave/useApprovalStatus";
 export function HrDashboard() {
   const { user } = useAuth();
   const { positions } = useModuleAccessPositions();
-  const { showApprovals, showFinalApprovals } = useApprovalStatus();
+  const { showApprovals, showFinalApprovals, showMyInquiries } = useApprovalStatus();
 
   return (
     <DashboardLayout
@@ -20,6 +20,7 @@ export function HrDashboard() {
         positions,
         showApprovals,
         showFinalApprovals,
+        showMyInquiries,
       )}
     >
       <Outlet />

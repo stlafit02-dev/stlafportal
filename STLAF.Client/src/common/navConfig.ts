@@ -115,6 +115,7 @@ export function buildNavItems(
   modulePositions: { module: string; officePosition: string }[],
   showApprovals: boolean,
   showFinalApprovals: boolean,
+  showMyInquiries: boolean = false,
 ): NavItem[] {
   const deptSlug = departmentSlug(department);
   const isBypassed = role === "SuperAdmin" || role === "DeptAdmin";
@@ -147,6 +148,9 @@ export function buildNavItems(
   const rawItems: ModuleNavItem[] = [
     ...deptModuleNav(department),
     { label: "Submit Ticket", action: "submitTicket" },
+    ...(showMyInquiries
+      ? [{ label: "Inquiries", to: `/${deptSlug}/my-inquiries` }]
+      : []),
     ...(isPartner
       ? []
       : [
