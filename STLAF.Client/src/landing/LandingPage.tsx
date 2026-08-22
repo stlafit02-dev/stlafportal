@@ -1,74 +1,143 @@
-import { useEffect, useState } from "react";
-import apiClient from "../common/api/apiClient";
-import { LoginModal } from "../auth/LoginModal";
+import { useState } from "react";
+import { useAuth } from "../auth/useAuth";
+import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "../common/components/ThemeToggle/ThemeToggle";
+import { Spinner } from "../common/components/Loader/Loader";
+import { useTheme } from "../theme/useTheme";
+import logoLight from "../assets/light.png";
+import logoDark from "../assets/dark.png";
 import "./LandingPage.css";
 
-interface Announcement {
-  id: string;
-  title: string;
-  body: string;
-  department: string | null;
-  publishedAt: string;
-}
+const DEPARTMENT_ROUTES: Record<string, string> = {
+  IT: "/it",
+  HRAdmin: "/hr-admin",
+  Litigation: "/litigation",
+  Accounting: "/accounting",
+  Corporate: "/corporate",
+  Marketing: "/marketing",
+  Partner: "/partner",
+};
 
 export function LandingPage() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const { theme } = useTheme();
 
-  useEffect(() => {
-    apiClient.get<Announcement[]>("/announcements").then((res) => {
-      setAnnouncements(res.data);
-    });
-  }, []);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await login(email, password);
+      const storedUser = JSON.parse(localStorage.getItem("stlaf_user") || "{}");
+      const route = DEPARTMENT_ROUTES[storedUser.department] || "/";
+      navigate(route);
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Invalid email or password.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
-    <div className="landing">
-      <div className="glow" />
+    <div className="landing-split">
+      <aside className="landing-visual">
+        <div className="visual-blob visual-blob-gold" />
+        <div className="visual-blob visual-blob-green" />
 
-      <header className="landing-header">
-        {/* <img src={logo} alt="STLAF" className="wordmark-logo" /> */}
-        <div className="header-actions">
-          <ThemeToggle />
-          <button className="signin-btn" onClick={() => setIsLoginOpen(true)}>
-            Sign In
-          </button>
+        <div className="visual-content">
+          <img
+            src={theme === "dark" ? logoDark : logoLight}
+            alt="STLAF"
+            className="visual-logo"
+          />
+          {/* <p className="visual-firm-name">Sadsad Tamesis Legal and Accountancy Firm</p> */}
         </div>
-      </header>
+      </aside>
 
-      <section className="landing-hero">
-        <h1 className="hero-title">Announcements</h1>
-        <p className="hero-subtitle">
-          Updates and notices from across the firm.
-        </p>
-      </section>
+      <main className="landing-form-side">
+        <div className="landing-form-topbar">
+          <ThemeToggle />
+        </div>
 
-      <main className="landing-feed">
-        {announcements.length === 0 && (
-          <div className="empty-card">
-            <p className="empty-text">No announcements yet.</p>
-          </div>
-        )}
+        <div className="login-panel">
+          <p className="login-greeting">Hello, Good Day</p>
+          <h2 className="login-title">Sign In to Your Account</h2>
+          <p className="login-subtitle">Enter your firm credentials to continue.</p>
 
-        {announcements.map((a) => (
-          <article key={a.id} className="notice-card">
-            <div className="notice-meta">
-              <span className="notice-tag">{a.department ?? "Firm-Wide"}</span>
-              <span className="notice-date">
-                {new Date(a.publishedAt).toLocaleDateString()}
-              </span>
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="field-group">
+              <label className="field-label">Company ID</label>
+              <input
+                type="text"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="field-input"
+                placeholder="e.g. 26-10001 or you@stlaf.global"
+              />
             </div>
-            <h2 className="notice-title">{a.title}</h2>
-            <p className="notice-body">{a.body}</p>
-          </article>
-        ))}
+
+            <div className="field-group">
+              <label className="field-label">Password</label>
+              <div className="password-input-wrap">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="field-input"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  className="password-toggle-inset"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {error && <p className="login-error">{error}</p>}
+
+            <button type="submit" disabled={isSubmitting} className="login-submit">
+              {isSubmitting ? (
+                <span className="btn-loading">
+                  <Spinner size="sm" />
+                  Signing in…
+                </span>
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </form>
+        </div>
+
+        <footer className="landing-footer">
+          Sadsad Tamesis Legal and Accountancy Firm
+        </footer>
       </main>
-
-      <footer className="landing-footer">
-        Sadsad Tamesis Legal and Accountancy Firm
-      </footer>
-
-      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </div>
   );
 }
