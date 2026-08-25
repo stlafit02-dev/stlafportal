@@ -64,7 +64,6 @@ export function TicketDetailModal({
   const remarksLog = ticket.remarks
     ? ticket.remarks.split("\n").filter(Boolean).reverse()
     : [];
-  const latestRemark = remarksLog[0] ?? null;
 
   function handleAddRemarkClick() {
     if (!remarkInput.trim() || !ticket) return;
@@ -142,19 +141,6 @@ export function TicketDetailModal({
         </div>
 
         <div className="ticket-modal-description">
-          <span className="meta-label">Latest Remark</span>
-          <p
-            className="description-text"
-            style={{
-              fontStyle: latestRemark ? "normal" : "italic",
-              opacity: latestRemark ? 1 : 0.6,
-            }}
-          >
-            {latestRemark ?? "No remarks yet."}
-          </p>
-        </div>
-
-        <div className="ticket-modal-description">
           <span className="meta-label">Remarks</span>
           <div
             style={{
@@ -191,7 +177,7 @@ export function TicketDetailModal({
                 outline: "none",
                 boxSizing: "border-box",
               }}
-              placeholder="Add a note… (Enter to save, Shift+Enter for a new line)"
+              placeholder="Add a note…"
               disabled={isClosed}
             />
             {remarksLog.length > 0 && (

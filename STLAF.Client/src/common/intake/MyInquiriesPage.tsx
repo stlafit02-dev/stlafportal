@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchMyInquiries, type IntakeSubmissionSummary } from "./intakeApi";
+import { downloadProposal, fetchMyInquiries, type IntakeSubmissionSummary } from "./intakeApi";
 import { Spinner } from "../components/Loader/Loader";
 import { Modal } from "../components/Modal/Modal";
 import "../../departments/it/gmail/GmailManagementPage.css";
@@ -15,7 +15,8 @@ export function MyInquiriesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [viewInquiry, setViewInquiry] = useState<IntakeSubmissionSummary | null>(null);
+  const [viewInquiry, setViewInquiry] =
+    useState<IntakeSubmissionSummary | null>(null);
 
   useEffect(() => {
     fetchMyInquiries().then((data) => {
@@ -24,10 +25,13 @@ export function MyInquiriesPage() {
     });
   }, []);
 
-  const categories = Array.from(new Set(inquiries.flatMap((i) => i.categories)));
+  const categories = Array.from(
+    new Set(inquiries.flatMap((i) => i.categories)),
+  );
 
   const filtered = inquiries.filter((i) => {
-    const matchesCategory = categoryFilter === "All" || i.categories.includes(categoryFilter);
+    const matchesCategory =
+      categoryFilter === "All" || i.categories.includes(categoryFilter);
     const query = searchQuery.trim().toLowerCase();
     const matchesSearch =
       query === "" ||
@@ -51,14 +55,22 @@ export function MyInquiriesPage() {
         <div>
           <h1 className="page-title">Inquiries</h1>
           <p className="page-subtitle">
-            {filtered.length} of {inquiries.length} inquiries · Click a row for details
+            {filtered.length} of {inquiries.length} inquiries · Click a row for
+            details
           </p>
         </div>
       </div>
 
       <div className="app-pw-filters" style={{ marginBottom: 20 }}>
         <div className="gws-search-box email-search-box">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -79,7 +91,9 @@ export function MyInquiriesPage() {
           >
             <option value="All">All Categories</option>
             {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
         )}
@@ -104,11 +118,17 @@ export function MyInquiriesPage() {
               </thead>
               <tbody>
                 {filtered.map((i) => (
-                  <tr key={i.id} className="email-row" onClick={() => setViewInquiry(i)}>
+                  <tr
+                    key={i.id}
+                    className="email-row"
+                    onClick={() => setViewInquiry(i)}
+                  >
                     <td className="mono-cell">{i.trackingNumber}</td>
                     <td>{i.clientName}</td>
                     <td>
-                      <span className={`status-badge ${STATUS_META[i.status] ?? ""}`}>
+                      <span
+                        className={`status-badge ${STATUS_META[i.status] ?? ""}`}
+                      >
                         {i.status}
                       </span>
                     </td>
@@ -156,7 +176,14 @@ export function MyInquiriesPage() {
                   padding: 4,
                 }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -166,31 +193,43 @@ export function MyInquiriesPage() {
             <div className="gmail-grid">
               <div className="gmail-field">
                 <label className="gmail-label">Client Type</label>
-                <div className="recycle-static-value">{viewInquiry.clientType}</div>
+                <div className="recycle-static-value">
+                  {viewInquiry.clientType}
+                </div>
               </div>
               <div className="gmail-field">
                 <label className="gmail-label">Status</label>
                 <div className="recycle-static-value">
-                  <span className={`status-badge ${STATUS_META[viewInquiry.status] ?? ""}`}>
+                  <span
+                    className={`status-badge ${STATUS_META[viewInquiry.status] ?? ""}`}
+                  >
                     {viewInquiry.status}
                   </span>
                 </div>
               </div>
               <div className="gmail-field">
                 <label className="gmail-label">Contact Person</label>
-                <div className="recycle-static-value">{viewInquiry.contactPerson}</div>
+                <div className="recycle-static-value">
+                  {viewInquiry.contactPerson}
+                </div>
               </div>
               <div className="gmail-field">
                 <label className="gmail-label">Contact Email</label>
-                <div className="recycle-static-value mono">{viewInquiry.contactEmail || "—"}</div>
+                <div className="recycle-static-value mono">
+                  {viewInquiry.contactEmail || "—"}
+                </div>
               </div>
               <div className="gmail-field">
                 <label className="gmail-label">Contact Phone</label>
-                <div className="recycle-static-value mono">{viewInquiry.contactPhone || "—"}</div>
+                <div className="recycle-static-value mono">
+                  {viewInquiry.contactPhone || "—"}
+                </div>
               </div>
               <div className="gmail-field">
                 <label className="gmail-label">Consultation Preference</label>
-                <div className="recycle-static-value">{viewInquiry.consultationPreference}</div>
+                <div className="recycle-static-value">
+                  {viewInquiry.consultationPreference}
+                </div>
               </div>
               <div className="gmail-field">
                 <label className="gmail-label">Consultation Date</label>
@@ -208,11 +247,31 @@ export function MyInquiriesPage() {
 
             <div className="gmail-field" style={{ marginTop: 16 }}>
               <label className="gmail-label">Services</label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 6,
+                  marginTop: 6,
+                }}
+              >
                 {viewInquiry.matchedServices.map((s, idx) => (
-                  <span key={idx} className="category-badge">{s}</span>
+                  <span key={idx} className="category-badge">
+                    {s}
+                  </span>
                 ))}
               </div>
+            </div>
+            <div className="gmail-actions" style={{ marginTop: 20 }}>
+              <button
+                type="button"
+                className="gmail-submit-btn"
+                onClick={() =>
+                  downloadProposal(viewInquiry.id, viewInquiry.trackingNumber)
+                }
+              >
+                Generate Proposal (.docx)
+              </button>
             </div>
           </div>
         </Modal>

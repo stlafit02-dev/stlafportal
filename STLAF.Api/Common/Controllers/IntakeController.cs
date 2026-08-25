@@ -51,4 +51,20 @@ public class IntakeController : ControllerBase
     [HttpGet("am-i-point-person")]
     [Authorize]
     public async Task<IActionResult> AmIPointPerson() => Ok(await _service.IsPointPersonAsync(CurrentUserId));
+    [HttpGet("submissions/{id}/proposal")]
+    [Authorize]
+    public async Task<IActionResult> GenerateProposal(Guid id)
+    {
+        var canAccess = await _service.CanAccessSubmissionAsync(CurrentUserId, id);
+        if (!canAccess) return Forbid();
+
+        var fileBytes = await _service.GenerateProposalAsync(id, CurrentUserId);
+        if (fileBytes is null) return NotFound();
+
+        return File(
+            fileBytes,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            $"Proposal-{id}.docx"
+        );
+    }
 }
