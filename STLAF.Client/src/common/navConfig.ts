@@ -116,6 +116,7 @@ export function buildNavItems(
   showApprovals: boolean,
   showFinalApprovals: boolean,
   showMyInquiries: boolean = false,
+  showClientPortalAdmin: boolean = false,
 ): NavItem[] {
   const deptSlug = departmentSlug(department);
   const isBypassed = role === "SuperAdmin" || role === "DeptAdmin";
@@ -165,6 +166,9 @@ export function buildNavItems(
         ]),
     ...(!isPartner && managementApprovalChildren.length > 0
       ? [{ label: "Management Approval", children: managementApprovalChildren }]
+      : []),
+    ...(showClientPortalAdmin
+      ? [{ label: "Client Portal Admin", to: "/client-portal-admin" }]
       : []),
   ];
 

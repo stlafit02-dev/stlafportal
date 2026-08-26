@@ -1,0 +1,36 @@
+.subscription-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  margin-bottom: 24px;
+}
+
+.subscription-badge-premium {
+  border-color: var(--accent-gold);
+}
+
+.subscription-plan {
+  display: block;
+  font-family: "Fraunces", serif;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.subscription-expiry {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.subscription-upgrade-link {
+  font-size: 13px;
+  color: var(--accent-gold);
+  text-decoration: none;
+  white-space: nowrap;
+}

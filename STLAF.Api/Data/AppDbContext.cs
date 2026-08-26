@@ -3,6 +3,7 @@ using STLAF.Api.Common.Entities;
 using STLAF.Api.Identity.Entities;
 using STLAF.Api.Departments.IT.Entities;
 using STLAF.Api.Departments.HRAdmin.Entities;
+using STLAF.Api.ClientPortal.Entities;
 
 
 namespace STLAF.Api.Data;
@@ -47,5 +48,15 @@ public class AppDbContext : DbContext
     public DbSet<IntakeSubmission> IntakeSubmissions => Set<IntakeSubmission>();
     public DbSet<IntakeSubmissionService> IntakeSubmissionServices => Set<IntakeSubmissionService>();
     public DbSet<IntakeFullAccessGrant> IntakeFullAccessGrants => Set<IntakeFullAccessGrant>();
+
+    public DbSet<ClientAccount> ClientAccounts => Set<ClientAccount>();
+    public DbSet<Service> ClientPortalServices => Set<Service>();
+    public DbSet<FormSchema> ClientPortalFormSchemas => Set<FormSchema>();
+    public DbSet<DocumentTemplate> ClientPortalDocumentTemplates => Set<DocumentTemplate>();
+    public DbSet<Submission> ClientPortalSubmissions => Set<Submission>();
+    public DbSet<GeneratedDocument> ClientPortalGeneratedDocuments => Set<GeneratedDocument>();
+    public DbSet<Subscription> ClientPortalSubscriptions => Set<Subscription>();
+    public DbSet<VoucherCode> ClientPortalVoucherCodes => Set<VoucherCode>();
+    public DbSet<ClientPortalAdminGrant> ClientPortalAdminGrants => Set<ClientPortalAdminGrant>();
 
 }

@@ -14,6 +14,9 @@ using STLAF.Api.Departments.IT.Services;
 using STLAF.Api.Departments.IT.BackgroundJobs;
 using STLAF.Api.Departments.HRAdmin.Services;
 using STLAF.Api.Common.Services;
+using STLAF.Api.ClientPortal.Policies;
+using STLAF.Api.ClientPortal.Services;
+using STLAF.Api.ClientPortal.BackgroundJobs;
 
 DotNetEnv.Env.Load();
 
@@ -57,6 +60,16 @@ builder.Services.AddScoped<IUndertimeService, UndertimeService>();
 builder.Services.AddScoped<IFileStorageService, BackblazeFileStorageService>();
 builder.Services.AddScoped<IDocumentRequestService, DocumentRequestService>();
 builder.Services.AddScoped<IIntakeFormService, IntakeFormService>();
+builder.Services.AddScoped<IClientAuthService, ClientAuthService>();
+builder.Services.AddScoped<IServiceCatalogService, ServiceCatalogService>();
+builder.Services.AddScoped<IFormSchemaService, FormSchemaService>();
+builder.Services.AddScoped<IDocumentTemplateService, DocumentTemplateService>();
+builder.Services.AddScoped<ISubmissionService, SubmissionService>();
+builder.Services.AddScoped<IDocumentGenerationService, DocumentGenerationService>();
+builder.Services.AddScoped<IDocumentsService, DocumentsService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<IVoucherService, VoucherService>();
+builder.Services.AddHostedService<SubscriptionExpiryService>();
 
 
 //Rate limiter
@@ -127,7 +140,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
 
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidAudiences = new[]
+            {
+                builder.Configuration["Jwt:Audience"],
+                builder.Configuration["Jwt:ClientAudience"]
+            },
 
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
@@ -140,6 +157,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Authorization
 builder.Services.AddScoped<IAuthorizationHandler, DepartmentAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ModuleAuthorizationHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ClientAccountAuthorizationHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ClientPortalAdminAuthorizationHandler>();
 
 builder.Services.AddAuthorization(options =>
 {
@@ -179,6 +198,12 @@ builder.Services.AddAuthorization(options =>
         options.AddPolicy(module, policy =>
             policy.Requirements.Add(new ModuleRequirement(module)));
     }
+
+    options.AddPolicy("ClientAccount", policy =>
+        policy.Requirements.Add(new ClientAccountRequirement()));
+
+    options.AddPolicy("client-portal-admin", policy =>
+        policy.Requirements.Add(new ClientPortalAdminRequirement()));
 });
 
 

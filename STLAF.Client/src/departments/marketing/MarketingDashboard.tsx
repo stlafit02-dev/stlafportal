@@ -4,6 +4,7 @@ import { buildNavItems } from "../../common/navConfig";
 import { useAuth } from "../../auth/useAuth";
 import { useModuleAccessPositions } from "../../common/access/useModuleAccess";
 import { useApprovalStatus } from "../../common/leave/useApprovalStatus";
+import { useClientPortalAdminAccess } from "../../common/client-portal-admin/useClientPortalAdminAccess";
 
 export function MarketingDashboard() {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ export function MarketingDashboard() {
   const location = useLocation();
   const isOverview = location.pathname === "/marketing";
   const { showApprovals, showFinalApprovals, showMyInquiries } = useApprovalStatus();
+  const { hasAccess: showClientPortalAdmin } = useClientPortalAdminAccess();
 
   return (
     <DashboardLayout
@@ -23,6 +25,7 @@ export function MarketingDashboard() {
         showApprovals,
         showFinalApprovals,
         showMyInquiries,
+        showClientPortalAdmin,
       )}
     >
       {isOverview ? (

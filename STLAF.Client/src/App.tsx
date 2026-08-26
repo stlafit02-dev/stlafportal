@@ -40,6 +40,8 @@ import { MyDocumentsPage } from "./common/documents/MyDocumentsPage";
 import { PartnerDashboardPage } from "./departments/partner/PartnerDashboardPage";
 import { PartnerRepositoryPage } from "./departments/partner/PartnerRepositoryPage";
 import { MyInquiriesPage } from "./common/intake/MyInquiriesPage";
+import { ClientPortalAdminGuard } from "./common/components/ClientPortalAdminGuard";
+import { ClientPortalAdminPage } from "./common/client-portal-admin/ClientPortalAdminPage";
 
 function LeaveRoutes() {
   return (
@@ -275,6 +277,20 @@ function App() {
                   <Route path="leave/*" element={<LeaveRoutes />} />
                   <Route path="my-inquiries" element={<MyInquiriesPage />} />
                 </Route>
+
+                {/* ---------- Client Portal Admin (cross-department, per-employee grant) ---------- */}
+                <Route
+                  path="/client-portal-admin"
+                  element={
+                    <ProtectedRoute>
+                      <PortalRoute>
+                        <ClientPortalAdminGuard>
+                          <ClientPortalAdminPage />
+                        </ClientPortalAdminGuard>
+                      </PortalRoute>
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* ---------- Document Review (cross-department, role-based) ---------- */}
                 <Route
