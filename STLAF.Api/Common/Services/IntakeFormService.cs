@@ -15,8 +15,6 @@ public class IntakeFormService : IIntakeFormService
     private readonly IEmailSender _emailSender;
     private readonly IFileStorageService _fileStorage;
 
-    private const bool IsTestMode = true; // Set to false before going live
-
     private static readonly string[] ConsultationPreferenceOptions =
     {
         "In-Person", "Video Call", "Phone Call"
@@ -161,21 +159,9 @@ public class IntakeFormService : IIntakeFormService
 
         var subject = $"New Inquiry {submission.TrackingNumber} — {submission.ClientName}";
 
-        var testBanner = IsTestMode
-            ? $@"<div style=""background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:14px 16px;margin-bottom:16px;"">
-                    <p style=""margin:0;font-weight:700;color:#92400E;font-size:13px;"">⚠️ THIS IS A TEST EMAIL</p>
-                    <p style=""margin:6px 0 0;color:#78350F;font-size:13px;line-height:1.5;"">
-                        We're currently testing the new client inquiry system. No action is required on your end other than
-                        confirming you received this — please send Ms. Cheska Santiago a quick message
-                        or a screenshot showing this email so we can confirm delivery worked correctly. Thank you for helping us test!
-                    </p>
-                </div>"
-            : "";
-
         foreach (var (email, serviceNames) in recipientToServices)
         {
-            var bodyHtml = testBanner
-                + EmailTemplateBuilder.InfoRow("Tracking Number", submission.TrackingNumber)
+            var bodyHtml = EmailTemplateBuilder.InfoRow("Tracking Number", submission.TrackingNumber)
                 + EmailTemplateBuilder.InfoRow("Client Name", submission.ClientName)
                 + EmailTemplateBuilder.InfoRow("Client Type", submission.ClientType)
                 + EmailTemplateBuilder.InfoRow("Contact Person", $"{submission.ContactPerson} ({submission.Designation})")
@@ -205,19 +191,7 @@ public class IntakeFormService : IIntakeFormService
 
         var subject = $"We've received your inquiry — {submission.TrackingNumber}";
 
-        var testBanner = IsTestMode
-            ? $@"<div style=""background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:14px 16px;margin-bottom:16px;"">
-                    <p style=""margin:0;font-weight:700;color:#92400E;font-size:13px;"">⚠️ THIS IS A TEST EMAIL</p>
-                    <p style=""margin:6px 0 0;color:#78350F;font-size:13px;line-height:1.5;"">
-                        We're currently testing the new client inquiry system. No action is required on your end other than
-                        confirming you received this — please reply to this email, or send Ms. Cheska Santiago a quick message
-                        or a screenshot showing this email so we can confirm delivery worked correctly. Thank you for helping us test!
-                    </p>
-                </div>"
-            : "";
-
-        var bodyHtml = testBanner
-            + EmailTemplateBuilder.InfoRow("Tracking Number", submission.TrackingNumber)
+        var bodyHtml = EmailTemplateBuilder.InfoRow("Tracking Number", submission.TrackingNumber)
             + EmailTemplateBuilder.InfoRow("Client Name", submission.ClientName)
             + EmailTemplateBuilder.InfoRow("Consultation Preference", submission.ConsultationPreference)
             + EmailTemplateBuilder.InfoRow("Consultation Date", submission.ConsultationDate.ToString("MMM d, yyyy"))
