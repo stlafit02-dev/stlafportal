@@ -7,7 +7,7 @@ import { useTheme } from "../../../theme/useTheme";
 import { useTicketModal } from "../../tickets/useTicketModal";
 import logoDark from "../../../assets/dark.png";
 import logoLight from "../../../assets/light.png";
-import { ChangePasswordModal } from "../../../auth/ChangePasswordModal";
+import { SettingsModal } from "../../../auth/SettingsModal";
 import { useDocumentModal } from "../../documents/useDocumentModal";
 import "./DashboardLayout.css";
 
@@ -161,7 +161,7 @@ export function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, logout, isLoggingOut } = useAuth();
   const { theme } = useTheme();
@@ -307,11 +307,11 @@ export function DashboardLayout({
                 <button
                   className="user-menu-item"
                   onClick={() => {
-                    setIsChangePasswordOpen(true);
+                    setIsSettingsOpen(true);
                     setIsUserMenuOpen(false);
                   }}
                 >
-                  Change Password
+                  Settings
                 </button>
                 <button
                   className="user-menu-item user-menu-item-danger"
@@ -328,9 +328,9 @@ export function DashboardLayout({
       {/* Main content */}
       <main className="dashboard-content">{children}</main>
 
-      <ChangePasswordModal
-        isOpen={isChangePasswordOpen}
-        onClose={() => setIsChangePasswordOpen(false)}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </div>
   );
