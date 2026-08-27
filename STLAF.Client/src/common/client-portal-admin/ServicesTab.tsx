@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { fetchAllServices, saveService } from "./clientPortalAdminApi";
+import { deleteService, fetchAllServices, saveService } from "./clientPortalAdminApi";
 import type { Service, FieldDefinition } from "./types";
 import { FormSchemaEditor } from "./FormSchemaEditor";
 import { TemplateUpload } from "./TemplateUpload";
 import { Spinner } from "../components/Loader/Loader";
+import { ConfirmDialog } from "../components/ConfirmDialog/ConfirmDialog";
 import "../../departments/it/gmail/GmailManagementPage.css";
 import "../../departments/it/gmail/GmailForms.css";
 
@@ -21,8 +22,12 @@ export function ServicesTab() {
   const [selected, setSelected] = useState<Service | null>(null);
   const [form, setForm] = useState({ name: "", description: "", category: "", isActive: true });
   const [fields, setFields] = useState<FieldDefinition[]>([]);
+  const [schemaRefreshKey, setSchemaRefreshKey] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Service | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   function reload() {
     fetchAllServices().then(setServices);
@@ -55,6 +60,21 @@ export function ServicesTab() {
     } finally {
       setIsSaving(false);
     }
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    const outcome = await deleteService(pendingDelete.id);
+    setIsDeleting(false);
+    if (!outcome.success) {
+      setDeleteError(outcome.errorMessage ?? "Could not delete this service.");
+      return;
+    }
+    if (selected?.id === pendingDelete.id) setSelected(null);
+    setPendingDelete(null);
+    reload();
   }
 
   if (!services) {
@@ -97,9 +117,18 @@ export function ServicesTab() {
                     {service.isActive ? "Active" : "Inactive"}
                   </span>
                 </td>
-                <td>
+                <td style={{ display: "flex", gap: 8 }}>
                   <button className="gmail-secondary-btn" onClick={() => selectService(service)}>
                     Manage
+                  </button>
+                  <button
+                    className="gmail-cancel-btn"
+                    onClick={() => {
+                      setDeleteError(null);
+                      setPendingDelete(service);
+                    }}
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>
@@ -159,11 +188,38 @@ export function ServicesTab() {
 
           {selected.id && (
             <>
-              <FormSchemaEditor serviceId={selected.id} onSaved={setFields} />
-              <TemplateUpload serviceId={selected.id} fields={fields} />
+              <TemplateUpload
+                serviceId={selected.id}
+                fields={fields}
+                onFieldsGenerated={(generated) => {
+                  setFields(generated);
+                  setSchemaRefreshKey((k) => k + 1);
+                }}
+              />
+              <FormSchemaEditor serviceId={selected.id} onSaved={setFields} refreshKey={schemaRefreshKey} />
             </>
           )}
         </section>
+      )}
+
+      <ConfirmDialog
+        isOpen={!!pendingDelete}
+        title="Delete service"
+        message={
+          pendingDelete
+            ? `Delete "${pendingDelete.name}"? Its form fields and document template will be deleted too. If ` +
+              `clients have already submitted requests for this service, ALL of those submissions and their ` +
+              `generated documents (including the actual files) will be permanently deleted as well. This can't ` +
+              `be undone. If you just want to hide it from clients without losing history, uncheck "Active" instead.`
+            : ""
+        }
+        confirmLabel={isDeleting ? "Deleting…" : "Delete"}
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
+      {deleteError && (
+        <p className="gmail-error" style={{ marginTop: 12 }}>{deleteError}</p>
       )}
     </div>
   );

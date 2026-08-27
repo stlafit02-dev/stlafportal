@@ -1,28 +1,40 @@
 import { Suspense, lazy, useEffect, useState } from "react";
-import { fetchDocumentTemplate, uploadDocumentTemplate } from "./clientPortalAdminApi";
+import { fetchDocumentTemplate, saveFormSchema, uploadDocumentTemplate } from "./clientPortalAdminApi";
 import type { DocumentTemplate, TemplateFieldConfig, FieldDefinition } from "./types";
 
-// pdf.js is a large dependency only needed here, so it's split out of the
-// main bundle and loaded on demand when an admin actually opens this section.
 const TemplateFieldMatcher = lazy(() =>
   import("./TemplateFieldMatcher").then((m) => ({ default: m.TemplateFieldMatcher })),
 );
 
+
+function humanizeKey(key: string): string {
+  return key
+    .split("_")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 interface TemplateUploadProps {
   serviceId: string;
   fields: FieldDefinition[];
+  onFieldsGenerated?: (fields: FieldDefinition[]) => void;
 }
 
-export function TemplateUpload({ serviceId, fields }: TemplateUploadProps) {
+export function TemplateUpload({ serviceId, fields, onFieldsGenerated }: TemplateUploadProps) {
   const [current, setCurrent] = useState<DocumentTemplate | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [fieldConfig, setFieldConfig] = useState<TemplateFieldConfig[]>([]);
+  const [detectedNames, setDetectedNames] = useState<string[]>([]);
   const [showRawJson, setShowRawJson] = useState(false);
   const [rawJsonText, setRawJsonText] = useState("");
   const [rawJsonError, setRawJsonError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+  const [generateSuccess, setGenerateSuccess] = useState(false);
 
   useEffect(() => {
     fetchDocumentTemplate(serviceId).then((template) => {
@@ -66,6 +78,27 @@ export function TemplateUpload({ serviceId, fields }: TemplateUploadProps) {
     }
   }
 
+  async function handleGenerateFields() {
+    setGenerateError(null);
+    setGenerateSuccess(false);
+    setIsGenerating(true);
+    try {
+      const definitions: FieldDefinition[] = detectedNames.map((key) => ({
+        key,
+        label: humanizeKey(key),
+        type: "text",
+        required: false,
+      }));
+      const saved = await saveFormSchema(serviceId, definitions);
+      onFieldsGenerated?.(saved.fields);
+      setGenerateSuccess(true);
+    } catch {
+      setGenerateError("Could not generate form fields from this template.");
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
   return (
     <div style={{ marginTop: 32 }}>
       <h2 className="gmail-section-title">Document template</h2>
@@ -75,7 +108,10 @@ export function TemplateUpload({ serviceId, fields }: TemplateUploadProps) {
         with {"{{field_key}}"} placeholders typed directly in the document text.
       </p>
       {fields.length === 0 && (
-        <p className="gmail-error">Save the form fields for this service first — field names need to match.</p>
+        <p className="page-subtitle">
+          No form fields yet — pick a template below, then click "Generate form fields" to create them
+          automatically from its detected field names, instead of adding each one by hand.
+        </p>
       )}
 
       <form className="gmail-form" onSubmit={handleSubmit}>
@@ -87,20 +123,45 @@ export function TemplateUpload({ serviceId, fields }: TemplateUploadProps) {
             onChange={(e) => {
               const selected = e.target.files?.[0] ?? null;
               setFile(selected);
+              setDetectedNames([]);
+              setGenerateError(null);
+              setGenerateSuccess(false);
               if (selected && current === null) setFieldConfig([]);
             }}
           />
         </div>
 
-        {file && fields.length > 0 && (
-          <Suspense fallback={<p className="page-subtitle">Reading PDF form fields…</p>}>
+        {file && (
+          <Suspense fallback={<p className="page-subtitle">Reading template fields…</p>}>
             <TemplateFieldMatcher
               file={file}
               fields={fields}
               fieldConfig={fieldConfig}
               onChange={setFieldConfig}
+              onDetected={setDetectedNames}
             />
           </Suspense>
+        )}
+
+        {file && detectedNames.length > 0 && (
+          <div className="gmail-field" style={{ maxWidth: 520 }}>
+            <button type="button" className="gmail-secondary-btn" onClick={handleGenerateFields} disabled={isGenerating}>
+              {isGenerating
+                ? "Generating…"
+                : fields.length > 0
+                  ? "Regenerate form fields from this template"
+                  : "Generate form fields from this template"}
+            </button>
+            {fields.length > 0 && (
+              <p className="tfm-warning" style={{ marginTop: 6 }}>
+                This replaces the current form fields with ones generated from this template's {detectedNames.length}{" "}
+                detected field{detectedNames.length === 1 ? "" : "s"}. Any manual labels, types, or options you've
+                set will be lost.
+              </p>
+            )}
+            {generateError && <p className="gmail-error">{generateError}</p>}
+            {generateSuccess && <p style={{ color: "#4fcb84", fontSize: 13 }}>Form fields generated.</p>}
+          </div>
         )}
 
         <div>

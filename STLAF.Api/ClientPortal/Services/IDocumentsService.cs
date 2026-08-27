@@ -6,4 +6,6 @@ public interface IDocumentsService
 {
     Task<List<MyDocumentDto>> GetMineAsync(Guid clientId);
     Task<MyDocumentDto?> GetForSubmissionAsync(Guid clientId, Guid submissionId);
+    Task<List<AdminGeneratedDocumentDto>> GetAllForAdminAsync();
+    Task<bool> DeleteAsync(Guid documentId);
 }

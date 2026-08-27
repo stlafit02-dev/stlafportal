@@ -41,9 +41,12 @@ function blankField(): EditableField {
 interface FormSchemaEditorProps {
   serviceId: string;
   onSaved?: (fields: FieldDefinition[]) => void;
+  // Bumped by TemplateUpload after it auto-generates a schema from a template, so this
+  // editor re-fetches and shows the generated fields instead of going stale.
+  refreshKey?: number;
 }
 
-export function FormSchemaEditor({ serviceId, onSaved }: FormSchemaEditorProps) {
+export function FormSchemaEditor({ serviceId, onSaved, refreshKey }: FormSchemaEditorProps) {
   const [fields, setFields] = useState<EditableField[]>([]);
   const [version, setVersion] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -63,7 +66,7 @@ export function FormSchemaEditor({ serviceId, onSaved }: FormSchemaEditorProps) 
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serviceId]);
+  }, [serviceId, refreshKey]);
 
   function updateField(index: number, patch: Partial<EditableField>) {
     setFields((prev) => prev.map((f, i) => (i === index ? { ...f, ...patch } : f)));

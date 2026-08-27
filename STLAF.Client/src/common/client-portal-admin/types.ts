@@ -44,6 +44,17 @@ export interface DocumentTemplate {
   fieldConfig: TemplateFieldConfig[];
 }
 
+export interface AdminGeneratedDocument {
+  id: string;
+  submissionId: string;
+  serviceId: string;
+  serviceName: string;
+  clientEmail: string;
+  clientFullName: string;
+  downloadUrl: string;
+  generatedAt: string;
+}
+
 export interface VoucherCode {
   id: string;
   code: string;

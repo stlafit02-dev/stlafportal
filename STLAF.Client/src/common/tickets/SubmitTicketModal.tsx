@@ -3,12 +3,21 @@ import { Modal } from "../components/Modal/Modal";
 import { Spinner } from "../components/Loader/Loader";
 import {
   fetchMyTicketProfile,
+  fetchMyTickets,
   createMyTicket,
   type EmployeeTicketProfile,
+  type Ticket,
 } from "../../departments/it/ticketing/ticketingApi";
 import { SLA_MINUTES, formatSlaDuration } from "../../departments/it/ticketing/slaConfig";
 import "../../departments/it/gmail/GmailForms.css";
 import "./SubmitTicketModal.css";
+
+const STATUS_BADGE_CLASS: Record<string, string> = {
+  Open: "badge-open",
+  "In Progress": "badge-progress",
+  "On Hold": "badge-hold",
+  Resolved: "badge-resolved",
+};
 
 const CATEGORIES = [
   "Technical Support",
@@ -28,6 +37,7 @@ interface SubmitTicketModalProps {
 
 export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
   const [profile, setProfile] = useState<EmployeeTicketProfile | null>(null);
+  const [myTickets, setMyTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const [category, setCategory] = useState("");
@@ -39,16 +49,18 @@ export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
 
   useEffect(() => {
     if (!isOpen) return;
-    setIsLoading(true);
-    setError(null);
-    setSuccessMessage(null);
-    fetchMyTicketProfile().then((prof) => {
+    Promise.all([fetchMyTicketProfile(), fetchMyTickets()]).then(([prof, tickets]) => {
       setProfile(prof);
+      setMyTickets(tickets);
+      setError(null);
+      setSuccessMessage(null);
       setIsLoading(false);
     });
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const openTickets = myTickets.filter((t) => t.status !== "Closed");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,6 +69,7 @@ export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
     setIsSubmitting(true);
     try {
       const ticket = await createMyTicket({ category, priority, description });
+      setMyTickets((prev) => [ticket, ...prev]);
       setCategory("");
       setPriority("");
       setDescription("");
@@ -186,6 +199,34 @@ export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
                 )}
               </button>
             </form>
+
+            {openTickets.length > 0 && (
+              <div className="submit-ticket-history">
+                <h3 className="submit-ticket-history-title">Your open tickets</h3>
+                <div className="submit-ticket-history-list">
+                  {openTickets.map((t) => (
+                    <div key={t.id} className="submit-ticket-history-row">
+                      <div className="submit-ticket-history-main">
+                        <div className="submit-ticket-history-top">
+                          <span className="mono-cell">{t.ticketNumber}</span>
+                          <span className={`status-badge ${STATUS_BADGE_CLASS[t.status] ?? "badge-open"}`}>
+                            {t.status}
+                          </span>
+                        </div>
+                        <p className="submit-ticket-history-meta">
+                          {t.category} · {t.priority}
+                        </p>
+                        {t.remarks && (
+                          <p className="submit-ticket-history-remarks">
+                            <strong>Remarks:</strong> {t.remarks}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

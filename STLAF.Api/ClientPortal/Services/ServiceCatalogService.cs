@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using STLAF.Api.ClientPortal.DTOs;
 using ServiceEntity = STLAF.Api.ClientPortal.Entities.Service;
+using STLAF.Api.Common.Services;
 using STLAF.Api.Data;
 
 namespace STLAF.Api.ClientPortal.Services;
@@ -8,10 +9,12 @@ namespace STLAF.Api.ClientPortal.Services;
 public class ServiceCatalogService : IServiceCatalogService
 {
     private readonly AppDbContext _db;
+    private readonly IFileStorageService _fileStorage;
 
-    public ServiceCatalogService(AppDbContext db)
+    public ServiceCatalogService(AppDbContext db, IFileStorageService fileStorage)
     {
         _db = db;
+        _fileStorage = fileStorage;
     }
 
     private static ServiceDto Map(ServiceEntity s) => new()
@@ -68,5 +71,43 @@ public class ServiceCatalogService : IServiceCatalogService
 
         await _db.SaveChangesAsync();
         return Map(service);
+    }
+
+    public async Task<DeleteServiceOutcome> DeleteAsync(Guid id)
+    {
+        var service = await _db.ClientPortalServices.FirstOrDefaultAsync(s => s.Id == id);
+        if (service is null)
+        {
+            return new DeleteServiceOutcome { Success = false, ErrorMessage = "Service not found." };
+        }
+
+        // Submission is FK-restricted against Service at the DB level, so deleting a service
+        // that clients have already used means explicitly clearing its submission history
+        // first — B2 files for each generated document are deleted here since the DB cascade
+        // (Submission -> GeneratedDocument) only cleans up rows, not the actual files.
+        var submissions = await _db.ClientPortalSubmissions.Where(s => s.ServiceId == id).ToListAsync();
+        if (submissions.Count > 0)
+        {
+            var submissionIds = submissions.Select(s => s.Id).ToList();
+            var documents = await _db.ClientPortalGeneratedDocuments
+                .Where(d => submissionIds.Contains(d.SubmissionId))
+                .ToListAsync();
+            foreach (var doc in documents)
+            {
+                await _fileStorage.DeleteFileAsync(doc.FileKey);
+            }
+
+            _db.ClientPortalSubmissions.RemoveRange(submissions);
+        }
+
+        var templates = await _db.ClientPortalDocumentTemplates.Where(t => t.ServiceId == id).ToListAsync();
+        foreach (var template in templates)
+        {
+            await _fileStorage.DeleteFileAsync(template.TemplateFileKey);
+        }
+
+        _db.ClientPortalServices.Remove(service);
+        await _db.SaveChangesAsync();
+        return new DeleteServiceOutcome { Success = true };
     }
 }

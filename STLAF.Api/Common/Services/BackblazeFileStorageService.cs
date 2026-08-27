@@ -114,6 +114,27 @@ public class BackblazeFileStorageService : IFileStorageService
         }
     }
 
+    public async Task<bool> DeleteFileAsync(string objectKey)
+    {
+        var client = BuildClient(out var bucketName);
+        if (client is null || bucketName is null) return false;
+
+        try
+        {
+            await client.DeleteObjectAsync(new DeleteObjectRequest
+            {
+                BucketName = bucketName,
+                Key = objectKey
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete {ObjectKey} from Backblaze B2.", objectKey);
+            return false;
+        }
+    }
+
     public async Task<(bool Success, string? Error)> TestConnectionAsync()
     {
         var testContent = System.Text.Encoding.UTF8.GetBytes("STLAF Portal Backblaze B2 connection test.");

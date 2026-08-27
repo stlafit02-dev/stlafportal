@@ -40,4 +40,13 @@ public class ServicesController : ControllerBase
     [HttpPut("admin/{id}")]
     [Authorize(Policy = "client-portal-admin")]
     public async Task<IActionResult> Update(Guid id, SaveServiceDto dto) => Ok(await _service.SaveAsync(id, dto));
+
+    [HttpDelete("admin/{id}")]
+    [Authorize(Policy = "client-portal-admin")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var outcome = await _service.DeleteAsync(id);
+        if (!outcome.Success) return BadRequest(new { message = outcome.ErrorMessage });
+        return NoContent();
+    }
 }

@@ -8,4 +8,5 @@ public interface IServiceCatalogService
     Task<List<ServiceDto>> GetAllAsync();
     Task<ServiceDto?> GetByIdAsync(Guid id);
     Task<ServiceDto> SaveAsync(Guid? id, SaveServiceDto dto);
+    Task<DeleteServiceOutcome> DeleteAsync(Guid id);
 }

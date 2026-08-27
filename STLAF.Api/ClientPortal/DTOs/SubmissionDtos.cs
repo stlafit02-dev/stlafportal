@@ -25,3 +25,15 @@ public class MyDocumentDto
     public string DownloadUrl { get; set; } = string.Empty;
     public DateTime GeneratedAt { get; set; }
 }
+
+public class AdminGeneratedDocumentDto
+{
+    public Guid Id { get; set; }
+    public Guid SubmissionId { get; set; }
+    public Guid ServiceId { get; set; }
+    public string ServiceName { get; set; } = string.Empty;
+    public string ClientEmail { get; set; } = string.Empty;
+    public string ClientFullName { get; set; } = string.Empty;
+    public string DownloadUrl { get; set; } = string.Empty;
+    public DateTime GeneratedAt { get; set; }
+}

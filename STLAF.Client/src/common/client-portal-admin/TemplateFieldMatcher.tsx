@@ -13,6 +13,7 @@ interface TemplateFieldMatcherProps {
   fields: FieldDefinition[];
   fieldConfig: TemplateFieldConfig[];
   onChange: (config: TemplateFieldConfig[]) => void;
+  onDetected?: (names: string[]) => void;
 }
 
 function isDocx(file: File): boolean {
@@ -34,12 +35,7 @@ function describeDetectionError(err: unknown): string {
   return "Could not read this Word document.";
 }
 
-// Reads the template's own field names — a PDF's AcroForm field names (via pdf.js, no
-// page rendering needed) or a Word doc's {{field_key}} placeholders (via a backend scan,
-// since browsers can't easily parse .docx XML) — and lets the admin mark which of them
-// should stay blank for free-plan clients. There's no coordinate picking anymore — the
-// template's own layout/fonts/alignment are used as-is.
-export function TemplateFieldMatcher({ file, fields, fieldConfig, onChange }: TemplateFieldMatcherProps) {
+export function TemplateFieldMatcher({ file, fields, fieldConfig, onChange, onDetected }: TemplateFieldMatcherProps) {
   const [detectedNames, setDetectedNames] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,6 +45,7 @@ export function TemplateFieldMatcher({ file, fields, fieldConfig, onChange }: Te
         (names) => {
           setDetectedNames(names);
           setError(names.length === 0 ? "No {{field_key}} placeholders were found in this document." : null);
+          onDetected?.(names);
         },
         (err) => setError(describeDetectionError(err)),
       );
@@ -62,10 +59,12 @@ export function TemplateFieldMatcher({ file, fields, fieldConfig, onChange }: Te
           const names = fieldObjects ? Object.keys(fieldObjects) : [];
           setDetectedNames(names);
           setError(names.length === 0 ? "No fillable form fields were found in this PDF." : null);
+          onDetected?.(names);
         },
         () => setError("Could not read this PDF."),
       );
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file]);
 
   function toggleBlur(fieldKey: string, blurOnFree: boolean) {

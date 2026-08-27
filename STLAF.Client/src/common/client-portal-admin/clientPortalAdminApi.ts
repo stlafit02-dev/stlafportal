@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import apiClient from "../api/apiClient";
 import type {
   Service,
@@ -6,6 +7,7 @@ import type {
   DocumentTemplate,
   TemplateFieldConfig,
   VoucherCode,
+  AdminGeneratedDocument,
 } from "./types";
 
 export async function fetchAllServices(): Promise<Service[]> {
@@ -91,6 +93,32 @@ export async function generateVoucher(durationDays: number | null, voucherExpire
 export async function fetchVouchers(): Promise<VoucherCode[]> {
   const res = await apiClient.get<VoucherCode[]>("/client-portal/vouchers");
   return res.data;
+}
+
+export async function deleteService(id: string): Promise<{ success: boolean; errorMessage?: string }> {
+  try {
+    await apiClient.delete(`/client-portal/services/admin/${id}`);
+    return { success: true };
+  } catch (err) {
+    if (isAxiosError(err) && err.response?.data?.message) {
+      return { success: false, errorMessage: err.response.data.message as string };
+    }
+    return { success: false, errorMessage: "Could not delete this service." };
+  }
+}
+
+export async function fetchAllGeneratedDocuments(): Promise<AdminGeneratedDocument[]> {
+  const res = await apiClient.get<AdminGeneratedDocument[]>("/client-portal-admin/documents");
+  return res.data;
+}
+
+export async function deleteGeneratedDocument(id: string): Promise<boolean> {
+  try {
+    await apiClient.delete(`/client-portal-admin/documents/${id}`);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function checkMyAdminAccess(): Promise<boolean> {

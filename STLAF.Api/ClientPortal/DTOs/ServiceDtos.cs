@@ -17,3 +17,9 @@ public class SaveServiceDto
     public string? Category { get; set; }
     public bool IsActive { get; set; } = true;
 }
+
+public class DeleteServiceOutcome
+{
+    public bool Success { get; set; }
+    public string? ErrorMessage { get; set; }
+}
