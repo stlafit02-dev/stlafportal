@@ -4,11 +4,13 @@ import { buildNavItems } from "../../common/navConfig";
 import { useAuth } from "../../auth/useAuth";
 import { useModuleAccessPositions } from "../../common/access/useModuleAccess";
 import { useApprovalStatus } from "../../common/leave/useApprovalStatus";
+import { useClientPortalAdminAccess } from "../../common/client-portal-admin/useClientPortalAdminAccess";
 
 export function HrDashboard() {
   const { user } = useAuth();
   const { positions } = useModuleAccessPositions();
-  const { showApprovals, showFinalApprovals } = useApprovalStatus();
+  const { showApprovals, showFinalApprovals, showMyInquiries } = useApprovalStatus();
+  const { hasAccess: showClientPortalAdmin } = useClientPortalAdminAccess();
 
   return (
     <DashboardLayout
@@ -20,6 +22,8 @@ export function HrDashboard() {
         positions,
         showApprovals,
         showFinalApprovals,
+        showMyInquiries,
+        showClientPortalAdmin,
       )}
     >
       <Outlet />

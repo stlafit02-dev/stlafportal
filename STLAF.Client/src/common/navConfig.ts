@@ -115,6 +115,14 @@ export function buildNavItems(
   modulePositions: { module: string; officePosition: string }[],
   showApprovals: boolean,
   showFinalApprovals: boolean,
+  // Unused while the Inquiries nav entry is commented out below — kept in the signature
+  // so callers don't need updating when it ships again.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _showMyInquiries: boolean = false,
+  // Unused while Client Portal Admin's nav entry is commented out below — kept in the
+  // signature so callers don't need updating when it ships again.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _showClientPortalAdmin: boolean = false,
 ): NavItem[] {
   const deptSlug = departmentSlug(department);
   const isBypassed = role === "SuperAdmin" || role === "DeptAdmin";
@@ -130,23 +138,29 @@ export function buildNavItems(
     );
   };
 
-  const managementApprovalChildren: ModuleChildItem[] = (
-    [
-      { label: "Submit Document", action: "submitDocument" as const },
-      { label: "My Documents", to: "/documents/my-documents" },
-      {
-        label: "EA Review",
-        to: "/documents/ea-review",
-        module: "document-ea-review",
-      },
-    ] satisfies ModuleChildItem[]
-  ).filter((c) => isModuleAllowed(c.module));
+  // Management Approval is not ready for production yet — commented out along with its
+  // routes in App.tsx, until it ships.
+  // const managementApprovalChildren: ModuleChildItem[] = (
+  //   [
+  //     { label: "Submit Document", action: "submitDocument" as const },
+  //     { label: "My Documents", to: "/documents/my-documents" },
+  //     {
+  //       label: "EA Review",
+  //       to: "/documents/ea-review",
+  //       module: "document-ea-review",
+  //     },
+  //   ] satisfies ModuleChildItem[]
+  // ).filter((c) => isModuleAllowed(c.module));
 
   const isPartner = department === "Partner";
 
   const rawItems: ModuleNavItem[] = [
     ...deptModuleNav(department),
     { label: "Submit Ticket", action: "submitTicket" },
+    // Not ready for production yet — commented out until Inquiries ships.
+    // ...(showMyInquiries
+    //   ? [{ label: "Inquiries", to: `/${deptSlug}/my-inquiries` }]
+    //   : []),
     ...(isPartner
       ? []
       : [
@@ -159,9 +173,14 @@ export function buildNavItems(
             ),
           },
         ]),
-    ...(!isPartner && managementApprovalChildren.length > 0
-      ? [{ label: "Management Approval", children: managementApprovalChildren }]
-      : []),
+    // Not ready for production yet — commented out until Management Approval ships.
+    // ...(!isPartner && managementApprovalChildren.length > 0
+    //   ? [{ label: "Management Approval", children: managementApprovalChildren }]
+    //   : []),
+    // Not ready for production yet — commented out until Client Portal Admin ships.
+    // ...(showClientPortalAdmin
+    //   ? [{ label: "Client Portal Admin", to: "/client-portal-admin" }]
+    //   : []),
   ];
 
   return rawItems

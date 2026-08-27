@@ -51,3 +51,19 @@ public class IntakeFormOptionsDto
     public List<string> TimeSlots { get; set; } = new();
     public List<string> HowDidYouFindUsOptions { get; set; } = new();
 }
+public class IntakeSubmissionSummaryDto
+{
+    public Guid Id { get; set; }
+    public string TrackingNumber { get; set; } = string.Empty;
+    public string ClientName { get; set; } = string.Empty;
+    public string ClientType { get; set; } = string.Empty;
+    public string ContactPerson { get; set; } = string.Empty;
+    public string? ContactEmail { get; set; }
+    public string? ContactPhone { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public DateTime ConsultationDate { get; set; }
+    public string ConsultationPreference { get; set; } = string.Empty;
+    public List<string> MatchedServices { get; set; } = new(); // only the services relevant to this viewer
+    public List<string> Categories { get; set; } = new(); // distinct categories among matched services
+}

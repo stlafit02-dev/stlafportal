@@ -36,10 +36,19 @@
   border-top: 1px solid var(--border-color);
 }
 
+.submit-ticket-history-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+
 .submit-ticket-history-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
 }
 
 .submit-ticket-history-row {
@@ -48,5 +57,49 @@
   align-items: center;
   background: var(--bg-input);
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 10px 12px;
 }
+
+.submit-ticket-history-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.submit-ticket-history-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.submit-ticket-history-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.submit-ticket-history-remarks {
+  font-size: 12px;
+  color: var(--text-primary);
+  margin: 2px 0 0;
+}
+
+.submit-ticket-history .mono-cell {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.submit-ticket-history .status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.submit-ticket-history .badge-open { background: rgba(90, 140, 230, 0.15); color: #6C9BEF; }
+.submit-ticket-history .badge-progress { background: rgba(230, 150, 60, 0.15); color: #E8A44C; }
+.submit-ticket-history .badge-hold { background: rgba(160, 100, 220, 0.15); color: #B888E6; }
+.submit-ticket-history .badge-resolved { background: rgba(70, 190, 120, 0.15); color: #4FCB84; }

@@ -82,8 +82,8 @@
 }
 
 .nav-item-active {
-  background: var(--bg-nav-active);
-  color: var(--accent-gold);
+  background: var(--bg-nav-hover);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -409,8 +409,8 @@
 }
 
 .nav-subitem-active {
-  background: var(--bg-nav-active);
-  color: var(--accent-gold);
+  background: var(--bg-nav-hover);
+  color: var(--text-primary);
   font-weight: 600;
 }
 

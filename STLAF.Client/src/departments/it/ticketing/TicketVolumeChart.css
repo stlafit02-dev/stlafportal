@@ -1,0 +1,115 @@
+.ov-chart-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ov-range-toggle {
+  align-self: flex-end;
+  display: inline-flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color-strong);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.ov-range-btn {
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.ov-range-btn:hover {
+  color: var(--text-primary);
+}
+
+.ov-range-btn-active,
+.ov-range-btn-active:hover {
+  background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
+  color: var(--bg-primary);
+}
+
+.ov-chart-wrap {
+  position: relative;
+}
+
+.ov-chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 640 / 220;
+}
+
+.ov-chart-gridline {
+  stroke: var(--border-color);
+  stroke-width: 1;
+}
+
+.ov-chart-axis-label {
+  fill: var(--text-muted);
+  font-size: 10.5px;
+  font-family: "Inter", sans-serif;
+}
+
+.ov-chart-line {
+  fill: none;
+  stroke: var(--accent-gold);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.ov-chart-crosshair {
+  stroke: var(--border-color-strong);
+  stroke-width: 1;
+}
+
+.ov-chart-dot {
+  fill: var(--accent-gold-bright);
+  stroke: var(--bg-card);
+  stroke-width: 2;
+}
+
+.ov-chart-tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%) translateY(-12px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-strong);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 0 8px 24px var(--shadow-color);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.ov-chart-tooltip-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ov-chart-tooltip-label {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+  .ov-chart-axis-label {
+    font-size: 9px;
+  }
+}

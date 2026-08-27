@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using STLAF.Api.Identity.DTOs;
 using STLAF.Api.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace STLAF.Api.Identity.Controllers;
 
@@ -17,6 +18,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("login")]
     public async Task<IActionResult> Login(LoginRequestDto request)
     {
         var outcome = await _authService.LoginAsync(request);

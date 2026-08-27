@@ -1,0 +1,89 @@
+.dynamic-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 520px;
+  margin-top: 24px;
+}
+
+.df-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: "Inter", sans-serif;
+}
+
+.df-field-label {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.df-required {
+  color: var(--accent-error);
+  margin-left: 4px;
+}
+
+.df-field input[type="text"],
+.df-field input[type="email"],
+.df-field input[type="number"],
+.df-field input[type="date"],
+.df-field select,
+.df-field textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color-strong);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+}
+
+.df-field input:focus,
+.df-field select:focus,
+.df-field textarea:focus {
+  outline: none;
+  background: var(--bg-input-focus);
+  border-color: var(--accent-gold);
+}
+
+.df-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.df-radio-option,
+.df-checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.df-help {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.dynamic-form-submit {
+  margin-top: 8px;
+  align-self: flex-start;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent-gold);
+  color: var(--bg-primary);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+}
+
+.dynamic-form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

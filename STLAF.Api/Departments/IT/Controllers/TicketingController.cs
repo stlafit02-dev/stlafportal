@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using STLAF.Api.Departments.IT.DTOs;
 using STLAF.Api.Departments.IT.Services;
 using System.Security.Claims;
@@ -22,6 +23,7 @@ public class TicketingController : ControllerBase
     // Public — anyone in the firm can submit a ticket without logging in
     [HttpPost]
     [AllowAnonymous]
+    [EnableRateLimiting("public-submission")]
     public async Task<IActionResult> Create(CreateTicketDto dto)
     {
         var result = await _service.CreateAsync(dto);

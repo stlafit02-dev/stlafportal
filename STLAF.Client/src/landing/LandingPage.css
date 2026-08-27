@@ -1,56 +1,52 @@
 .landing {
   position: relative;
   min-height: 100vh;
-  background-color: var(--bg-primary);
+  background: var(--bg-primary);
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
-  font-family: "Inter", sans-serif;
+  font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif;
   overflow: hidden;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.glow {
+.visual-blob {
   position: absolute;
-  top: -200px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 900px;
-  height: 600px;
-  background: radial-gradient(circle, var(--bg-glow) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: var(--visual-blob-opacity, 0.5);
   pointer-events: none;
   z-index: 0;
 }
 
-.landing-header,
-.landing-hero,
-.landing-feed,
-.landing-footer {
-  position: relative;
-  z-index: 1;
+.visual-blob-gold {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, #CCAA49 0%, transparent 70%);
+  top: -160px;
+  left: -140px;
+}
+
+.visual-blob-green {
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle, #12A634 0%, transparent 70%);
+  bottom: -160px;
+  right: -120px;
+  opacity: 0.35;
 }
 
 .landing-header {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 28px 56px;
-  gap: 16px;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.wordmark-logo {
-  height: 32px;
-  width: auto;
-  object-fit: contain;
+  padding: 28px 48px;
 }
 
 .signin-btn {
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   font-weight: 600;
   background: linear-gradient(135deg, var(--accent-gold-bright), var(--accent-gold));
@@ -78,37 +74,54 @@
 }
 
 .landing-hero {
-  padding: 88px 56px 40px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 24px 40px;
   text-align: center;
 }
 
-.hero-title {
-  font-family: "Fraunces", serif;
-  font-size: 52px;
-  font-weight: 500;
-  letter-spacing: -0.5px;
-  margin: 0 0 12px;
-  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.landing-logo {
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 16px;
 }
 
-.hero-subtitle {
-  font-size: 16px;
-  color: var(--text-secondary);
+.landing-firm-name {
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .landing-feed {
+  position: relative;
+  z-index: 1;
   flex: 1;
-  padding: 24px 56px 64px;
+  padding: 0 56px 64px;
   max-width: 720px;
   width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  box-sizing: border-box;
+}
+
+.landing-feed-title {
+  font-family: "Fraunces", serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  margin: 0 0 4px;
+  text-align: center;
 }
 
 .empty-card {
@@ -121,13 +134,13 @@
 
 .empty-text {
   color: var(--text-secondary);
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   margin: 0;
 }
 
 .notice-card {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 24px 28px;
@@ -144,6 +157,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-family: "Inter", sans-serif;
   font-size: 12px;
   margin-bottom: 10px;
 }
@@ -169,6 +183,7 @@
 }
 
 .notice-body {
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   line-height: 1.6;
   color: var(--text-body);
@@ -176,28 +191,32 @@
 }
 
 .landing-footer {
-  padding: 24px 56px;
+  position: relative;
+  z-index: 1;
+  padding: 24px 48px;
   border-top: 1px solid var(--border-color);
-  font-size: 12px;
+  font-family: "Inter", sans-serif;
+  font-size: 11.5px;
   color: var(--text-muted);
   text-align: center;
+  letter-spacing: 0.3px;
 }
 
 @media (max-width: 640px) {
-  .landing-header,
-  .landing-hero,
-  .landing-feed,
+  .landing-header {
+    padding: 20px 24px;
+  }
+
+  .landing-logo {
+    max-width: 160px;
+  }
+
+  .landing-feed {
+    padding: 0 24px 48px;
+  }
+
   .landing-footer {
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-
-  .hero-title {
-    font-size: 34px;
-  }
-
-  .wordmark-logo {
-    height: 26px;
+    padding: 20px 24px;
   }
 }
 

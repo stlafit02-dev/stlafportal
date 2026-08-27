@@ -39,12 +39,12 @@ public class BackblazeFileStorageService : IFileStorageService
         return new AmazonS3Client(new BasicAWSCredentials(keyId, appKey), config);
     }
 
-    public async Task<(string objectKey, string url)?> UploadFileAsync(Stream fileStream, string fileName, string contentType)
+    public async Task<(string objectKey, string url)?> UploadFileAsync(Stream fileStream, string fileName, string contentType, string folder = "medical-certificates")
     {
         var client = BuildClient(out var bucketName);
         if (client is null || bucketName is null) return null;
 
-        var objectKey = $"medical-certificates/{Guid.NewGuid()}-{fileName}";
+        var objectKey = $"{folder}/{Guid.NewGuid()}-{fileName}";
 
         try
         {
@@ -87,6 +87,52 @@ public class BackblazeFileStorageService : IFileStorageService
         };
 
         return Task.FromResult(client.GetPreSignedURL(request));
+    }
+
+    public async Task<Stream?> DownloadFileAsync(string objectKey)
+    {
+        var client = BuildClient(out var bucketName);
+        if (client is null || bucketName is null) return null;
+
+        try
+        {
+            var response = await client.GetObjectAsync(new GetObjectRequest
+            {
+                BucketName = bucketName,
+                Key = objectKey
+            });
+
+            var memoryStream = new MemoryStream();
+            await response.ResponseStream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+            return memoryStream;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to download {ObjectKey} from Backblaze B2.", objectKey);
+            return null;
+        }
+    }
+
+    public async Task<bool> DeleteFileAsync(string objectKey)
+    {
+        var client = BuildClient(out var bucketName);
+        if (client is null || bucketName is null) return false;
+
+        try
+        {
+            await client.DeleteObjectAsync(new DeleteObjectRequest
+            {
+                BucketName = bucketName,
+                Key = objectKey
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to delete {ObjectKey} from Backblaze B2.", objectKey);
+            return false;
+        }
     }
 
     public async Task<(bool Success, string? Error)> TestConnectionAsync()

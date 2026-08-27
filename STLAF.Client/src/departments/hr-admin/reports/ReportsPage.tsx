@@ -6,13 +6,13 @@ import "../../it/gmail/GmailForms.css";
 import "./ReportsPage.css";
 
 const DEPARTMENTS = [
+  "All",
   "IT",
   "HRAdmin",
   "Litigation",
   "Accounting",
   "Corporate",
   "Marketing",
-  "Partner",
 ];
 
 export function ReportsPage() {

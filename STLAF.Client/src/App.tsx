@@ -5,7 +5,7 @@ import { LandingPage } from "./landing/LandingPage";
 import { ProtectedRoute } from "./common/components/ProtectedRoute";
 import { DepartmentGuard } from "./common/components/DepartmentGuard";
 import { ModuleGuard } from "./common/components/ModuleGuard";
-import { PortalRoute } from "./common/PortalRoute";
+// import { PortalRoute } from "./common/PortalRoute"; // only used by routes not ready for production yet
 
 import { ItDashboard } from "./departments/it/ItDashboard";
 import { ItOverviewPage } from "./departments/it/ItOverviewPage";
@@ -16,7 +16,7 @@ import { AccountingDashboard } from "./departments/accounting/AccountingDashboar
 import { CorporateDashboard } from "./departments/corporate/CorporateDashboard";
 import { MarketingDashboard } from "./departments/marketing/MarketingDashboard";
 import { PartnerDashboard } from "./departments/partner/PartnerDashboard";
-import { EaReviewPage } from "./departments/litigation/EaReviewPage";
+// import { EaReviewPage } from "./departments/litigation/EaReviewPage"; // not ready for production yet
 import { ITHelpdeskPage } from "./departments/it/ticketing/ITHelpdeskPage";
 import { AssetPublicPage } from "./departments/it/assets/AssetPublicPage";
 import { TicketingPage } from "./departments/it/ticketing/TicketingPage";
@@ -36,9 +36,12 @@ import { ApprovalsPage } from "./common/leave/ApprovalsPage";
 import { FinalApprovalsPage } from "./common/leave/FinalApprovalsPage";
 import { TicketModalProvider } from "./common/tickets/TicketModalProvider";
 import { DocumentModalProvider } from "./common/documents/DocumentModalProvider";
-import { MyDocumentsPage } from "./common/documents/MyDocumentsPage";
+// import { MyDocumentsPage } from "./common/documents/MyDocumentsPage"; // not ready for production yet
 import { PartnerDashboardPage } from "./departments/partner/PartnerDashboardPage";
 import { PartnerRepositoryPage } from "./departments/partner/PartnerRepositoryPage";
+// import { MyInquiriesPage } from "./common/intake/MyInquiriesPage"; // not ready for production yet
+// import { ClientPortalAdminGuard } from "./common/components/ClientPortalAdminGuard"; // not ready for production yet
+// import { ClientPortalAdminPage } from "./common/client-portal-admin/ClientPortalAdminPage"; // not ready for production yet
 
 function LeaveRoutes() {
   return (
@@ -65,6 +68,8 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/it-helpdesk" element={<ITHelpdeskPage />} />
                 <Route path="/assets/:assetTag" element={<AssetPublicPage />} />
+                {/* Not ready for production yet — commented out, along with its nav
+                    entry in navConfig.ts, until Management Approval ships.
                 <Route
                   path="/documents/my-documents"
                   element={
@@ -74,7 +79,7 @@ function App() {
                       </PortalRoute>
                     </ProtectedRoute>
                   }
-                />
+                /> */}
 
                 {/* ---------- IT ---------- */}
                 <Route
@@ -133,6 +138,9 @@ function App() {
                     }
                   />
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  {/* Not ready for production yet — commented out, along with its nav entry
+                      in navConfig.ts.
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} /> */}
                 </Route>
 
                 {/* ---------- HR Admin ---------- */}
@@ -180,6 +188,9 @@ function App() {
                     }
                   />
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  {/* Not ready for production yet — commented out, along with its nav entry
+                      in navConfig.ts.
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} /> */}
                 </Route>
 
                 {/* ---------- Litigation ---------- */}
@@ -194,6 +205,9 @@ function App() {
                   }
                 >
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  {/* Not ready for production yet — commented out, along with its nav entry
+                      in navConfig.ts.
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} /> */}
                 </Route>
 
                 {/* ---------- Accounting ---------- */}
@@ -208,6 +222,9 @@ function App() {
                   }
                 >
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  {/* Not ready for production yet — commented out, along with its nav entry
+                      in navConfig.ts.
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} /> */}
                 </Route>
 
                 {/* ---------- Corporate ---------- */}
@@ -222,6 +239,9 @@ function App() {
                   }
                 >
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  {/* Not ready for production yet — commented out, along with its nav entry
+                      in navConfig.ts.
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} /> */}
                 </Route>
 
                 {/* ---------- Marketing ---------- */}
@@ -236,6 +256,9 @@ function App() {
                   }
                 >
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  {/* Not ready for production yet — commented out, along with its nav entry
+                      in navConfig.ts.
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} /> */}
                 </Route>
 
                 {/* ---------- Partner (department) ---------- */}
@@ -266,9 +289,30 @@ function App() {
                     }
                   />
                   <Route path="leave/*" element={<LeaveRoutes />} />
+                  {/* Not ready for production yet — commented out, along with its nav entry
+                      in navConfig.ts.
+                  <Route path="my-inquiries" element={<MyInquiriesPage />} /> */}
                 </Route>
 
-                {/* ---------- Document Review (cross-department, role-based) ---------- */}
+                {/* ---------- Client Portal Admin (cross-department, per-employee grant) ----------
+                    Not ready for production yet — commented out, along with its nav entry in
+                    navConfig.ts, until it ships.
+                <Route
+                  path="/client-portal-admin"
+                  element={
+                    <ProtectedRoute>
+                      <PortalRoute>
+                        <ClientPortalAdminGuard>
+                          <ClientPortalAdminPage />
+                        </ClientPortalAdminGuard>
+                      </PortalRoute>
+                    </ProtectedRoute>
+                  }
+                /> */}
+
+                {/* ---------- Document Review (cross-department, role-based) ----------
+                    Not ready for production yet — commented out, along with its nav entry in
+                    navConfig.ts, until Management Approval ships.
                 <Route
                   path="/documents/ea-review"
                   element={
@@ -280,7 +324,7 @@ function App() {
                       </PortalRoute>
                     </ProtectedRoute>
                   }
-                />
+                /> */}
               </Routes>
             </BrowserRouter>
           </DocumentModalProvider>

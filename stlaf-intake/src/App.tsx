@@ -4,7 +4,12 @@ import { ClientInfoStep } from "./components/ClientInfoStep";
 import { ServicesStep } from "./components/ServicesStep";
 import { DetailsBookingStep } from "./components/DetailsBookingStep";
 import { fetchCatalog, fetchFormOptions, submitIntake } from "./api/intakeApi";
-import { emptyFormData, type IntakeFormData, type IntakeGroupOption, type IntakeFormOptions } from "./types/intake";
+import {
+  emptyFormData,
+  type IntakeFormData,
+  type IntakeGroupOption,
+  type IntakeFormOptions,
+} from "./types/intake";
 import "./App.css";
 
 function App() {
@@ -18,14 +23,19 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([fetchCatalog(), fetchFormOptions()]).then(([catalogData, optionsData]) => {
-      setGroups(catalogData);
-      setOptions(optionsData);
-      setIsLoading(false);
-    });
+    Promise.all([fetchCatalog(), fetchFormOptions()]).then(
+      ([catalogData, optionsData]) => {
+        setGroups(catalogData);
+        setOptions(optionsData);
+        setIsLoading(false);
+      },
+    );
   }, []);
 
-  function updateField<K extends keyof IntakeFormData>(field: K, value: IntakeFormData[K]) {
+  function updateField<K extends keyof IntakeFormData>(
+    field: K,
+    value: IntakeFormData[K],
+  ) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }
 
@@ -37,8 +47,9 @@ function App() {
       setTrackingNumber(result.trackingNumber);
     } catch (err) {
       const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-        ?? "Something went wrong submitting your inquiry. Please try again.";
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ??
+        "Something went wrong submitting your inquiry. Please try again.";
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -52,10 +63,31 @@ function App() {
   if (trackingNumber) {
     return (
       <div className="intake-page">
+        <div className="intake-wordmark">
+          <span className="intake-wordmark-st">ST</span>
+          <span className="intake-wordmark-laf">LAF</span>
+        </div>
+        <p className="intake-firm-name">
+          Sadsad Tamesis Legal and Accountancy Firm
+        </p>
         <div className="intake-card intake-success">
+          <div className="intake-success-icon">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </div>
           <h1>Thank you!</h1>
           <p>Your inquiry has been received.</p>
-          <p className="tracking-number">Tracking Number: <strong>{trackingNumber}</strong></p>
+          <p className="tracking-number">
+            Tracking Number: <strong>{trackingNumber}</strong>
+          </p>
           <p>A confirmation email has been sent to {formData.contactEmail}.</p>
         </div>
       </div>
@@ -64,6 +96,13 @@ function App() {
 
   return (
     <div className="intake-page">
+      <div className="intake-wordmark">
+        <span className="intake-wordmark-st">ST</span>
+        <span className="intake-wordmark-laf">LAF</span>
+      </div>
+      <p className="intake-firm-name">
+        Sadsad Tamesis Legal and Accountancy Firm
+      </p>
       <div className="intake-card">
         <div className="intake-header">
           <h1>INTAKE FORM — STEP {step} OF 3</h1>
@@ -75,7 +114,11 @@ function App() {
         {error && <p className="intake-error">{error}</p>}
 
         {step === 1 && (
-          <ClientInfoStep data={formData} onChange={updateField} onNext={() => setStep(2)} />
+          <ClientInfoStep
+            data={formData}
+            onChange={updateField}
+            onNext={() => setStep(2)}
+          />
         )}
         {step === 2 && (
           <ServicesStep

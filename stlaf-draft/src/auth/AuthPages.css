@@ -1,0 +1,86 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 12px 32px var(--shadow-color);
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: "Inter", sans-serif;
+}
+
+.auth-field input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color-strong);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+}
+
+.auth-field input:focus {
+  outline: none;
+  background: var(--bg-input-focus);
+  border-color: var(--accent-gold);
+}
+
+.field-error {
+  color: var(--accent-error);
+  font-size: 12px;
+}
+
+.form-error {
+  margin-top: 16px;
+  color: var(--accent-error);
+  font-size: 13px;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 24px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent-gold);
+  color: var(--bg-primary);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+}
+
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-switch {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-family: "Inter", sans-serif;
+}
+
+.auth-switch a {
+  color: var(--accent-gold);
+  text-decoration: none;
+}

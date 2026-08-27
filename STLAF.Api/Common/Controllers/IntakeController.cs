@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using STLAF.Api.Common.DTOs;
 using STLAF.Api.Common.Services;
 
@@ -10,7 +11,7 @@ namespace STLAF.Api.Common.Controllers;
 public class IntakeController : ControllerBase
 {
     private readonly IIntakeFormService _service;
-
+    private Guid CurrentUserId => Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
     public IntakeController(IIntakeFormService service)
     {
         _service = service;
@@ -27,6 +28,7 @@ public class IntakeController : ControllerBase
     [HttpPost("submissions")]
     [AllowAnonymous]
     [RequestSizeLimit(6_000_000)]
+    [EnableRateLimiting("public-submission")]
     public async Task<IActionResult> Submit([FromForm] CreateIntakeSubmissionDto dto, IFormFile? file)
     {
         if (file is not null && file.Length > 5_000_000)
@@ -42,5 +44,27 @@ public class IntakeController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+    [HttpGet("my-submissions")]
+    [Authorize]
+    public async Task<IActionResult> GetMySubmissions() => Ok(await _service.GetMySubmissionsAsync(CurrentUserId));
+    [HttpGet("am-i-point-person")]
+    [Authorize]
+    public async Task<IActionResult> AmIPointPerson() => Ok(await _service.IsPointPersonAsync(CurrentUserId));
+    [HttpGet("submissions/{id}/proposal")]
+    [Authorize]
+    public async Task<IActionResult> GenerateProposal(Guid id)
+    {
+        var canAccess = await _service.CanAccessSubmissionAsync(CurrentUserId, id);
+        if (!canAccess) return Forbid();
+
+        var fileBytes = await _service.GenerateProposalAsync(id, CurrentUserId);
+        if (fileBytes is null) return NotFound();
+
+        return File(
+            fileBytes,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            $"Proposal-{id}.docx"
+        );
     }
 }
