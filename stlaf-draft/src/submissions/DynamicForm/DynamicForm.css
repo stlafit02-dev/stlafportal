@@ -1,15 +1,23 @@
 .dynamic-form {
   display: flex;
   flex-direction: column;
-  max-width: 520px;
-  margin-top: 24px;
+  margin-top: 8px;
+}
+
+.dynamic-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 24px;
+}
+
+.df-cell-wide {
+  grid-column: 1 / -1;
 }
 
 .df-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 18px;
   font-size: 13px;
   color: var(--text-secondary);
   font-family: "Inter", sans-serif;
@@ -38,6 +46,7 @@
   color: var(--text-primary);
   font-size: 14px;
   font-family: "Inter", sans-serif;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .df-field input:focus,
@@ -64,15 +73,73 @@
   cursor: pointer;
 }
 
+.df-list-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.df-list-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.df-list-row input {
+  flex: 1;
+}
+
+.df-list-remove {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.df-list-remove:hover {
+  border-color: var(--accent-error);
+  color: var(--accent-error);
+}
+
+.df-list-add {
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px dashed var(--border-color-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.df-list-add:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
 .df-help {
   font-size: 12px;
   color: var(--text-muted);
 }
 
+.field-error {
+  font-size: 12px;
+  color: var(--accent-error);
+}
+
 .dynamic-form-submit {
-  margin-top: 8px;
+  margin-top: 28px;
   align-self: flex-start;
-  padding: 12px 24px;
+  padding: 12px 28px;
   border-radius: 8px;
   border: none;
   background: var(--accent-gold);
@@ -81,9 +148,20 @@
   font-size: 14px;
   cursor: pointer;
   font-family: "Inter", sans-serif;
+  transition: background-color 0.15s ease;
+}
+
+.dynamic-form-submit:hover:not(:disabled) {
+  background: var(--accent-gold-bright);
 }
 
 .dynamic-form-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .dynamic-form-grid {
+    grid-template-columns: 1fr;
+  }
 }

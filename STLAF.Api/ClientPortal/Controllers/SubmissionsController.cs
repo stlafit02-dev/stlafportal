@@ -31,6 +31,14 @@ public class SubmissionsController : ControllerBase
     [HttpGet("mine")]
     public async Task<IActionResult> GetMine() => Ok(await _service.GetMineAsync(CurrentClientId));
 
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _service.GetByIdAsync(CurrentClientId, id);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+
     [HttpPost("{id}/retry")]
     public async Task<IActionResult> Retry(Guid id)
     {

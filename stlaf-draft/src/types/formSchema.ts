@@ -7,7 +7,8 @@ export type FieldType =
   | "select"
   | "radio"
   | "checkbox"
-  | "multiselect";
+  | "multiselect"
+  | "list";
 
 export interface FieldOption {
   value: string;

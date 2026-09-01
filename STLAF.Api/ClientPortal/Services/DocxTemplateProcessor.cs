@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -63,28 +64,53 @@ public static class DocxTemplateProcessor
         var replaced = TokenPattern.Replace(text, match =>
         {
             var key = match.Groups[1].Value;
-            if (blurredKeys.Contains(key) && !isPremium) return string.Empty;
-            return responses.TryGetValue(key, out var value) && value is not null ? value.ToString() ?? string.Empty : string.Empty;
+            var value = responses.TryGetValue(key, out var v) ? v : null;
+            return FormatValue(value, key, blurredKeys, isPremium);
         });
 
         var runs = paragraph.Elements<Run>().ToList();
         if (runs.Count == 0) return;
 
         var firstRun = runs[0];
-        var keptText = firstRun.Elements<Text>().FirstOrDefault();
-        if (keptText is null)
-        {
-            keptText = new Text();
-            firstRun.AppendChild(keptText);
-        }
-        keptText.Text = replaced;
-        keptText.Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve;
+        firstRun.RemoveAllChildren<Text>();
+        firstRun.RemoveAllChildren<TabChar>();
+        firstRun.RemoveAllChildren<Break>();
 
-        foreach (var extraText in firstRun.Elements<Text>().Skip(1).ToList()) extraText.Remove();
-        foreach (var tab in firstRun.Elements<TabChar>().ToList()) tab.Remove();
-        foreach (var br in firstRun.Elements<Break>().ToList()) br.Remove();
+        // A "list" field's value renders as a numbered list, one item per line — Word only
+        // shows a soft line break for an explicit <w:br/>, not an embedded "\n" character.
+        var lines = replaced.Split('\n');
+        for (var i = 0; i < lines.Length; i++)
+        {
+            if (i > 0) firstRun.AppendChild(new Break());
+            firstRun.AppendChild(new Text(lines[i]) { Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve });
+        }
 
         for (var i = 1; i < runs.Count; i++) runs[i].Remove();
+    }
+
+    // A "list" field submits its answer as a JSON string array; every other field type
+    // submits a scalar. Shared with the fillable-PDF path (DocumentGenerationService) so
+    // both template kinds render a list the same way: a numbered "1. ...\n2. ..." block.
+    internal static string FormatValue(object? value, string key, HashSet<string> blurredKeys, bool isPremium)
+    {
+        if (blurredKeys.Contains(key) && !isPremium) return string.Empty;
+        if (value is null) return string.Empty;
+
+        if (value is JsonElement { ValueKind: JsonValueKind.Array } arrayElement)
+        {
+            var items = arrayElement.EnumerateArray()
+                .Select(e => e.ValueKind == JsonValueKind.String ? e.GetString() : e.ToString())
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList();
+            return string.Join("\n", items.Select((item, i) => $"{i + 1}. {item}"));
+        }
+
+        if (value is JsonElement { ValueKind: JsonValueKind.String } stringElement)
+        {
+            return stringElement.GetString() ?? string.Empty;
+        }
+
+        return value.ToString() ?? string.Empty;
     }
 
     private static string GetParagraphText(Paragraph paragraph)

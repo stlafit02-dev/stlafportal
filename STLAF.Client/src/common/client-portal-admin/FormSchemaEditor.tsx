@@ -3,7 +3,7 @@ import { fetchLatestFormSchema, saveFormSchema } from "./clientPortalAdminApi";
 import type { FieldDefinition, FieldType } from "./types";
 
 const FIELD_TYPES: FieldType[] = [
-  "text", "textarea", "number", "email", "date", "select", "radio", "checkbox", "multiselect",
+  "text", "textarea", "number", "email", "date", "select", "radio", "checkbox", "multiselect", "list",
 ];
 const OPTION_TYPES: FieldType[] = ["select", "radio", "multiselect"];
 

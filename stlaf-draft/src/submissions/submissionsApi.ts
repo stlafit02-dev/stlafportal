@@ -35,6 +35,11 @@ export async function fetchMySubmissions(): Promise<Submission[]> {
   return response.data;
 }
 
+export async function fetchSubmission(submissionId: string): Promise<Submission> {
+  const response = await apiClient.get<Submission>(`/client-portal/submissions/${submissionId}`);
+  return response.data;
+}
+
 export async function retryGeneration(submissionId: string): Promise<void> {
   await apiClient.post(`/client-portal/submissions/${submissionId}/retry`);
 }

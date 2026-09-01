@@ -70,6 +70,7 @@ builder.Services.AddScoped<IDocumentsService, DocumentsService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddHostedService<SubscriptionExpiryService>();
+builder.Services.AddHostedService<LibreOfficeWarmupService>();
 
 
 //Rate limiter
