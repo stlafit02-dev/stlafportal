@@ -7,7 +7,7 @@ function validateField(field: FieldDefinition, value: unknown): string | null {
     value === undefined ||
     value === null ||
     value === "" ||
-    (Array.isArray(value) && value.length === 0);
+    (Array.isArray(value) && value.every((v) => typeof v !== "string" || v.trim() === ""));
 
   if (field.required && isEmpty) {
     return `${field.label} is required`;

@@ -114,7 +114,11 @@ public class DocumentGenerationService : IDocumentGenerationService
 
                 if (responses.TryGetValue(key, out var value) && value is not null)
                 {
-                    textField.Value = new PdfString(value.ToString() ?? string.Empty);
+                    var formatted = DocxTemplateProcessor.FormatValue(value, key, blurredKeys, isPremium);
+                    textField.Value = new PdfString(formatted);
+                    // A "list" field formats as multiple numbered lines — the field must be
+                    // flagged multiline or the viewer collapses it back to a single line.
+                    if (formatted.Contains('\n')) textField.MultiLine = true;
                 }
             }
 

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using STLAF.Api.ClientPortal.DTOs;
 using STLAF.Api.ClientPortal.Entities;
 using STLAF.Api.Data;
@@ -9,13 +10,13 @@ namespace STLAF.Api.ClientPortal.Services;
 public class SubmissionService : ISubmissionService
 {
     private readonly AppDbContext _db;
-    private readonly IDocumentGenerationService _documentGeneration;
+    private readonly IServiceScopeFactory _scopeFactory;
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
-    public SubmissionService(AppDbContext db, IDocumentGenerationService documentGeneration)
+    public SubmissionService(AppDbContext db, IServiceScopeFactory scopeFactory)
     {
         _db = db;
-        _documentGeneration = documentGeneration;
+        _scopeFactory = scopeFactory;
     }
 
     private static SubmissionDto Map(Submission submission) => new()
@@ -46,11 +47,8 @@ public class SubmissionService : ISubmissionService
         var fields = JsonSerializer.Deserialize<List<FieldDefinitionDto>>(schema.FieldsJson, JsonOptions) ?? new();
         foreach (var field in fields.Where(f => f.Required))
         {
-            var hasValue = dto.Responses.TryGetValue(field.Key, out var value)
-                && value is not null
-                && !(value is string s && string.IsNullOrWhiteSpace(s));
-
-            if (!hasValue)
+            dto.Responses.TryGetValue(field.Key, out var value);
+            if (!HasMeaningfulValue(value))
             {
                 return new SubmissionOutcome { ErrorMessage = $"{field.Label} is required." };
             }
@@ -68,17 +66,37 @@ public class SubmissionService : ISubmissionService
         _db.ClientPortalSubmissions.Add(submission);
         await _db.SaveChangesAsync();
 
-        try
-        {
-            await _documentGeneration.GenerateAsync(submission.Id);
-        }
-        catch
-        {
-            // Generation failure is surfaced via submission.Status; the client can retry.
-        }
+        RunGenerationInBackground(submission.Id);
 
-        await _db.Entry(submission).ReloadAsync();
         return new SubmissionOutcome { Result = Map(submission) };
+    }
+
+    // Rendering a docx template (LibreOffice conversion) can take a while, so it must not
+    // block the request — the client gets the submission back immediately (status
+    // "submitted"), shows its own instant draft, and polls GetByIdAsync/the documents
+    // endpoint for the real PDF. Runs in its own DI scope since the request's scope (and
+    // its AppDbContext) is disposed as soon as this method returns.
+    private void RunGenerationInBackground(Guid submissionId)
+    {
+        _ = Task.Run(async () =>
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var generation = scope.ServiceProvider.GetRequiredService<IDocumentGenerationService>();
+            await generation.GenerateAsync(submissionId);
+        });
+    }
+
+    // A "list" field's answer is a JSON string array, not a scalar — an empty array or one
+    // containing only blank strings must count as missing, same as an empty text field.
+    private static bool HasMeaningfulValue(object? value)
+    {
+        if (value is null) return false;
+        if (value is string s) return !string.IsNullOrWhiteSpace(s);
+        if (value is JsonElement { ValueKind: JsonValueKind.Array } array)
+        {
+            return array.EnumerateArray().Any(e => e.ValueKind != JsonValueKind.String || !string.IsNullOrWhiteSpace(e.GetString()));
+        }
+        return true;
     }
 
     public async Task<List<SubmissionDto>> GetMineAsync(Guid clientId)
@@ -96,7 +114,14 @@ public class SubmissionService : ISubmissionService
         var owns = await _db.ClientPortalSubmissions.AnyAsync(s => s.Id == submissionId && s.ClientAccountId == clientId);
         if (!owns) return false;
 
-        await _documentGeneration.GenerateAsync(submissionId);
+        RunGenerationInBackground(submissionId);
         return true;
+    }
+
+    public async Task<SubmissionDto?> GetByIdAsync(Guid clientId, Guid id)
+    {
+        var submission = await _db.ClientPortalSubmissions
+            .FirstOrDefaultAsync(s => s.Id == id && s.ClientAccountId == clientId);
+        return submission is null ? null : Map(submission);
     }
 }

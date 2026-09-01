@@ -12,5 +12,6 @@ public interface ISubmissionService
 {
     Task<SubmissionOutcome> CreateAsync(Guid clientId, CreateSubmissionDto dto);
     Task<List<SubmissionDto>> GetMineAsync(Guid clientId);
+    Task<SubmissionDto?> GetByIdAsync(Guid clientId, Guid id);
     Task<bool> RetryGenerationAsync(Guid clientId, Guid submissionId);
 }

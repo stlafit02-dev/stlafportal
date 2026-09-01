@@ -9,7 +9,7 @@ export interface Service {
 
 export type FieldType =
   | "text" | "textarea" | "number" | "email" | "date"
-  | "select" | "radio" | "checkbox" | "multiselect";
+  | "select" | "radio" | "checkbox" | "multiselect" | "list";
 
 export interface FieldOption {
   value: string;
