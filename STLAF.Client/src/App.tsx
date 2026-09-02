@@ -17,7 +17,6 @@ import { CorporateDashboard } from "./departments/corporate/CorporateDashboard";
 import { MarketingDashboard } from "./departments/marketing/MarketingDashboard";
 import { PartnerDashboard } from "./departments/partner/PartnerDashboard";
 import { EaReviewPage } from "./departments/litigation/EaReviewPage";
-import { ITHelpdeskPage } from "./departments/it/ticketing/ITHelpdeskPage";
 import { AssetPublicPage } from "./departments/it/assets/AssetPublicPage";
 import { TicketingPage } from "./departments/it/ticketing/TicketingPage";
 import { AssetManagementPage } from "./departments/it/assets/AssetManagementPage";
@@ -66,7 +65,7 @@ function App() {
               <IdleLogoutWatcher />
               <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/it-helpdesk" element={<ITHelpdeskPage />} />
+                <Route path="/it-helpdesk" element={<Navigate to="/" replace />} />
                 <Route path="/assets/:assetTag" element={<AssetPublicPage />} />
                 <Route
                   path="/documents/my-documents"

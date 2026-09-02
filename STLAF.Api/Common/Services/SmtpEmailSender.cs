@@ -6,6 +6,8 @@ namespace STLAF.Api.Common.Services;
 
 public class SmtpEmailSender : IEmailSender
 {
+    private const string NoReplyAddress = "noreply@stlaf.global";
+
     private readonly ILogger<SmtpEmailSender> _logger;
 
     public SmtpEmailSender(ILogger<SmtpEmailSender> logger)
@@ -24,6 +26,7 @@ public class SmtpEmailSender : IEmailSender
             };
 
             using var message = new MailMessage(fromEmail, toEmail, subject, body) { IsBodyHtml = true };
+            message.ReplyToList.Add(new MailAddress(NoReplyAddress));
             await client.SendMailAsync(message);
             _logger.LogInformation("Email sent successfully from {From} to {To}.", fromEmail, toEmail);
         }

@@ -5,25 +5,27 @@ export function departmentSlug(department: string): string {
   return department.toLowerCase();
 }
 
-function leaveChildren(
-  deptSlug: string,
-  showApprovals: boolean,
-  showFinalApprovals: boolean,
-): { label: string; to: string }[] {
-  const items: { label: string; to: string }[] = [
-    { label: "My Leave", to: `/${deptSlug}/leave/my-leave` },
-    { label: "My Overtime", to: `/${deptSlug}/leave/overtime` },
-    { label: "My Undertime", to: `/${deptSlug}/leave/undertime` },
-  ];
-  if (showApprovals)
-    items.push({ label: "Approvals", to: `/${deptSlug}/leave/approvals` });
-  if (showFinalApprovals)
-    items.push({
-      label: "Final Approvals",
-      to: `/${deptSlug}/leave/final-approvals`,
-    });
-  return items;
-}
+// Not ready for production yet — commented out along with its nav entry below,
+// until Leave & Overtime ships.
+// function leaveChildren(
+//   deptSlug: string,
+//   showApprovals: boolean,
+//   showFinalApprovals: boolean,
+// ): { label: string; to: string }[] {
+//   const items: { label: string; to: string }[] = [
+//     { label: "My Leave", to: `/${deptSlug}/leave/my-leave` },
+//     { label: "My Overtime", to: `/${deptSlug}/leave/overtime` },
+//     { label: "My Undertime", to: `/${deptSlug}/leave/undertime` },
+//   ];
+//   if (showApprovals)
+//     items.push({ label: "Approvals", to: `/${deptSlug}/leave/approvals` });
+//   if (showFinalApprovals)
+//     items.push({
+//       label: "Final Approvals",
+//       to: `/${deptSlug}/leave/final-approvals`,
+//     });
+//   return items;
+// }
 
 interface ModuleChildItem {
   label: string;
@@ -113,8 +115,12 @@ export function buildNavItems(
   role: string | undefined,
   officePosition: string | undefined,
   modulePositions: { module: string; officePosition: string }[],
-  showApprovals: boolean,
-  showFinalApprovals: boolean,
+  // Unused while the Leave & Overtime nav entry is commented out below — kept in the
+  // signature so callers don't need updating when it ships again.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _showApprovals: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _showFinalApprovals: boolean,
   showMyInquiries: boolean = false,
   showClientPortalAdmin: boolean = false,
 ): NavItem[] {
@@ -152,18 +158,19 @@ export function buildNavItems(
     ...(showMyInquiries
       ? [{ label: "Inquiries", to: `/${deptSlug}/my-inquiries` }]
       : []),
-    ...(isPartner
-      ? []
-      : [
-          {
-            label: "Leave & Overtime",
-            children: leaveChildren(
-              deptSlug,
-              showApprovals,
-              showFinalApprovals,
-            ),
-          },
-        ]),
+    // Not ready for production yet — commented out until Leave & Overtime ships.
+    // ...(isPartner
+    //   ? []
+    //   : [
+    //       {
+    //         label: "Leave & Overtime",
+    //         children: leaveChildren(
+    //           deptSlug,
+    //           showApprovals,
+    //           showFinalApprovals,
+    //         ),
+    //       },
+    //     ]),
     ...(!isPartner && managementApprovalChildren.length > 0
       ? [{ label: "Management Approval", children: managementApprovalChildren }]
       : []),
