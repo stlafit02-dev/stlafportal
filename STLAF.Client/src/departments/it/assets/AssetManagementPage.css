@@ -171,7 +171,7 @@
 
 .asset-tag {
   font-family: "IBM Plex Mono", monospace;
-  color: var(--accent-gold);
+  color: var(--text-primary);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -217,24 +217,6 @@
 .badge-repair {
   background: rgba(230, 150, 60, 0.15);
   color: #e8a44c;
-}
-
-.asset-tag-link {
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: "IBM Plex Mono", monospace;
-  color: var(--accent-gold);
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  transition: text-decoration-color 0.15s ease;
-}
-
-.asset-tag-link:hover {
-  text-decoration-color: var(--accent-gold);
 }
 
 .brand-model-cell {

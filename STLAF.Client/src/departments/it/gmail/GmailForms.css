@@ -124,6 +124,15 @@
   cursor: not-allowed;
 }
 
+.gmail-submit-btn .spinner-track {
+  border-color: color-mix(in srgb, var(--bg-primary) 30%, transparent);
+}
+
+.gmail-submit-btn .spinner-arc {
+  border-top-color: var(--bg-primary);
+  border-right-color: var(--bg-primary);
+}
+
 .btn-loading {
   display: inline-flex;
   align-items: center;

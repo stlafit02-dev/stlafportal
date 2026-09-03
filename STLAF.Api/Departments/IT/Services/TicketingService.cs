@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using STLAF.Api.Data;
 using STLAF.Api.Departments.HRAdmin.Entities;
@@ -32,6 +33,79 @@ public class TicketingService : ITicketingService
             .ToListAsync();
 
         return await ToDtoListAsync(tickets);
+    }
+
+    public async Task<byte[]> ExportTicketsAsync(string? status, string? search, string? month)
+    {
+        var query = _db.Tickets.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(month) &&
+            DateTime.TryParseExact(month, "yyyy-MM", null, System.Globalization.DateTimeStyles.None, out var monthStart))
+        {
+            var start = DateTime.SpecifyKind(monthStart, DateTimeKind.Utc);
+            var end = start.AddMonths(1);
+            query = query.Where(t => t.DateSubmitted >= start && t.DateSubmitted < end);
+        }
+
+        var tickets = await query
+            .OrderByDescending(t => t.DateSubmitted)
+            .ToListAsync();
+
+        var dtos = await ToDtoListAsync(tickets);
+
+        if (!string.IsNullOrWhiteSpace(status) && status != "All")
+        {
+            dtos = dtos.Where(t => t.Status == status).ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchTerm = search.Trim();
+            dtos = dtos.Where(t =>
+                t.TicketNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                t.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                t.CompanyEmail.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                t.Category.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+
+        using var workbook = new XLWorkbook();
+        var sheet = workbook.Worksheets.Add("Tickets");
+
+        string[] headers = { "Ticket #", "Requester", "Email", "Viber", "Category", "Priority", "Status", "Department", "Assigned To", "Description", "Remarks", "Submitted", "Closed" };
+        for (var i = 0; i < headers.Length; i++)
+        {
+            sheet.Cell(1, i + 1).Value = headers[i];
+            sheet.Cell(1, i + 1).Style.Font.Bold = true;
+            sheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.FromHtml("#1A2634");
+            sheet.Cell(1, i + 1).Style.Font.FontColor = XLColor.White;
+        }
+
+        var row = 2;
+        foreach (var t in dtos)
+        {
+            sheet.Cell(row, 1).Value = t.TicketNumber;
+            sheet.Cell(row, 2).Value = t.Name;
+            sheet.Cell(row, 3).Value = t.CompanyEmail;
+            sheet.Cell(row, 4).Value = t.ViberNumber ?? "";
+            sheet.Cell(row, 5).Value = t.Category;
+            sheet.Cell(row, 6).Value = t.Priority;
+            sheet.Cell(row, 7).Value = t.Status;
+            sheet.Cell(row, 8).Value = t.Department;
+            sheet.Cell(row, 9).Value = t.AssignedToName ?? "Unassigned";
+            sheet.Cell(row, 10).Value = t.Description;
+            sheet.Cell(row, 11).Value = t.Remarks ?? "";
+            sheet.Cell(row, 12).Value = t.DateSubmitted.ToString("yyyy-MM-dd HH:mm");
+            sheet.Cell(row, 13).Value = t.Status == "Closed" ? t.UpdatedDate.ToString("yyyy-MM-dd HH:mm") : "";
+            row++;
+        }
+
+        sheet.Columns().AdjustToContents();
+        sheet.SheetView.FreezeRows(1);
+
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        return stream.ToArray();
     }
 
     public async Task<TicketSummaryDto> GetSummaryAsync()

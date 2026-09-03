@@ -213,14 +213,13 @@ export function AssetManagementPage() {
               </thead>
               <tbody>
                 {sorted.map((a) => (
-                  <tr key={a.id}>
+                  <tr
+                    key={a.id}
+                    className="asset-row"
+                    onClick={() => setViewAssetId(a.id)}
+                  >
                     <td>
-                      <button
-                        className="asset-tag-link"
-                        onClick={() => setViewAssetId(a.id)}
-                      >
-                        {a.assetTag}
-                      </button>
+                      <span className="asset-tag">{a.assetTag}</span>
                     </td>
                     <td>{a.deviceName}</td>
                     <td>{a.type}</td>
@@ -251,7 +250,10 @@ export function AssetManagementPage() {
                     <td>
                       <button
                         className="icon-btn"
-                        onClick={() => setQrAssetId(a.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQrAssetId(a.id);
+                        }}
                         aria-label="View QR code"
                       >
                         <svg
@@ -275,7 +277,10 @@ export function AssetManagementPage() {
                       <div className="action-icons">
                         <button
                           className="icon-btn"
-                          onClick={() => setEditAssetId(a.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditAssetId(a.id);
+                          }}
                           aria-label="Edit asset"
                         >
                           <svg
@@ -291,7 +296,10 @@ export function AssetManagementPage() {
                         </button>
                         <button
                           className="icon-btn icon-btn-danger"
-                          onClick={() => handleDelete(a)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(a);
+                          }}
                           aria-label="Delete asset"
                         >
                           <svg

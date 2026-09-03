@@ -155,10 +155,12 @@ export function AssetFormModal({
               />
             </div>
             <div className="asset-result-actions">
-              <a>
+              <a
                 href={result.qrDataUrl}
                 download={result.asset.assetTag + ".png"}
-                className="download-btn" Download QR
+                className="download-btn"
+              >
+                Download QR
               </a>
               <button
                 type="button"

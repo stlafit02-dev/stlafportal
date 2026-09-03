@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LoginModal } from "../auth/LoginModal";
 import { ThemeToggle } from "../common/components/ThemeToggle/ThemeToggle";
 import { useTheme } from "../theme/useTheme";
@@ -19,12 +19,29 @@ export function LandingPage() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const { theme } = useTheme();
+  const loginPopoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     apiClient.get<Announcement[]>("/announcements").then((res) => {
       setAnnouncements(res.data);
     });
   }, []);
+
+  useEffect(() => {
+    if (!isLoginOpen) return;
+
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        loginPopoverRef.current &&
+        !loginPopoverRef.current.contains(e.target as Node)
+      ) {
+        setIsLoginOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isLoginOpen]);
 
   return (
     <div className="landing">
@@ -33,9 +50,15 @@ export function LandingPage() {
 
       <header className="landing-header">
         <ThemeToggle />
-        <button className="signin-btn" onClick={() => setIsLoginOpen(true)}>
-          Sign In
-        </button>
+        <div className="signin-wrap" ref={loginPopoverRef}>
+          <button
+            className="signin-btn"
+            onClick={() => setIsLoginOpen((prev) => !prev)}
+          >
+            Sign In
+          </button>
+          <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+        </div>
       </header>
 
       <section className="landing-hero">
@@ -72,8 +95,6 @@ export function LandingPage() {
       <footer className="landing-footer">
         Sadsad Tamesis Legal and Accountancy Firm
       </footer>
-
-      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </div>
   );
 }

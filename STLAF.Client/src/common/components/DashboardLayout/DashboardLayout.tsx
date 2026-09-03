@@ -168,7 +168,7 @@ export function DashboardLayout({
   const logoSrc = theme === "dark" ? logoDark : logoLight;
 
   if (isLoggingOut) {
-    return <PageLoader label="Signing out…" />;
+    return <PageLoader label="Signing out" />;
   }
 
   return (

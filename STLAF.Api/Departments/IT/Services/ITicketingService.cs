@@ -6,6 +6,7 @@ public interface ITicketingService
 {
     Task<List<TicketDto>> GetOpenQueueAsync();
     Task<List<TicketDto>> GetAllAsync();
+    Task<byte[]> ExportTicketsAsync(string? status, string? search, string? month);
     Task<TicketSummaryDto> GetSummaryAsync();
     Task<TicketDto> CreateAsync(CreateTicketDto dto);
     Task<TicketDto?> UpdateStatusAsync(Guid ticketId, string status);

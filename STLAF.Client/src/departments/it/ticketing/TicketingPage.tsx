@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   fetchAllTickets,
   fetchItStaff,
   updateTicketStatus,
   assignTicket,
   addTicketRemark,
+  exportTickets,
   type Ticket,
   type ItStaff,
 } from "./ticketingApi";
@@ -13,7 +14,23 @@ import { Toast } from "../../../common/components/Toast/Toast";
 import { TicketDetailModal } from "./TicketDetailModal";
 import { deleteTicket } from "./ticketingApi";
 import { ConfirmDialog } from "../../../common/components/ConfirmDialog/ConfirmDialog";
+import "../gmail/GmailForms.css";
 import "./TicketingPage.css";
+
+const PAGE_SIZE = 20;
+
+function currentMonthValue() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function formatMonthLabel(value: string) {
+  const [year, month] = value.split("-").map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
+}
 
 const STATUS_FILTERS = [
   "All",
@@ -52,6 +69,11 @@ export function TicketingPage() {
   const [pendingDeleteTicket, setPendingDeleteTicket] = useState<Ticket | null>(
     null,
   );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportMonth, setExportMonth] = useState(currentMonthValue());
+  const exportPopoverRef = useRef<HTMLDivElement>(null);
 
   async function loadData() {
     const [ticketData, staffData] = await Promise.all([
@@ -115,6 +137,58 @@ export function TicketingPage() {
     return sortOrder === "asc" ? cmp : -cmp;
   });
 
+  const totalPages = Math.max(1, Math.ceil(sortedTickets.length / PAGE_SIZE));
+  const pagedTickets = sortedTickets.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, sortOrder]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    if (!isExportModalOpen) return;
+
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        exportPopoverRef.current &&
+        !exportPopoverRef.current.contains(e.target as Node)
+      ) {
+        setIsExportModalOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isExportModalOpen]);
+
+  async function handleExport(e: React.FormEvent) {
+    e.preventDefault();
+    if (!exportMonth) return;
+
+    setIsExporting(true);
+    try {
+      await exportTickets({
+        status: statusFilter,
+        search: searchQuery,
+        month: exportMonth,
+      });
+      setIsExportModalOpen(false);
+      setToastMessage(`Tickets for ${formatMonthLabel(exportMonth)} exported.`);
+      setIsToastVisible(true);
+    } catch {
+      setToastMessage("Something went wrong exporting tickets.");
+      setIsToastVisible(true);
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
   function handleDelete(ticket: Ticket) {
     setPendingDeleteTicket(ticket);
   }
@@ -169,6 +243,76 @@ export function TicketingPage() {
               {s}
             </button>
           ))}
+        </div>
+
+        <div className="ticketing-export-wrap" ref={exportPopoverRef}>
+          <button
+            className="gmail-submit-btn ticketing-export-btn"
+            onClick={() => setIsExportModalOpen((prev) => !prev)}
+            disabled={isLoading}
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{ marginRight: 8 }}
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Export to Excel
+          </button>
+
+          {isExportModalOpen && (
+            <div className="ticketing-export-popover">
+              <form onSubmit={handleExport} className="ticketing-export-popover-form">
+                <label className="gmail-label" htmlFor="export-month">
+                  Export month
+                </label>
+                <input
+                  id="export-month"
+                  type="month"
+                  value={exportMonth}
+                  onChange={(e) => setExportMonth(e.target.value)}
+                  required
+                  max={currentMonthValue()}
+                  className="gmail-input"
+                  autoFocus
+                />
+                <p className="ticketing-export-note">
+                  Only {formatMonthLabel(exportMonth)} tickets
+                  {statusFilter !== "All" ? ` (“${statusFilter}” status)` : ""}{" "}
+                  will be included.
+                </p>
+                <div className="ticketing-export-popover-actions">
+                  <button
+                    type="button"
+                    className="gmail-cancel-btn"
+                    onClick={() => setIsExportModalOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="gmail-submit-btn"
+                    disabled={isExporting}
+                  >
+                    {isExporting ? (
+                      <span className="btn-loading">
+                        <Spinner size="sm" /> Exporting…
+                      </span>
+                    ) : (
+                      "Export"
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
       </div>
       <div className="ticketing-table-panel">
@@ -235,7 +379,7 @@ export function TicketingPage() {
                 </tr>
               </thead>
               <tbody>
-                {sortedTickets.map((t) => (
+                {pagedTickets.map((t) => (
                   <tr
                     key={t.id}
                     className="ticket-row"
@@ -283,6 +427,59 @@ export function TicketingPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {!isLoading && sortedTickets.length > 0 && (
+          <div className="ticketing-pagination">
+            <span className="ticketing-pagination-count">
+              Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+              {Math.min(currentPage * PAGE_SIZE, sortedTickets.length)} of{" "}
+              {sortedTickets.length} tickets
+            </span>
+            <div className="ticketing-pagination-controls">
+              <button
+                className="pagination-btn"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <span className="ticketing-pagination-page">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                className="pagination-btn"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                aria-label="Next page"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </div>
           </div>
         )}
       </div>

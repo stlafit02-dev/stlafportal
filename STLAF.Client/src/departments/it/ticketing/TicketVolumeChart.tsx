@@ -88,14 +88,18 @@ export function TicketVolumeChart({ tickets }: TicketVolumeChartProps) {
   const [range, setRange] = useState<Range>("currentWeek");
 
   const dates = useMemo(() => {
-    switch (range) {
-      case "lastWeek":
-        return getWeekdays(1);
-      case "lastMonth":
-        return getCalendarMonthDays(1);
-      case "currentWeek":
-        return getWeekdays(0);
-    }
+    const raw = (() => {
+      switch (range) {
+        case "lastWeek":
+          return getWeekdays(1);
+        case "lastMonth":
+          return getCalendarMonthDays(1);
+        case "currentWeek":
+          return getWeekdays(0);
+      }
+    })();
+    const today = startOfDay(new Date());
+    return raw.filter((d) => d <= today);
   }, [range]);
   const monthLabel = useMemo(
     () => (dates[0] ? dates[0].toLocaleDateString(undefined, { month: "long", year: "numeric" }) : ""),

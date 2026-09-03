@@ -99,6 +99,35 @@ export async function assignTicket(
 export async function deleteTicket(id: string): Promise<void> {
   await apiClient.delete(`/it/tickets/${id}`);
 }
+
+export async function exportTickets(filter: {
+  status?: string;
+  search?: string;
+  month?: string;
+}): Promise<void> {
+  const params = new URLSearchParams();
+  if (filter.status && filter.status !== "All") params.append("status", filter.status);
+  if (filter.search) params.append("search", filter.search);
+  if (filter.month) params.append("month", filter.month);
+
+  const res = await apiClient.get(`/it/tickets/export?${params.toString()}`, {
+    responseType: "blob",
+  });
+
+  const blob = new Blob([res.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filter.month
+    ? `Tickets-Export-${filter.month}.xlsx`
+    : `Tickets-Export-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
 export interface EmployeeTicketProfile {
   fullName: string;
   companyEmail: string;

@@ -38,11 +38,15 @@
 
 .landing-header {
   position: relative;
-  z-index: 1;
+  z-index: 50;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 28px 48px;
+}
+
+.signin-wrap {
+  position: relative;
 }
 
 .signin-btn {
