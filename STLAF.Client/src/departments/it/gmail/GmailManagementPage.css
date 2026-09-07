@@ -79,6 +79,13 @@
   font-size: 13.5px;
 }
 
+.gmail-table-empty {
+  height: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .gmail-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

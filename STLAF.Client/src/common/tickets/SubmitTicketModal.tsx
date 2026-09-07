@@ -9,15 +9,10 @@ import {
   type Ticket,
 } from "../../departments/it/ticketing/ticketingApi";
 import { SLA_MINUTES, formatSlaDuration } from "../../departments/it/ticketing/slaConfig";
+import { MyTicketStatusModal } from "./MyTicketStatusModal";
+import { STATUS_META } from "../../departments/it/ticketing/ticketStatusMeta";
 import "../../departments/it/gmail/GmailForms.css";
 import "./SubmitTicketModal.css";
-
-const STATUS_BADGE_CLASS: Record<string, string> = {
-  Open: "badge-open",
-  "In Progress": "badge-progress",
-  "On Hold": "badge-hold",
-  Resolved: "badge-resolved",
-};
 
 const CATEGORIES = [
   "Technical Support",
@@ -33,9 +28,10 @@ const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
 interface SubmitTicketModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmitted: (ticketNumber: string) => void;
 }
 
-export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
+export function SubmitTicketModal({ isOpen, onClose, onSubmitted }: SubmitTicketModalProps) {
   const [profile, setProfile] = useState<EmployeeTicketProfile | null>(null);
   const [myTickets, setMyTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,7 +41,7 @@ export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -53,7 +49,7 @@ export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
       setProfile(prof);
       setMyTickets(tickets);
       setError(null);
-      setSuccessMessage(null);
+      setSelectedTicket(null);
       setIsLoading(false);
     });
   }, [isOpen]);
@@ -65,15 +61,14 @@ export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setSuccessMessage(null);
     setIsSubmitting(true);
     try {
       const ticket = await createMyTicket({ category, priority, description });
-      setMyTickets((prev) => [ticket, ...prev]);
       setCategory("");
       setPriority("");
       setDescription("");
-      setSuccessMessage(`Ticket ${ticket.ticketNumber} submitted.`);
+      onSubmitted(ticket.ticketNumber);
+      onClose();
     } catch {
       setError(
         "Something went wrong submitting your ticket. Please try again.",
@@ -180,9 +175,6 @@ export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
               </div>
 
               {error && <p className="gmail-error">{error}</p>}
-              {successMessage && (
-                <p className="submit-ticket-success">{successMessage}</p>
-              )}
 
               <button
                 type="submit"
@@ -205,11 +197,16 @@ export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
                 <h3 className="submit-ticket-history-title">Your open tickets</h3>
                 <div className="submit-ticket-history-list">
                   {openTickets.map((t) => (
-                    <div key={t.id} className="submit-ticket-history-row">
+                    <div
+                      key={t.id}
+                      className="submit-ticket-history-row"
+                      onClick={() => setSelectedTicket(t)}
+                      style={{ cursor: "pointer" }}
+                    >
                       <div className="submit-ticket-history-main">
                         <div className="submit-ticket-history-top">
                           <span className="mono-cell">{t.ticketNumber}</span>
-                          <span className={`status-badge ${STATUS_BADGE_CLASS[t.status] ?? "badge-open"}`}>
+                          <span className={`status-badge ${STATUS_META[t.status] ?? "badge-open"}`}>
                             {t.status}
                           </span>
                         </div>
@@ -230,6 +227,7 @@ export function SubmitTicketModal({ isOpen, onClose }: SubmitTicketModalProps) {
           </>
         )}
       </div>
+      <MyTicketStatusModal ticket={selectedTicket} onClose={() => setSelectedTicket(null)} />
     </Modal>
   );
 }

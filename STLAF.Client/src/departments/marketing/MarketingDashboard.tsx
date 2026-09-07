@@ -5,6 +5,8 @@ import { useAuth } from "../../auth/useAuth";
 import { useModuleAccessPositions } from "../../common/access/useModuleAccess";
 import { useApprovalStatus } from "../../common/leave/useApprovalStatus";
 import { useClientPortalAdminAccess } from "../../common/client-portal-admin/useClientPortalAdminAccess";
+import { DashboardWireframe } from "../../common/components/DashboardWireframe/DashboardWireframe";
+import { LastTicketCard } from "../../common/tickets/LastTicketCard";
 
 export function MarketingDashboard() {
   const { user } = useAuth();
@@ -29,7 +31,7 @@ export function MarketingDashboard() {
       )}
     >
       {isOverview ? (
-        <div className="gmail-page">
+        <div className="gmail-page overview-page-fill">
           <div className="gmail-page-header">
             <div>
               <h1 className="page-title">
@@ -38,10 +40,7 @@ export function MarketingDashboard() {
               <p className="page-subtitle">Marketing Department</p>
             </div>
           </div>
-          <div className="ls-empty">
-            Use the sidebar to submit a ticket or manage your leave and
-            overtime.
-          </div>
+          <DashboardWireframe side={<LastTicketCard />} />
         </div>
       ) : (
         <Outlet />

@@ -85,7 +85,7 @@ export function EaReviewPage() {
       <section className="gmail-section">
         <h2 className="gmail-section-title">Pending Your Review</h2>
         {pending.length === 0 ? (
-          <div className="gmail-empty">No document requests pending.</div>
+          <div className="gmail-empty gmail-table-empty">No document requests pending.</div>
         ) : (
           <div className="gmail-table-panel">
             <div className="gmail-table-wrap">
@@ -156,7 +156,7 @@ export function EaReviewPage() {
       <section className="gmail-section">
         <h2 className="gmail-section-title">Declined by Partner</h2>
         {returned.length === 0 ? (
-          <div className="gmail-empty">Nothing here.</div>
+          <div className="gmail-empty gmail-table-empty">Nothing here.</div>
         ) : (
           <div className="gmail-table-panel">
             <div className="gmail-table-wrap">

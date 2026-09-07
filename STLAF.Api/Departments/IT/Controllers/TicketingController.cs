@@ -131,6 +131,10 @@ public class TicketingController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetMyTickets() => Ok(await _service.GetMyTicketsAsync(CurrentUserId));
 
+    [HttpGet("my/last")]
+    [Authorize]
+    public async Task<IActionResult> GetMyLastTicket() => Ok(await _service.GetMyLastTicketAsync(CurrentUserId));
+
     [HttpPost("my")]
     [Authorize]
     public async Task<IActionResult> CreateMyTicket(CreatePortalTicketDto dto) => Ok(await _service.CreateFromPortalAsync(CurrentUserId, dto));

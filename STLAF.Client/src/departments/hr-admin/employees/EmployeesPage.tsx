@@ -172,7 +172,7 @@ export function EmployeesPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="gmail-empty">
+        <div className="gmail-empty gmail-table-empty">
           {employees.length === 0
             ? "No employees yet."
             : "No employees match your search or filters."}

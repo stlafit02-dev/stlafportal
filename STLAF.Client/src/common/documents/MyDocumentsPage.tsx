@@ -62,7 +62,7 @@ export function MyDocumentsPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="gmail-empty">No documents match this filter.</div>
+        <div className="gmail-empty gmail-table-empty">No documents match this filter.</div>
       ) : (
         <div className="gmail-table-panel">
           <div className="gmail-table-wrap">

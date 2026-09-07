@@ -100,7 +100,7 @@ export function MyInquiriesPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="gmail-empty">
+        <div className="gmail-empty gmail-table-empty">
           {inquiries.length === 0
             ? "No inquiries assigned to you yet."
             : "No inquiries match your search or filter."}

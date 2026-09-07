@@ -210,7 +210,7 @@ export function LeavePage() {
         <section className="gmail-section">
           <h2 className="gmail-section-title">Pending Leave Approvals</h2>
           {pending.length === 0 ? (
-            <div className="gmail-empty">No pending requests.</div>
+            <div className="gmail-empty gmail-table-empty">No pending requests.</div>
           ) : (
             <div className="gmail-table-wrap email-table-wrap">
               <table className="gmail-table">
@@ -251,7 +251,7 @@ export function LeavePage() {
         <section className="gmail-section">
           <h2 className="gmail-section-title">Pending Retractions &amp; Overtime</h2>
           {combined.length === 0 ? (
-            <div className="gmail-empty">Nothing pending here.</div>
+            <div className="gmail-empty gmail-table-empty">Nothing pending here.</div>
           ) : (
             <div className="gmail-table-wrap email-table-wrap">
               <table className="gmail-table">
@@ -305,7 +305,7 @@ export function LeavePage() {
         <section className="gmail-section">
           <h2 className="gmail-section-title">Overtime — Final Approval</h2>
           {pendingPartnerOvertime.length === 0 ? (
-            <div className="gmail-empty">No overtime requests awaiting final approval.</div>
+            <div className="gmail-empty gmail-table-empty">No overtime requests awaiting final approval.</div>
           ) : (
             <div className="gmail-table-wrap email-table-wrap">
               <table className="gmail-table">
@@ -343,7 +343,7 @@ export function LeavePage() {
       <section className="gmail-section">
         <h2 className="gmail-section-title">My Leave Requests</h2>
         {myRequests.length === 0 ? (
-          <div className="gmail-empty">No leave requests yet.</div>
+          <div className="gmail-empty gmail-table-empty">No leave requests yet.</div>
         ) : (
           <div className="gmail-table-wrap email-table-wrap">
             <table className="gmail-table">
@@ -387,7 +387,7 @@ export function LeavePage() {
       <section className="gmail-section">
         <h2 className="gmail-section-title">My Overtime Requests</h2>
         {myOvertimeRequests.length === 0 ? (
-          <div className="gmail-empty">No overtime requests yet.</div>
+          <div className="gmail-empty gmail-table-empty">No overtime requests yet.</div>
         ) : (
           <div className="gmail-table-wrap email-table-wrap">
             <table className="gmail-table">

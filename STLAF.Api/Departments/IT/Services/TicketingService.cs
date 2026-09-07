@@ -240,6 +240,22 @@ public class TicketingService : ITicketingService
         return await ToDtoListAsync(tickets);
     }
 
+    public async Task<TicketDto?> GetMyLastTicketAsync(Guid userId)
+    {
+        var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (employee is null) return null;
+
+        var ticket = await _db.Tickets
+            .Where(t => t.SubmittedByEmployeeId == employee.Id)
+            .OrderByDescending(t => t.DateSubmitted)
+            .FirstOrDefaultAsync();
+
+        if (ticket is null) return null;
+
+        var list = await ToDtoListAsync(new List<Ticket> { ticket });
+        return list[0];
+    }
+
     public async Task<TicketDto> CreateFromPortalAsync(Guid userId, CreatePortalTicketDto dto)
     {
         var employee = await _db.Employees.FirstOrDefaultAsync(e => e.UserId == userId)

@@ -10,7 +10,6 @@ export interface UserInfo {
 }
 
 export interface LoginResponse {
-  token: string;
   expiresAt: string;
   user: UserInfo;
 }
@@ -24,4 +23,8 @@ export async function login(
     password,
   });
   return response.data;
+}
+
+export async function logout(): Promise<void> {
+  await apiClient.post("/auth/logout");
 }

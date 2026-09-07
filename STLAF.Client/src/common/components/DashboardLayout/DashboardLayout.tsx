@@ -30,22 +30,25 @@ interface DashboardLayoutProps {
 
 function NavGroup({
   item,
+  isOpen,
+  onToggle,
   onNavigate,
 }: {
   item: NavItem;
+  isOpen: boolean;
+  onToggle: () => void;
   onNavigate: () => void;
 }) {
   const location = useLocation();
   const isChildActive = item.children!.some(
     (c) => c.to && location.pathname.startsWith(c.to),
   );
-  const [isOpen, setIsOpen] = useState(isChildActive);
 
   return (
     <div className="nav-group">
       <button
         className={`nav-item nav-group-toggle ${isChildActive ? "nav-item-active" : ""}`}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={onToggle}
       >
         <span>{item.label}</span>
         <svg
@@ -60,7 +63,7 @@ function NavGroup({
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
-      {isOpen && (
+      <div className={`nav-subitems-wrap ${isOpen ? "nav-subitems-open" : ""}`}>
         <div className="nav-subitems">
           {item.children!.map((child) => {
             if (child.action === "submitDocument") {
@@ -86,7 +89,7 @@ function NavGroup({
             );
           })}
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -163,6 +166,13 @@ export function DashboardLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const location = useLocation();
+  const [openGroupLabel, setOpenGroupLabel] = useState<string | null>(() => {
+    const activeGroup = navItems.find((item) =>
+      item.children?.some((c) => c.to && location.pathname.startsWith(c.to)),
+    );
+    return activeGroup?.label ?? null;
+  });
   const { user, logout, isLoggingOut } = useAuth();
   const { theme } = useTheme();
   const logoSrc = theme === "dark" ? logoDark : logoLight;
@@ -253,6 +263,10 @@ export function DashboardLayout({
               <NavGroup
                 key={item.label}
                 item={item}
+                isOpen={openGroupLabel === item.label}
+                onToggle={() =>
+                  setOpenGroupLabel((prev) => (prev === item.label ? null : item.label))
+                }
                 onNavigate={() => setIsSidebarOpen(false)}
               />
             ) : (

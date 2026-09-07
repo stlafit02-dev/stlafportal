@@ -240,8 +240,6 @@ export function MyLeavePage() {
       </div>
 
       <section className="gmail-section">
-        <h2 className="gmail-section-title">My Requests</h2>
-
         <div className="ml-filter-bar">
           <div className="ml-filter-field">
             <span className="ml-filter-label">Type</span>
@@ -276,7 +274,7 @@ export function MyLeavePage() {
         </div>
 
         {filteredRequests.length === 0 ? (
-          <div className="gmail-empty">No leave requests match this filter.</div>
+          <div className="gmail-empty gmail-table-empty">No leave requests match this filter.</div>
         ) : (
           <div className="gmail-table-wrap email-table-wrap">
             <table className="gmail-table">

@@ -98,6 +98,11 @@
   flex-direction: column;
 }
 
+.queue-panel {
+  max-height: 640px;
+  min-height: 0;
+}
+
 .panel-title {
   display: flex;
   align-items: center;
@@ -225,6 +230,7 @@
 
 .queue-table-wrap {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: auto;
 }

@@ -153,6 +153,11 @@ export async function fetchMyTickets(): Promise<Ticket[]> {
   return res.data;
 }
 
+export async function fetchMyLastTicket(): Promise<Ticket | null> {
+  const res = await apiClient.get<Ticket | null>("/it/tickets/my/last");
+  return res.data;
+}
+
 export async function createMyTicket(
   payload: CreatePortalTicketPayload,
 ): Promise<Ticket> {

@@ -145,17 +145,17 @@ export function TicketVolumeChart({ tickets }: TicketVolumeChartProps) {
       <div className="ov-range-toggle" role="group" aria-label="Date range">
         <button
           type="button"
-          className={`ov-range-btn ${range === "lastWeek" ? "ov-range-btn-active" : ""}`}
-          onClick={() => setRange("lastWeek")}
-        >
-          Last Week
-        </button>
-        <button
-          type="button"
           className={`ov-range-btn ${range === "lastMonth" ? "ov-range-btn-active" : ""}`}
           onClick={() => setRange("lastMonth")}
         >
           Last Month
+        </button>
+        <button
+          type="button"
+          className={`ov-range-btn ${range === "lastWeek" ? "ov-range-btn-active" : ""}`}
+          onClick={() => setRange("lastWeek")}
+        >
+          Last Week
         </button>
         <button
           type="button"
