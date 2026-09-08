@@ -57,6 +57,18 @@ public class TicketingController : ControllerBase
         return Ok(tickets);
     }
 
+    // IT-only — export tickets to Excel, honoring the current status/search filters
+    [HttpGet("export")]
+    [Authorize(Policy = "it-ticketing")]
+    public async Task<IActionResult> Export([FromQuery] string? status, [FromQuery] string? search, [FromQuery] string? month)
+    {
+        var fileBytes = await _service.ExportTicketsAsync(status, search, month);
+        var fileName = string.IsNullOrWhiteSpace(month)
+            ? $"Tickets-Export-{DateTime.UtcNow:yyyy-MM-dd}.xlsx"
+            : $"Tickets-Export-{month}.xlsx";
+        return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
+
     // IT-only — list of IT staff for the assignee dropdown
     [HttpGet("staff")]
     [Authorize(Policy = "it-ticketing")]
@@ -118,6 +130,10 @@ public class TicketingController : ControllerBase
     [HttpGet("my")]
     [Authorize]
     public async Task<IActionResult> GetMyTickets() => Ok(await _service.GetMyTicketsAsync(CurrentUserId));
+
+    [HttpGet("my/last")]
+    [Authorize]
+    public async Task<IActionResult> GetMyLastTicket() => Ok(await _service.GetMyLastTicketAsync(CurrentUserId));
 
     [HttpPost("my")]
     [Authorize]

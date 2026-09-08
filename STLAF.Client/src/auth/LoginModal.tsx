@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Modal } from "../common/components/Modal/Modal";
 import { Spinner } from "../common/components/Loader/Loader";
 import { useAuth } from "./useAuth";
 import { useNavigate } from "react-router-dom";
@@ -50,21 +49,38 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     }
   }
 
+  if (!isOpen) return null;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <h2 className="login-title">Sign in to STLAF</h2>
-      <p className="login-subtitle">Enter your firm credentials to continue.</p>
+    <div className="login-popover">
+      <div className="login-popover-header">
+        <div>
+          <h2 className="login-title">Sign in</h2>
+          <p className="login-subtitle">Enter your firm credentials to continue.</p>
+        </div>
+        <button
+          type="button"
+          className="login-popover-close"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
 
       <form onSubmit={handleSubmit} className="login-form">
         <div className="field-group">
-          <label className="field-label">Company ID or Email</label>
+          <label className="field-label">Company ID</label>
           <input
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             className="field-input"
-            placeholder="e.g. 26-10001 or you@stlaf.global"
+            placeholder="e.g. 26-10001"
           />
         </div>
 
@@ -127,6 +143,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           )}
         </button>
       </form>
-    </Modal>
+    </div>
   );
 }

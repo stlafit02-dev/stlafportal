@@ -57,7 +57,7 @@ select.floating-control {
 }
 
 .floating-label-up {
-  top: 0;
+  top: 9px;
   transform: translateY(-50%) scale(0.82);
   transform-origin: left;
   color: var(--accent-gold);

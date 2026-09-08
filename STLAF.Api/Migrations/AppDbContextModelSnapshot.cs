@@ -442,6 +442,10 @@ namespace STLAF.Api.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deadline_date");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
                     b.Property<string>("DocumentLink")
                         .HasColumnType("text")
                         .HasColumnName("document_link");
@@ -474,10 +478,26 @@ namespace STLAF.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("file_url");
 
+                    b.Property<bool>("IsArchivedByPartner")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_archived_by_partner");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Note")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("note");
+
+                    b.Property<DateTime?>("PartnerArchivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("partner_archived_at");
 
                     b.Property<DateTime?>("PartnerDecidedAt")
                         .HasColumnType("timestamp with time zone")

@@ -127,7 +127,7 @@ export function SubmitTicketPage() {
       <section className="gmail-section">
         <h2 className="gmail-section-title">My Tickets</h2>
         {myTickets.length === 0 ? (
-          <div className="gmail-empty">No tickets submitted yet.</div>
+          <div className="gmail-empty gmail-table-empty">No tickets submitted yet.</div>
         ) : (
           <div className="gmail-table-wrap email-table-wrap">
             <table className="gmail-table">

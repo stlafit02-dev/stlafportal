@@ -5,6 +5,63 @@
   gap: 8px;
 }
 
+.login-popover {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  background: var(--bg-modal);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color-strong);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 20px 60px var(--shadow-color);
+  z-index: 40;
+  animation: login-popover-in 0.18s ease;
+}
+
+.login-popover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.login-popover-close {
+  flex: none;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  margin-top: 2px;
+}
+
+.login-popover-close:hover {
+  color: var(--text-primary);
+}
+
+@keyframes login-popover-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-popover {
+    animation: none;
+  }
+}
+
+.login-submit .spinner-track {
+  border-color: color-mix(in srgb, var(--bg-primary) 30%, transparent);
+}
+
+.login-submit .spinner-arc {
+  border-top-color: var(--bg-primary);
+  border-right-color: var(--bg-primary);
+}
+
 .login-logo {
   height: 36px;
   width: auto;

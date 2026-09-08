@@ -164,7 +164,7 @@ export function ApprovalsPage() {
       <section className="gmail-section">
         <h2 className="gmail-section-title">Pending Leave Requests</h2>
         {pending.length === 0 ? (
-          <div className="gmail-empty">No pending requests.</div>
+          <div className="gmail-empty gmail-table-empty">No pending requests.</div>
         ) : (
           <div className="gmail-table-wrap email-table-wrap">
             <table className="gmail-table">
@@ -216,7 +216,7 @@ export function ApprovalsPage() {
       <section className="gmail-section">
         <h2 className="gmail-section-title">Pending Retractions, Overtime &amp; Undertime</h2>
         {combined.length === 0 ? (
-          <div className="gmail-empty">Nothing pending here.</div>
+          <div className="gmail-empty gmail-table-empty">Nothing pending here.</div>
         ) : (
           <div className="gmail-table-wrap email-table-wrap">
             <table className="gmail-table">

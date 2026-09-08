@@ -57,7 +57,7 @@ export function PartnerRepositoryPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="gmail-empty">
+        <div className="gmail-empty gmail-table-empty">
           {requests.length === 0 ? "No approved documents yet." : "No documents match your search."}
         </div>
       ) : (

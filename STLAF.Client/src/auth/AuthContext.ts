@@ -3,7 +3,6 @@ import type { UserInfo } from "./authApi";
 
 export interface AuthContextValue {
   user: UserInfo | null;
-  token: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;

@@ -70,6 +70,75 @@
   color: var(--accent-gold);
 }
 
+.ticketing-export-wrap {
+  position: relative;
+  margin-left: auto;
+}
+
+.ticketing-export-btn {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  padding: 10px 18px;
+  white-space: nowrap;
+}
+
+.ticketing-export-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  background: var(--bg-modal);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color-strong);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 12px 32px var(--shadow-color);
+  z-index: 30;
+  animation: export-popover-in 0.15s ease;
+}
+
+.ticketing-export-popover-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ticketing-export-popover-form .gmail-input[type="month"] {
+  color-scheme: light dark;
+}
+
+.ticketing-export-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ticketing-export-popover-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ticketing-export-popover-actions .gmail-cancel-btn,
+.ticketing-export-popover-actions .gmail-submit-btn {
+  padding: 8px 16px;
+  font-size: 12.5px;
+}
+
+@keyframes export-popover-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticketing-export-popover {
+    animation: none;
+  }
+}
+
 .ticketing-table-panel {
   margin-top: 16px;
   background: var(--bg-card);
@@ -207,15 +276,79 @@
 .badge-resolved { background: rgba(70, 190, 120, 0.15); color: #4FCB84; }
 .badge-closed { background: rgba(140, 150, 160, 0.15); color: var(--text-secondary); }
 
+.ticketing-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-color);
+}
+
+.ticketing-pagination-count {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.ticketing-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ticketing-pagination-page {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-strong);
+  color: var(--text-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 @media (max-width: 900px) {
   .ticketing-table-panel {
     padding: 16px;
+  }
+
+  .ticketing-export-wrap {
+    margin-left: 0;
+  }
+
+  .ticketing-export-popover {
+    right: auto;
+    left: 0;
+    width: min(260px, calc(100vw - 64px));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ticket-row,
-  .filter-chip {
+  .filter-chip,
+  .pagination-btn {
     transition: none;
   }
 }

@@ -17,6 +17,7 @@ import { CorporateDashboard } from "./departments/corporate/CorporateDashboard";
 import { MarketingDashboard } from "./departments/marketing/MarketingDashboard";
 import { PartnerDashboard } from "./departments/partner/PartnerDashboard";
 import { EaReviewPage } from "./departments/litigation/EaReviewPage";
+import { ITHelpdeskPage } from "./departments/it/ticketing/ITHelpdeskPage";
 import { AssetPublicPage } from "./departments/it/assets/AssetPublicPage";
 import { TicketingPage } from "./departments/it/ticketing/TicketingPage";
 import { AssetManagementPage } from "./departments/it/assets/AssetManagementPage";
@@ -34,6 +35,7 @@ import { MyUndertimePage } from "./common/leave/MyUndertimePage";
 import { ApprovalsPage } from "./common/leave/ApprovalsPage";
 import { FinalApprovalsPage } from "./common/leave/FinalApprovalsPage";
 import { TicketModalProvider } from "./common/tickets/TicketModalProvider";
+import { LastTicketProvider } from "./common/tickets/LastTicketProvider";
 import { DocumentModalProvider } from "./common/documents/DocumentModalProvider";
 import { MyDocumentsPage } from "./common/documents/MyDocumentsPage";
 import { PartnerDashboardPage } from "./departments/partner/PartnerDashboardPage";
@@ -59,255 +61,257 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <TicketModalProvider>
-          <DocumentModalProvider>
-            <BrowserRouter>
-              <IdleLogoutWatcher />
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/it-helpdesk" element={<Navigate to="/" replace />} />
-                <Route path="/assets/:assetTag" element={<AssetPublicPage />} />
-                <Route
-                  path="/documents/my-documents"
-                  element={
-                    <ProtectedRoute>
-                      <PortalRoute>
-                        <MyDocumentsPage />
-                      </PortalRoute>
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* ---------- IT ---------- */}
-                <Route
-                  path="/it"
-                  element={
-                    <ProtectedRoute>
-                      <DepartmentGuard department="IT">
-                        <ItDashboard />
-                      </DepartmentGuard>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<ItOverviewPage />} />
+        <LastTicketProvider>
+          <TicketModalProvider>
+            <DocumentModalProvider>
+              <BrowserRouter>
+                <IdleLogoutWatcher />
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/it-helpdesk" element={<ITHelpdeskPage />} />
+                  <Route path="/assets/:assetTag" element={<AssetPublicPage />} />
                   <Route
-                    path="ticketing"
+                    path="/documents/my-documents"
                     element={
-                      <ModuleGuard module="it-ticketing">
-                        <TicketingPage />
-                      </ModuleGuard>
+                      <ProtectedRoute>
+                        <PortalRoute>
+                          <MyDocumentsPage />
+                        </PortalRoute>
+                      </ProtectedRoute>
                     }
                   />
+  
+                  {/* ---------- IT ---------- */}
                   <Route
-                    path="assets"
+                    path="/it"
                     element={
-                      <ModuleGuard module="it-assets">
-                        <AssetManagementPage />
-                      </ModuleGuard>
+                      <ProtectedRoute>
+                        <DepartmentGuard department="IT">
+                          <ItDashboard />
+                        </DepartmentGuard>
+                      </ProtectedRoute>
                     }
-                  />
-                  <Route
-                    path="gmail"
-                    element={<Navigate to="accounts" replace />}
-                  />
-                  <Route
-                    path="gmail/accounts"
-                    element={
-                      <ModuleGuard module="it-gmail">
-                        <GwsAccountPage />
-                      </ModuleGuard>
-                    }
-                  />
-                  <Route
-                    path="gmail/emails"
-                    element={
-                      <ModuleGuard module="it-gmail">
-                        <EmailAccountPage />
-                      </ModuleGuard>
-                    }
-                  />
-                  <Route
-                    path="gmail/app-passwords"
-                    element={
-                      <ModuleGuard module="it-gmail">
-                        <AppPasswordPage />
-                      </ModuleGuard>
-                    }
-                  />
-                  <Route path="leave/*" element={<LeaveRoutes />} />
-                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
-                </Route>
-
-                {/* ---------- HR Admin ---------- */}
-                <Route
-                  path="/hr-admin"
-                  element={
-                    <ProtectedRoute>
-                      <DepartmentGuard department="HRAdmin">
-                        <HrDashboard />
-                      </DepartmentGuard>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<HrOverviewPage />} />
-                  <Route
-                    path="employees"
-                    element={
-                      <ModuleGuard module="hr-employees">
-                        <EmployeesPage />
-                      </ModuleGuard>
-                    }
-                  />
-                  <Route
-                    path="leave-settings"
-                    element={
-                      <ModuleGuard module="hr-leave-settings">
-                        <LeaveSettingsPage />
-                      </ModuleGuard>
-                    }
-                  />
-                  <Route
-                    path="reports"
-                    element={
-                      <ModuleGuard module="hr-reports">
-                        <ReportsPage />
-                      </ModuleGuard>
-                    }
-                  />
-                  <Route
-                    path="medical-certificates"
-                    element={
-                      <ModuleGuard module="hr-medical-certificates">
-                        <MedicalVerificationsPage />
-                      </ModuleGuard>
-                    }
-                  />
-                  <Route path="leave/*" element={<LeaveRoutes />} />
-                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
-                </Route>
-
-                {/* ---------- Litigation ---------- */}
-                <Route
-                  path="/litigation"
-                  element={
-                    <ProtectedRoute>
-                      <DepartmentGuard department="Litigation">
-                        <LitigationDashboard />
-                      </DepartmentGuard>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route path="leave/*" element={<LeaveRoutes />} />
-                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
-                </Route>
-
-                {/* ---------- Accounting ---------- */}
-                <Route
-                  path="/accounting"
-                  element={
-                    <ProtectedRoute>
-                      <DepartmentGuard department="Accounting">
-                        <AccountingDashboard />
-                      </DepartmentGuard>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route path="leave/*" element={<LeaveRoutes />} />
-                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
-                </Route>
-
-                {/* ---------- Corporate ---------- */}
-                <Route
-                  path="/corporate"
-                  element={
-                    <ProtectedRoute>
-                      <DepartmentGuard department="Corporate">
-                        <CorporateDashboard />
-                      </DepartmentGuard>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route path="leave/*" element={<LeaveRoutes />} />
-                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
-                </Route>
-
-                {/* ---------- Marketing ---------- */}
-                <Route
-                  path="/marketing"
-                  element={
-                    <ProtectedRoute>
-                      <DepartmentGuard department="Marketing">
-                        <MarketingDashboard />
-                      </DepartmentGuard>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route path="leave/*" element={<LeaveRoutes />} />
-                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
-                </Route>
-
-                {/* ---------- Partner (department) ---------- */}
-                <Route
-                  path="/partner"
-                  element={
-                    <ProtectedRoute>
-                      <DepartmentGuard department="Partner">
-                        <PartnerDashboard />
-                      </DepartmentGuard>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route
-                    index
-                    element={
-                      <ModuleGuard module="document-partner-review">
-                        <PartnerDashboardPage />
-                      </ModuleGuard>
-                    }
-                  />
-                  <Route
-                    path="repository"
-                    element={
-                      <ModuleGuard module="document-partner-review">
-                        <PartnerRepositoryPage />
-                      </ModuleGuard>
-                    }
-                  />
-                  <Route path="leave/*" element={<LeaveRoutes />} />
-                  <Route path="my-inquiries" element={<MyInquiriesPage />} />
-                </Route>
-
-                {/* ---------- Client Portal Admin (cross-department, per-employee grant) ---------- */}
-                <Route
-                  path="/client-portal-admin"
-                  element={
-                    <ProtectedRoute>
-                      <PortalRoute>
-                        <ClientPortalAdminGuard>
-                          <ClientPortalAdminPage />
-                        </ClientPortalAdminGuard>
-                      </PortalRoute>
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* ---------- Document Review (cross-department, role-based) ---------- */}
-                <Route
-                  path="/documents/ea-review"
-                  element={
-                    <ProtectedRoute>
-                      <PortalRoute>
-                        <ModuleGuard module="document-ea-review">
-                          <EaReviewPage />
+                  >
+                    <Route index element={<ItOverviewPage />} />
+                    <Route
+                      path="ticketing"
+                      element={
+                        <ModuleGuard module="it-ticketing">
+                          <TicketingPage />
                         </ModuleGuard>
-                      </PortalRoute>
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
-            </BrowserRouter>
-          </DocumentModalProvider>
-        </TicketModalProvider>
+                      }
+                    />
+                    <Route
+                      path="assets"
+                      element={
+                        <ModuleGuard module="it-assets">
+                          <AssetManagementPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route
+                      path="gmail"
+                      element={<Navigate to="accounts" replace />}
+                    />
+                    <Route
+                      path="gmail/accounts"
+                      element={
+                        <ModuleGuard module="it-gmail">
+                          <GwsAccountPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route
+                      path="gmail/emails"
+                      element={
+                        <ModuleGuard module="it-gmail">
+                          <EmailAccountPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route
+                      path="gmail/app-passwords"
+                      element={
+                        <ModuleGuard module="it-gmail">
+                          <AppPasswordPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route path="leave/*" element={<LeaveRoutes />} />
+                    <Route path="my-inquiries" element={<MyInquiriesPage />} />
+                  </Route>
+  
+                  {/* ---------- HR Admin ---------- */}
+                  <Route
+                    path="/hr-admin"
+                    element={
+                      <ProtectedRoute>
+                        <DepartmentGuard department="HRAdmin">
+                          <HrDashboard />
+                        </DepartmentGuard>
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route index element={<HrOverviewPage />} />
+                    <Route
+                      path="employees"
+                      element={
+                        <ModuleGuard module="hr-employees">
+                          <EmployeesPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route
+                      path="leave-settings"
+                      element={
+                        <ModuleGuard module="hr-leave-settings">
+                          <LeaveSettingsPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route
+                      path="reports"
+                      element={
+                        <ModuleGuard module="hr-reports">
+                          <ReportsPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route
+                      path="medical-certificates"
+                      element={
+                        <ModuleGuard module="hr-medical-certificates">
+                          <MedicalVerificationsPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route path="leave/*" element={<LeaveRoutes />} />
+                    <Route path="my-inquiries" element={<MyInquiriesPage />} />
+                  </Route>
+  
+                  {/* ---------- Litigation ---------- */}
+                  <Route
+                    path="/litigation"
+                    element={
+                      <ProtectedRoute>
+                        <DepartmentGuard department="Litigation">
+                          <LitigationDashboard />
+                        </DepartmentGuard>
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route path="leave/*" element={<LeaveRoutes />} />
+                    <Route path="my-inquiries" element={<MyInquiriesPage />} />
+                  </Route>
+  
+                  {/* ---------- Accounting ---------- */}
+                  <Route
+                    path="/accounting"
+                    element={
+                      <ProtectedRoute>
+                        <DepartmentGuard department="Accounting">
+                          <AccountingDashboard />
+                        </DepartmentGuard>
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route path="leave/*" element={<LeaveRoutes />} />
+                    <Route path="my-inquiries" element={<MyInquiriesPage />} />
+                  </Route>
+  
+                  {/* ---------- Corporate ---------- */}
+                  <Route
+                    path="/corporate"
+                    element={
+                      <ProtectedRoute>
+                        <DepartmentGuard department="Corporate">
+                          <CorporateDashboard />
+                        </DepartmentGuard>
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route path="leave/*" element={<LeaveRoutes />} />
+                    <Route path="my-inquiries" element={<MyInquiriesPage />} />
+                  </Route>
+  
+                  {/* ---------- Marketing ---------- */}
+                  <Route
+                    path="/marketing"
+                    element={
+                      <ProtectedRoute>
+                        <DepartmentGuard department="Marketing">
+                          <MarketingDashboard />
+                        </DepartmentGuard>
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route path="leave/*" element={<LeaveRoutes />} />
+                    <Route path="my-inquiries" element={<MyInquiriesPage />} />
+                  </Route>
+  
+                  {/* ---------- Partner (department) ---------- */}
+                  <Route
+                    path="/partner"
+                    element={
+                      <ProtectedRoute>
+                        <DepartmentGuard department="Partner">
+                          <PartnerDashboard />
+                        </DepartmentGuard>
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route
+                      index
+                      element={
+                        <ModuleGuard module="document-partner-review">
+                          <PartnerDashboardPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route
+                      path="repository"
+                      element={
+                        <ModuleGuard module="document-partner-review">
+                          <PartnerRepositoryPage />
+                        </ModuleGuard>
+                      }
+                    />
+                    <Route path="leave/*" element={<LeaveRoutes />} />
+                    <Route path="my-inquiries" element={<MyInquiriesPage />} />
+                  </Route>
+  
+                  {/* ---------- Client Portal Admin (cross-department, per-employee grant) ---------- */}
+                  <Route
+                    path="/client-portal-admin"
+                    element={
+                      <ProtectedRoute>
+                        <PortalRoute>
+                          <ClientPortalAdminGuard>
+                            <ClientPortalAdminPage />
+                          </ClientPortalAdminGuard>
+                        </PortalRoute>
+                      </ProtectedRoute>
+                    }
+                  />
+  
+                  {/* ---------- Document Review (cross-department, role-based) ---------- */}
+                  <Route
+                    path="/documents/ea-review"
+                    element={
+                      <ProtectedRoute>
+                        <PortalRoute>
+                          <ModuleGuard module="document-ea-review">
+                            <EaReviewPage />
+                          </ModuleGuard>
+                        </PortalRoute>
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </BrowserRouter>
+            </DocumentModalProvider>
+          </TicketModalProvider>
+        </LastTicketProvider>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -6,6 +6,7 @@ public interface ITicketingService
 {
     Task<List<TicketDto>> GetOpenQueueAsync();
     Task<List<TicketDto>> GetAllAsync();
+    Task<byte[]> ExportTicketsAsync(string? status, string? search, string? month);
     Task<TicketSummaryDto> GetSummaryAsync();
     Task<TicketDto> CreateAsync(CreateTicketDto dto);
     Task<TicketDto?> UpdateStatusAsync(Guid ticketId, string status);
@@ -14,6 +15,7 @@ public interface ITicketingService
     Task<List<ItStaffDto>> GetItStaffAsync();
     Task<EmployeeTicketProfileDto?> GetMyProfileAsync(Guid userId);
     Task<List<TicketDto>> GetMyTicketsAsync(Guid userId);
+    Task<TicketDto?> GetMyLastTicketAsync(Guid userId);
     Task<TicketDto> CreateFromPortalAsync(Guid userId, CreatePortalTicketDto dto);
     Task<bool> DeleteAsync(Guid ticketId);
 }

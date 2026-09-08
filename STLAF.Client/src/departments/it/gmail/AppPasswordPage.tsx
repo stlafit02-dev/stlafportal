@@ -167,7 +167,7 @@ export function AppPasswordPage() {
         </div>
 
         {groups.length === 0 ? (
-          <div className="gmail-empty">
+          <div className="gmail-empty gmail-table-empty">
             {appPasswords.length === 0
               ? "No app passwords recorded yet."
               : "No records match your filters."}

@@ -7,6 +7,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using STLAF.Api.Data;
+using STLAF.Api.Identity;
 using STLAF.Api.Identity.Policies;
 using STLAF.Api.Identity.Services;
 using STLAF.Api.Announcements.Services;
@@ -152,6 +153,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     builder.Configuration["Jwt:Secret"]!
                 ))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (string.IsNullOrEmpty(context.Token) &&
+                    context.Request.Cookies.TryGetValue(AuthCookies.TokenCookieName, out var cookieToken))
+                {
+                    context.Token = cookieToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 
@@ -220,7 +235,8 @@ builder.Services.AddCors(options =>
                 "https://stlafportal.vercel.app"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
