@@ -46,6 +46,65 @@ public class DocumentRequestsController : ControllerBase
         }
     }
 
+    [HttpPut("requests/{id}")]
+    [RequestSizeLimit(4_000_000)]
+    public async Task<IActionResult> UpdateRequest(Guid id, [FromForm] UpdateDocumentRequestDto dto, IFormFile? file)
+    {
+        if (file is not null)
+        {
+            const long maxSizeBytes = 3_670_016;
+            if (file.Length > maxSizeBytes)
+                return BadRequest(new { message = "File is too large. Maximum size is 3.5 MB." });
+        }
+
+        try
+        {
+            using var stream = file?.OpenReadStream();
+            var result = await _service.UpdateRequestAsync(CurrentUserId, id, dto, stream, file?.FileName, file?.ContentType);
+            if (result is null) return NotFound();
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("requests/{id}/return")]
+    public async Task<IActionResult> ReturnRequest(Guid id)
+    {
+        var result = await _service.ReturnRequestAsync(CurrentUserId, id);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpDelete("requests/{id}")]
+    public async Task<IActionResult> DeleteRequest(Guid id)
+    {
+        var result = await _service.DeleteRequestAsync(CurrentUserId, id);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpGet("trash")]
+    public async Task<IActionResult> GetTrash() => Ok(await _service.GetTrashAsync(CurrentUserId));
+
+    [HttpPost("requests/{id}/restore")]
+    public async Task<IActionResult> RestoreRequest(Guid id)
+    {
+        var result = await _service.RestoreRequestAsync(CurrentUserId, id);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpDelete("requests/{id}/permanent")]
+    public async Task<IActionResult> HardDeleteRequest(Guid id)
+    {
+        var result = await _service.HardDeleteRequestAsync(CurrentUserId, id);
+        if (!result) return NotFound();
+        return NoContent();
+    }
+
     // ---------- Executive Assistant (module: document-ea-review) ----------
 
     [HttpGet("pending-ea")]
@@ -91,4 +150,35 @@ public class DocumentRequestsController : ControllerBase
     [HttpGet("partner-dashboard")]
     [Authorize(Policy = "document-partner-review")]
     public async Task<IActionResult> GetPartnerDashboard() => Ok(await _service.GetPartnerDashboardAsync());
+
+    [HttpDelete("requests/{id}/partner-archive")]
+    [Authorize(Policy = "document-partner-review")]
+    public async Task<IActionResult> ArchiveForPartner(Guid id)
+    {
+        var result = await _service.ArchiveForPartnerAsync(CurrentUserId, id);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpGet("partner-trash")]
+    [Authorize(Policy = "document-partner-review")]
+    public async Task<IActionResult> GetPartnerTrash() => Ok(await _service.GetPartnerTrashAsync(CurrentUserId));
+
+    [HttpPost("requests/{id}/partner-restore")]
+    [Authorize(Policy = "document-partner-review")]
+    public async Task<IActionResult> RestoreForPartner(Guid id)
+    {
+        var result = await _service.RestoreForPartnerAsync(CurrentUserId, id);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpDelete("requests/{id}/partner-permanent")]
+    [Authorize(Policy = "document-partner-review")]
+    public async Task<IActionResult> HardDeleteForPartner(Guid id)
+    {
+        var result = await _service.HardDeleteForPartnerAsync(CurrentUserId, id);
+        if (!result) return NotFound();
+        return NoContent();
+    }
 }

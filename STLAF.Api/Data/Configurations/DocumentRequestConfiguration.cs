@@ -30,5 +30,9 @@ public class DocumentRequestConfiguration : IEntityTypeConfiguration<DocumentReq
 
         builder.HasIndex(x => x.TrackingNumber).IsUnique();
         builder.Property(x => x.DeadlineDate).HasColumnName("deadline_date");
+        builder.Property(x => x.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false);
+        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at");
+        builder.Property(x => x.IsArchivedByPartner).HasColumnName("is_archived_by_partner").HasDefaultValue(false);
+        builder.Property(x => x.PartnerArchivedAt).HasColumnName("partner_archived_at");
     }
 }

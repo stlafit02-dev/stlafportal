@@ -10,11 +10,13 @@ import { Spinner } from "../../common/components/Loader/Loader";
 import { Toast } from "../../common/components/Toast/Toast";
 import { Modal } from "../../common/components/Modal/Modal";
 import "../it/gmail/GmailManagementPage.css";
+import "../it/assets/AssetManagementPage.css";
 
 export function EaReviewPage() {
   const [pending, setPending] = useState<DocumentRequest[]>([]);
   const [returned, setReturned] = useState<DocumentRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [view, setView] = useState<"pending" | "returned">("pending");
   const [decidingId, setDecidingId] = useState<string | null>(null);
   const [notesTarget, setNotesTarget] = useState<{ request: DocumentRequest; approved: boolean } | null>(null);
   const [notesInput, setNotesInput] = useState("");
@@ -82,8 +84,23 @@ export function EaReviewPage() {
         </div>
       </div>
 
+      <div className="filter-chips" style={{ marginBottom: 20 }}>
+        <button
+          className={`filter-chip ${view === "pending" ? "filter-chip-active" : ""}`}
+          onClick={() => setView("pending")}
+        >
+          Pending Your Review {pending.length > 0 ? `(${pending.length})` : ""}
+        </button>
+        <button
+          className={`filter-chip ${view === "returned" ? "filter-chip-active" : ""}`}
+          onClick={() => setView("returned")}
+        >
+          Declined by Partner {returned.length > 0 ? `(${returned.length})` : ""}
+        </button>
+      </div>
+
+      {view === "pending" && (
       <section className="gmail-section">
-        <h2 className="gmail-section-title">Pending Your Review</h2>
         {pending.length === 0 ? (
           <div className="gmail-empty gmail-table-empty">No document requests pending.</div>
         ) : (
@@ -152,9 +169,10 @@ export function EaReviewPage() {
           </div>
         )}
       </section>
+      )}
 
+      {view === "returned" && (
       <section className="gmail-section">
-        <h2 className="gmail-section-title">Declined by Partner</h2>
         {returned.length === 0 ? (
           <div className="gmail-empty gmail-table-empty">Nothing here.</div>
         ) : (
@@ -194,6 +212,7 @@ export function EaReviewPage() {
           </div>
         )}
       </section>
+      )}
 
       {notesTarget && (
         <Modal isOpen={!!notesTarget} onClose={() => { setNotesTarget(null); setNotesInput(""); }}>

@@ -24,4 +24,10 @@ public class DocumentRequest : BaseEntity
     public string? PartnerDecisionNotes { get; set; }
     public DateTime? PartnerDecidedAt { get; set; }
     public DateTime? DeadlineDate { get; set; }
+
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+
+    public bool IsArchivedByPartner { get; set; }
+    public DateTime? PartnerArchivedAt { get; set; }
 }

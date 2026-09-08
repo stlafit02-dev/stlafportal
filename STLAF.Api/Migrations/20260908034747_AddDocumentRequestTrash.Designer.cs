@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using STLAF.Api.Data;
@@ -11,9 +12,11 @@ using STLAF.Api.Data;
 namespace STLAF.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260908034747_AddDocumentRequestTrash")]
+    partial class AddDocumentRequestTrash
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -478,12 +481,6 @@ namespace STLAF.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("file_url");
 
-                    b.Property<bool>("IsArchivedByPartner")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_archived_by_partner");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -494,10 +491,6 @@ namespace STLAF.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("note");
-
-                    b.Property<DateTime?>("PartnerArchivedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("partner_archived_at");
 
                     b.Property<DateTime?>("PartnerDecidedAt")
                         .HasColumnType("timestamp with time zone")

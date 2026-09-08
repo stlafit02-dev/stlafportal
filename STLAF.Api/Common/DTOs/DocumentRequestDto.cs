@@ -35,6 +35,8 @@ public class DocumentRequestDto
     public DateTime? PartnerDecidedAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? DeadlineDate { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public DateTime? PartnerArchivedAt { get; set; }
 }
 
 public class CreateDocumentRequestDto
@@ -43,6 +45,15 @@ public class CreateDocumentRequestDto
     public string Note { get; set; } = string.Empty;
     public DateTime? DeadlineDate { get; set; }
     public string? DocumentLink { get; set; }
+}
+
+public class UpdateDocumentRequestDto
+{
+    public string Title { get; set; } = string.Empty;
+    public string Note { get; set; } = string.Empty;
+    public DateTime? DeadlineDate { get; set; }
+    public string? DocumentLink { get; set; }
+    public bool RemoveFile { get; set; }
 }
 
 public class DecideDocumentRequestDto
