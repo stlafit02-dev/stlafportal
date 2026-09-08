@@ -500,12 +500,52 @@ public class DocumentRequestService : IDocumentRequestService
     }
     public async Task<List<DocumentRequestDto>> GetPartnerDashboardAsync()
     {
-        var relevantStatuses = new[] { "PendingPartner", "Approved", "RejectedByPartner", "ReturnedToEA" };
+        // Approved requests move to the Repository instead of staying on the
+        // working dashboard, which is meant for things still needing attention.
+        var relevantStatuses = new[] { "PendingPartner", "RejectedByPartner", "ReturnedToEA" };
         var requests = await _db.DocumentRequests
             .Where(r => relevantStatuses.Contains(r.Status) && !r.IsArchivedByPartner)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
         return await ToDtoListAsync(requests);
+    }
+
+    public async Task<PagedResult<DocumentRequestDto>> GetPartnerRepositoryAsync(int page, int pageSize, string? search)
+    {
+        page = page < 1 ? 1 : page;
+        pageSize = pageSize < 1 ? 20 : Math.Min(pageSize, 100);
+
+        var query =
+            from r in _db.DocumentRequests
+            join e in _db.Employees on r.EmployeeId equals e.Id
+            where r.Status == "Approved" && !r.IsArchivedByPartner
+            select new { Request = r, Employee = e };
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(x =>
+                EF.Functions.ILike(x.Request.TrackingNumber, $"%{term}%") ||
+                EF.Functions.ILike(x.Request.Title, $"%{term}%") ||
+                EF.Functions.ILike(x.Employee.FirstName + " " + x.Employee.LastName, $"%{term}%"));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var pageItems = await query
+            .OrderByDescending(x => x.Request.PartnerDecidedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => x.Request)
+            .ToListAsync();
+
+        return new PagedResult<DocumentRequestDto>
+        {
+            Items = await ToDtoListAsync(pageItems),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<DocumentRequestDto?> ArchiveForPartnerAsync(Guid userId, Guid requestId)

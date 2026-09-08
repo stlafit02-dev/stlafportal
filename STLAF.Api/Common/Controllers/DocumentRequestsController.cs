@@ -151,6 +151,11 @@ public class DocumentRequestsController : ControllerBase
     [Authorize(Policy = "document-partner-review")]
     public async Task<IActionResult> GetPartnerDashboard() => Ok(await _service.GetPartnerDashboardAsync());
 
+    [HttpGet("partner-repository")]
+    [Authorize(Policy = "document-partner-review")]
+    public async Task<IActionResult> GetPartnerRepository([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? search = null) =>
+        Ok(await _service.GetPartnerRepositoryAsync(page, pageSize, search));
+
     [HttpDelete("requests/{id}/partner-archive")]
     [Authorize(Policy = "document-partner-review")]
     public async Task<IActionResult> ArchiveForPartner(Guid id)
