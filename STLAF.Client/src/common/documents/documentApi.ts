@@ -172,6 +172,26 @@ export async function fetchPartnerDashboard(): Promise<DocumentRequest[]> {
   return res.data;
 }
 
+export interface PagedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+export async function fetchPartnerRepository(
+  page: number,
+  pageSize: number,
+  search: string,
+): Promise<PagedResult<DocumentRequest>> {
+  const res = await apiClient.get<PagedResult<DocumentRequest>>(
+    "/document-requests/partner-repository",
+    { params: { page, pageSize, search: search || undefined } },
+  );
+  return res.data;
+}
+
 export async function archiveForPartner(id: string): Promise<DocumentRequest> {
   const res = await apiClient.delete<DocumentRequest>(
     `/document-requests/requests/${id}/partner-archive`,

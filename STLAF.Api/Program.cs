@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -72,6 +73,21 @@ builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddHostedService<SubscriptionExpiryService>();
 builder.Services.AddHostedService<LibreOfficeWarmupService>();
+
+
+// Forwarded headers — restore the real client IP from X-Forwarded-For behind
+// Render's own edge and, when a request comes via the Vercel /api proxy, Vercel's
+// edge too. Neither platform publishes a fixed proxy IP range, so KnownNetworks/
+// KnownProxies are cleared to accept the header from any immediate upstream;
+// ForwardLimit caps how many hops are peeled off so a client can't pad the header
+// to spoof an IP further back than that.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.ForwardLimit = 2;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 
 //Rate limiter
@@ -259,6 +275,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseForwardedHeaders();
 app.UseCors("AllowFrontend");
 app.UseRateLimiter();
 app.UseAuthentication();

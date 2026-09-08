@@ -24,6 +24,7 @@ public interface IDocumentRequestService
     Task<List<DocumentRequestDto>> GetPendingPartnerAsync(Guid userId);
     Task<DocumentRequestDto?> DecidePartnerAsync(Guid userId, Guid requestId, DecideDocumentRequestDto dto);
     Task<List<DocumentRequestDto>> GetPartnerDashboardAsync();
+    Task<PagedResult<DocumentRequestDto>> GetPartnerRepositoryAsync(int page, int pageSize, string? search);
 
     Task<DocumentRequestDto?> ArchiveForPartnerAsync(Guid userId, Guid requestId);
     Task<List<DocumentRequestDto>> GetPartnerTrashAsync(Guid userId);

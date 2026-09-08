@@ -28,8 +28,10 @@ const STATUS_LABEL: Record<string, string> = {
   ReturnedToEA: "Returned to EA",
 };
 
-const FILTERS = ["All", "PendingPartner", "Approved", "RejectedByPartner", "ReturnedToEA"];
-const ARCHIVABLE_STATUSES = ["Approved", "RejectedByPartner", "ReturnedToEA"];
+// Approved documents move to the Repository — this dashboard is only for
+// things still needing attention.
+const FILTERS = ["All", "PendingPartner", "RejectedByPartner", "ReturnedToEA"];
+const ARCHIVABLE_STATUSES = ["RejectedByPartner", "ReturnedToEA"];
 
 export function PartnerDashboardPage() {
   const [requests, setRequests] = useState<DocumentRequest[]>([]);
