@@ -39,11 +39,6 @@ export async function fetchLatestFormSchema(serviceId: string): Promise<FormSche
   }
 }
 
-export async function saveFormSchema(serviceId: string, fields: FieldDefinition[]): Promise<FormSchema> {
-  const res = await apiClient.post<FormSchema>(`/client-portal/form-schemas/${serviceId}`, { fields });
-  return res.data;
-}
-
 export async function fetchDocumentTemplate(serviceId: string): Promise<DocumentTemplate | null> {
   try {
     const res = await apiClient.get<DocumentTemplate>(`/client-portal/document-templates/${serviceId}`);
@@ -69,10 +64,12 @@ export async function uploadDocumentTemplate(
   serviceId: string,
   file: File,
   fieldConfig: TemplateFieldConfig[],
+  fields: FieldDefinition[],
 ): Promise<DocumentTemplate> {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("fieldConfigJson", JSON.stringify(fieldConfig));
+  formData.append("fieldsJson", JSON.stringify(fields));
 
   const res = await apiClient.post<DocumentTemplate>(
     `/client-portal/document-templates/${serviceId}`,

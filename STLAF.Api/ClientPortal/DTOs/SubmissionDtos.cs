@@ -7,6 +7,12 @@ public class CreateSubmissionDto
     public Dictionary<string, object?> Responses { get; set; } = new();
 }
 
+public class PreviewDocumentDto
+{
+    public Guid ServiceId { get; set; }
+    public Dictionary<string, object?> Responses { get; set; } = new();
+}
+
 public class SubmissionDto
 {
     public Guid Id { get; set; }

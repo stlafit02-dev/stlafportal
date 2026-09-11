@@ -62,7 +62,6 @@ public class ReportService : IReportService
 
         using var workbook = new XLWorkbook();
 
-        // ---------- Leave sheet ----------
         var leaveSheet = workbook.Worksheets.Add("Leave Requests");
         string[] leaveHeaders = { "Company ID", "Employee", "Department", "Leave Type", "Start Date", "End Date", "Days", "Paid?", "Reason", "Status", "Decided By", "Decision Notes", "Decided At", "Submitted" };
         for (var i = 0; i < leaveHeaders.Length; i++)
@@ -95,7 +94,6 @@ public class ReportService : IReportService
         leaveSheet.Columns().AdjustToContents();
         leaveSheet.SheetView.FreezeRows(1);
 
-        // ---------- Overtime sheet ----------
         var otSheet = workbook.Worksheets.Add("Overtime Requests");
         string[] otHeaders = { "Company ID", "Employee", "Department", "Date", "Time In", "Time Out", "Hours", "Reason", "Status", "Dept Head", "Dept Notes", "Dept Decided At", "Partner", "Partner Notes", "Partner Decided At", "Submitted" };
         for (var i = 0; i < otHeaders.Length; i++)
@@ -130,7 +128,6 @@ public class ReportService : IReportService
         otSheet.Columns().AdjustToContents();
         otSheet.SheetView.FreezeRows(1);
 
-        // ---------- Undertime sheet ----------
         var utSheet = workbook.Worksheets.Add("Undertime Requests");
         string[] utHeaders = { "Company ID", "Employee", "Department", "Date", "Time In", "Time Out", "Hours", "Reason", "Status", "Decided By", "Decision Notes", "Decided At", "Submitted" };
         for (var i = 0; i < utHeaders.Length; i++)

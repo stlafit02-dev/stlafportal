@@ -13,4 +13,7 @@ public class DocumentTemplateDto
     public string TemplateFileKey { get; set; } = string.Empty;
     public List<TemplateFieldConfigDto> FieldConfig { get; set; } = new();
     public DateTime CreatedAt { get; set; }
+
+    public int FormSchemaVersion { get; set; }
+    public List<FieldDefinitionDto> Fields { get; set; } = new();
 }

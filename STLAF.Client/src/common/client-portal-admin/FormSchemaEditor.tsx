@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import { fetchLatestFormSchema, saveFormSchema } from "./clientPortalAdminApi";
 import type { FieldDefinition, FieldType } from "./types";
 
 const FIELD_TYPES: FieldType[] = [
@@ -14,6 +12,7 @@ interface EditableField {
   required: boolean;
   optionsText: string;
   helpText: string;
+  section: string;
 }
 
 function toEditable(field: FieldDefinition): EditableField {
@@ -24,6 +23,7 @@ function toEditable(field: FieldDefinition): EditableField {
     required: field.required,
     optionsText: (field.options ?? []).map((o) => `${o.value}:${o.label}`).join(", "),
     helpText: field.helpText ?? "",
+    section: field.section ?? "",
   };
 }
 
@@ -35,79 +35,45 @@ function parseOptions(text: string) {
 }
 
 function blankField(): EditableField {
-  return { key: "", label: "", type: "text", required: false, optionsText: "", helpText: "" };
+  return { key: "", label: "", type: "text", required: false, optionsText: "", helpText: "", section: "" };
+}
+
+function toDefinitions(fields: EditableField[]): FieldDefinition[] {
+  return fields.map((f) => ({
+    key: f.key,
+    label: f.label,
+    type: f.type,
+    required: f.required,
+    helpText: f.helpText || undefined,
+    options: OPTION_TYPES.includes(f.type) ? parseOptions(f.optionsText) : undefined,
+    section: f.section || undefined,
+  }));
 }
 
 interface FormSchemaEditorProps {
-  serviceId: string;
-  onSaved?: (fields: FieldDefinition[]) => void;
-  // Bumped by TemplateUpload after it auto-generates a schema from a template, so this
-  // editor re-fetches and shows the generated fields instead of going stale.
-  refreshKey?: number;
+  fields: FieldDefinition[];
+  onChange: (fields: FieldDefinition[]) => void;
 }
 
-export function FormSchemaEditor({ serviceId, onSaved, refreshKey }: FormSchemaEditorProps) {
-  const [fields, setFields] = useState<EditableField[]>([]);
-  const [version, setVersion] = useState<number | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    fetchLatestFormSchema(serviceId).then((schema) => {
-      if (schema) {
-        setVersion(schema.version);
-        setFields(schema.fields.map(toEditable));
-        onSaved?.(schema.fields);
-      } else {
-        setVersion(null);
-        setFields([]);
-        onSaved?.([]);
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serviceId, refreshKey]);
+export function FormSchemaEditor({ fields: definitions, onChange }: FormSchemaEditorProps) {
+  const fields = definitions.map(toEditable);
 
   function updateField(index: number, patch: Partial<EditableField>) {
-    setFields((prev) => prev.map((f, i) => (i === index ? { ...f, ...patch } : f)));
+    onChange(toDefinitions(fields.map((f, i) => (i === index ? { ...f, ...patch } : f))));
   }
 
   function removeField(index: number) {
-    setFields((prev) => prev.filter((_, i) => i !== index));
-  }
-
-  async function handleSave() {
-    setIsSaving(true);
-    setError(null);
-    setSuccess(false);
-    try {
-      const definitions: FieldDefinition[] = fields.map((f) => ({
-        key: f.key,
-        label: f.label,
-        type: f.type,
-        required: f.required,
-        helpText: f.helpText || undefined,
-        options: OPTION_TYPES.includes(f.type) ? parseOptions(f.optionsText) : undefined,
-      }));
-      const saved = await saveFormSchema(serviceId, definitions);
-      setVersion(saved.version);
-      setSuccess(true);
-      onSaved?.(saved.fields);
-    } catch {
-      setError("Could not save the form schema.");
-    } finally {
-      setIsSaving(false);
-    }
+    onChange(toDefinitions(fields.filter((_, i) => i !== index)));
   }
 
   return (
     <div style={{ marginTop: 32 }}>
-      <h2 className="gmail-section-title">
-        Form fields {version !== null && <span className="page-subtitle">(v{version})</span>}
-      </h2>
+      <h2 className="gmail-section-title">Form fields</h2>
       <p className="page-subtitle">
-        Saving always creates a new version — existing submissions keep referencing the version they
-        were filled against.
+        These are saved together with the template below — uploading the template saves both as one unit.
+        Give consecutive fields the same Section name to put them on their own page (with Next/Back) on the
+        client's form — e.g. "Personal Details" for the first few fields, then "Other Details" for the rest.
+        Leave Section blank on every field to keep everything on one page, like before.
       </p>
 
       {fields.map((field, index) => (
@@ -119,6 +85,15 @@ export function FormSchemaEditor({ serviceId, onSaved, refreshKey }: FormSchemaE
             </button>
           </div>
           <div className="gmail-grid">
+            <div className="gmail-field">
+              <label className="gmail-label">Section</label>
+              <input
+                className="gmail-input"
+                placeholder="(none)"
+                value={field.section}
+                onChange={(e) => updateField(index, { section: e.target.value })}
+              />
+            </div>
             <div className="gmail-field">
               <label className="gmail-label">Key</label>
               <input className="gmail-input" value={field.key} onChange={(e) => updateField(index, { key: e.target.value })} />
@@ -159,19 +134,10 @@ export function FormSchemaEditor({ serviceId, onSaved, refreshKey }: FormSchemaE
         type="button"
         className="gmail-secondary-btn"
         style={{ marginTop: 16 }}
-        onClick={() => setFields((prev) => [...prev, blankField()])}
+        onClick={() => onChange(toDefinitions([...fields, blankField()]))}
       >
         + Add field
       </button>
-
-      {error && <p className="gmail-error">{error}</p>}
-      {success && <p style={{ color: "#4fcb84", fontSize: 13 }}>Saved.</p>}
-
-      <div style={{ marginTop: 16 }}>
-        <button type="button" className="gmail-submit-btn" onClick={handleSave} disabled={isSaving}>
-          {isSaving ? "Saving…" : "Save as new version"}
-        </button>
-      </div>
     </div>
   );
 }

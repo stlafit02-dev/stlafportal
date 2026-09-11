@@ -81,7 +81,6 @@ function App() {
                     }
                   />
   
-                  {/* ---------- IT ---------- */}
                   <Route
                     path="/it"
                     element={
@@ -141,7 +140,6 @@ function App() {
                     <Route path="my-inquiries" element={<MyInquiriesPage />} />
                   </Route>
   
-                  {/* ---------- HR Admin ---------- */}
                   <Route
                     path="/hr-admin"
                     element={
@@ -189,7 +187,6 @@ function App() {
                     <Route path="my-inquiries" element={<MyInquiriesPage />} />
                   </Route>
   
-                  {/* ---------- Litigation ---------- */}
                   <Route
                     path="/litigation"
                     element={
@@ -204,7 +201,6 @@ function App() {
                     <Route path="my-inquiries" element={<MyInquiriesPage />} />
                   </Route>
   
-                  {/* ---------- Accounting ---------- */}
                   <Route
                     path="/accounting"
                     element={
@@ -219,7 +215,6 @@ function App() {
                     <Route path="my-inquiries" element={<MyInquiriesPage />} />
                   </Route>
   
-                  {/* ---------- Corporate ---------- */}
                   <Route
                     path="/corporate"
                     element={
@@ -234,7 +229,6 @@ function App() {
                     <Route path="my-inquiries" element={<MyInquiriesPage />} />
                   </Route>
   
-                  {/* ---------- Marketing ---------- */}
                   <Route
                     path="/marketing"
                     element={
@@ -249,7 +243,6 @@ function App() {
                     <Route path="my-inquiries" element={<MyInquiriesPage />} />
                   </Route>
   
-                  {/* ---------- Partner (department) ---------- */}
                   <Route
                     path="/partner"
                     element={
@@ -280,7 +273,6 @@ function App() {
                     <Route path="my-inquiries" element={<MyInquiriesPage />} />
                   </Route>
   
-                  {/* ---------- Client Portal Admin (cross-department, per-employee grant) ---------- */}
                   <Route
                     path="/client-portal-admin"
                     element={
@@ -294,7 +286,6 @@ function App() {
                     }
                   />
   
-                  {/* ---------- Document Review (cross-department, role-based) ---------- */}
                   <Route
                     path="/documents/ea-review"
                     element={

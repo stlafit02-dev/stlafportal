@@ -280,7 +280,6 @@ export function LeaveSettingsPage() {
         </p>
       </div>
 
-      {/* ---------- Leave Types ---------- */}
       <section className="ls-section">
         <div className="ls-section-header">
           <div>
@@ -375,7 +374,6 @@ export function LeaveSettingsPage() {
         </div>
       </section>
 
-      {/* ---------- Department Approvers ---------- */}
       <section className="ls-section">
         <div className="ls-section-header">
           <div>
@@ -437,7 +435,6 @@ export function LeaveSettingsPage() {
         </div>
       </section>
 
-      {/* ---------- Overtime Partners ---------- */}
       <section className="gmail-section">
         <div className="ls-section-header">
           <div>
@@ -500,7 +497,6 @@ export function LeaveSettingsPage() {
         </div>
       </section>
 
-      {/* ---------- SMTP Senders ---------- */}
       <section className="ls-section">
         <div className="ls-section-header">
           <div>
@@ -623,7 +619,6 @@ export function LeaveSettingsPage() {
         )}
       </section>
 
-      {/* ---------- Google Drive ---------- */}
       <section className="ls-section">
         <div className="ls-section-header">
           <div>

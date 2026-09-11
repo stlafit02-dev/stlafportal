@@ -31,7 +31,7 @@ public class DocumentTemplatesController : ControllerBase
 
     [HttpPost("{serviceId:guid}")]
     [RequestSizeLimit(10 * 1024 * 1024)]
-    public async Task<IActionResult> Upload(Guid serviceId, IFormFile file, [FromForm] string fieldConfigJson)
+    public async Task<IActionResult> Upload(Guid serviceId, IFormFile file, [FromForm] string fieldConfigJson, [FromForm] string fieldsJson)
     {
         var isPdf = file.ContentType == "application/pdf" || file.FileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
         var isDocx = file.ContentType == DocxContentType || file.FileName.EndsWith(".docx", StringComparison.OrdinalIgnoreCase);
@@ -42,9 +42,11 @@ public class DocumentTemplatesController : ControllerBase
         }
 
         List<TemplateFieldConfigDto> fieldConfig;
+        List<FieldDefinitionDto> fields;
         try
         {
             fieldConfig = JsonSerializer.Deserialize<List<TemplateFieldConfigDto>>(fieldConfigJson, JsonOptions) ?? new();
+            fields = JsonSerializer.Deserialize<List<FieldDefinitionDto>>(fieldsJson, JsonOptions) ?? new();
         }
         catch (JsonException)
         {
@@ -52,7 +54,7 @@ public class DocumentTemplatesController : ControllerBase
         }
 
         using var stream = file.OpenReadStream();
-        var result = await _service.UploadAsync(serviceId, stream, file.FileName, isDocx ? DocxContentType : "application/pdf", fieldConfig);
+        var result = await _service.UploadAsync(serviceId, stream, file.FileName, isDocx ? DocxContentType : "application/pdf", fieldConfig, fields);
         return Ok(result);
     }
 

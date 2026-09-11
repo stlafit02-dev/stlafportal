@@ -211,7 +211,6 @@ public class TicketingService : ITicketingService
         return true;
     }
 
-    // ---------- Portal (employee self-service) ----------
 
     public async Task<EmployeeTicketProfileDto?> GetMyProfileAsync(Guid userId)
     {
@@ -286,7 +285,6 @@ public class TicketingService : ITicketingService
         return list[0];
     }
 
-    // ---------- Helpers ----------
 
     private async Task<string> GenerateTicketNumberAsync()
     {

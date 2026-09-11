@@ -12,9 +12,7 @@ public class Submission : BaseEntity
 
     public int FormSchemaVersion { get; set; }
 
-    // JSON object of { fieldKey: value }.
     public string ResponsesJson { get; set; } = "{}";
 
-    // draft | submitted | processing | completed | failed
     public string Status { get; set; } = "submitted";
 }

@@ -4,5 +4,5 @@ public class ReportFilterDto
 {
     public DateTime? From { get; set; }
     public DateTime? To { get; set; }
-    public string? Department { get; set; } // null/"All" = every department
+    public string? Department { get; set; }
 }

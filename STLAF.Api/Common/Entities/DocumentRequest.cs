@@ -13,7 +13,6 @@ public class DocumentRequest : BaseEntity
     public string? FileUrl { get; set; }
     public string? FileName { get; set; }
 
-    // PendingEA, RejectedByEA, PendingPartner, Approved, ReturnedToEA, RejectedByPartner
     public string Status { get; set; } = "PendingEA";
 
     public Guid? EaDecidedByEmployeeId { get; set; }

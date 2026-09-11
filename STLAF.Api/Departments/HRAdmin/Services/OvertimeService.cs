@@ -25,7 +25,6 @@ public class OvertimeService : IOvertimeService
     private static string DepartmentSlug(string department) =>
         department == "HRAdmin" ? "hr-admin" : department.ToLowerInvariant();
 
-    // ---------- Partners ----------
 
     public async Task<List<OvertimePartnerDto>> GetPartnersAsync()
     {
@@ -69,7 +68,6 @@ public class OvertimeService : IOvertimeService
         };
     }
 
-    // ---------- Employee-facing ----------
 
     public async Task<List<OvertimeRequestDto>> GetMyRequestsAsync(Guid userId)
     {
@@ -118,7 +116,6 @@ public class OvertimeService : IOvertimeService
         return ToDto(request);
     }
 
-    // ---------- Department head decision ----------
 
     public async Task<bool> IsDeptApproverAsync(Guid userId)
     {
@@ -182,7 +179,6 @@ public class OvertimeService : IOvertimeService
         return ToDto(request);
     }
 
-    // ---------- Partner (final) decision ----------
 
     public async Task<bool> IsPartnerAsync(Guid userId)
     {
@@ -237,7 +233,6 @@ public class OvertimeService : IOvertimeService
         return ToDto(request);
     }
 
-    // ---------- Notifications ----------
 
     private async Task NotifyDeptApproverAsync(OvertimeRequest request)
     {

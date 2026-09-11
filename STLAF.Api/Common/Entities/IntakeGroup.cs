@@ -4,6 +4,6 @@ public class IntakeGroup : BaseEntity
 {
     public string Category { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string RecipientEmails { get; set; } = string.Empty; // comma-separated
+    public string RecipientEmails { get; set; } = string.Empty;
     public int SortOrder { get; set; }
 }

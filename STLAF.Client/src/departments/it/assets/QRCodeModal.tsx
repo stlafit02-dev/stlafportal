@@ -31,15 +31,6 @@ export function QRCodeModal({ asset, onClose }: QRCodeModalProps) {
 
         <span className="qr-view-tag">{asset.assetTag}</span>
 
-        {/* {qrDataUrl && (
-          <a>
-            href={qrDataUrl}
-            download={asset.assetTag + ".png"}
-            className="qr-view-download"
-          
-            Download QR
-          </a>
-        )} */}
       </div>
     </Modal>
   );

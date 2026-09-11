@@ -2,10 +2,6 @@ import { Controller } from "react-hook-form";
 import { FieldWrapper } from "./FieldWrapper";
 import type { FieldProps } from "./types";
 
-// A field with an open-ended number of free-text answers (e.g. "list your dependents") —
-// the client adds/removes rows rather than picking from a fixed set of options, so it
-// stores its value as string[] instead of a scalar. The generated document numbers the
-// non-blank entries "1. ...", "2. ...", etc.
 export function ListField({ field, control, error }: FieldProps) {
   return (
     <FieldWrapper label={field.label} required={field.required} helpText={field.helpText} error={error}>

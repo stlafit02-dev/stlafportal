@@ -93,7 +93,6 @@ public class EmployeeProfileDto
     public string OfficePosition { get; set; } = string.Empty;
 }
 
-// ---------- SMTP Senders (standalone, independent of GWS/Email Accounts) ----------
 
 public class SmtpSenderDto
 {
@@ -138,7 +137,7 @@ public class EmployeeLeaveCreditDto
 public class SetEmployeeLeaveCreditDto
 {
     public Guid LeaveTypeId { get; set; }
-    public decimal? Credits { get; set; } // null = remove override, fall back to default
+    public decimal? Credits { get; set; }
 }
 
 public class RequestRetractionDto

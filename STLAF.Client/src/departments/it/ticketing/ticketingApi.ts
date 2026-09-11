@@ -41,7 +41,6 @@ export interface ItStaff {
   fullName: string;
 }
 
-// ---------- Public endpoints (no auth) ----------
 
 export async function fetchQueue(): Promise<Ticket[]> {
   const res = await apiClient.get<Ticket[]>("/it/tickets/queue");
@@ -60,7 +59,6 @@ export async function createTicket(
   return res.data;
 }
 
-// ---------- Authenticated (IT staff) endpoints ----------
 
 export async function fetchAllTickets(): Promise<Ticket[]> {
   const res = await apiClient.get<Ticket[]>("/it/tickets");

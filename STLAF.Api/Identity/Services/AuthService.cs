@@ -66,7 +66,6 @@ public class AuthService : IAuthService
             };
         }
 
-        // Successful login — reset counters
         user.FailedLoginAttempts = 0;
         user.LockoutEnd = null;
         await _db.SaveChangesAsync();

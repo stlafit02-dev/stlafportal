@@ -1,0 +1,113 @@
+├── STLAF.Api/
+│   ├── Announcements/
+│   │   ├── Controllers/
+│   │   ├── DTOs/
+│   │   └── Services/
+│   ├── ClientPortal/
+│   │   ├── BackgroundJobs/
+│   │   ├── Controllers/
+│   │   ├── DTOs/
+│   │   ├── Entities/
+│   │   ├── Policies/
+│   │   └── Services/
+│   ├── Common/
+│   │   ├── Controllers/
+│   │   ├── DTOs/
+│   │   ├── Email/
+│   │   ├── Entities/
+│   │   └── Services/
+│   ├── Controllers/
+│   ├── Data/
+│   │   └── Configurations/
+│   │       ├── ClientPortal/
+│   │       ├── HrAdmin/
+│   │       ├── IT/
+│   │       └── Identity/
+│   ├── Departments/
+│   │   ├── HRAdmin/
+│   │   │   ├── Controllers/
+│   │   │   ├── DTOs/
+│   │   │   ├── Entities/
+│   │   │   └── Services/
+│   │   └── IT/
+│   │       ├── Controllers/
+│   │       ├── DTOs/
+│   │       ├── Entities/
+│   │       └── Services/
+│   ├── Identity/
+│   │   ├── Controllers/
+│   │   ├── DTOs/
+│   │   ├── Entities/
+│   │   ├── Policies/
+│   │   └── Services/
+│   ├── Migrations/
+│   └── Properties/
+├── STLAF.Client/
+│   ├── public/
+│   └── src/
+│       ├── assets/
+│       ├── auth/
+│       ├── common/
+│       │   ├── access/
+│       │   ├── api/
+│       │   ├── client-portal-admin/
+│       │   ├── components/
+│       │   │   ├── ConfirmDialog/
+│       │   │   ├── DashboardLayout/
+│       │   │   ├── DashboardWireframe/
+│       │   │   ├── FloatingField/
+│       │   │   ├── Loader/
+│       │   │   ├── Modal/
+│       │   │   ├── ThemeToggle/
+│       │   │   └── Toast/
+│       │   ├── documents/
+│       │   ├── intake/
+│       │   ├── leave/
+│       │   └── tickets/
+│       ├── departments/
+│       │   ├── accounting/
+│       │   ├── corporate/
+│       │   ├── hr-admin/
+│       │   │   ├── employees/
+│       │   │   ├── leave-settings/
+│       │   │   ├── medical/
+│       │   │   └── reports/
+│       │   ├── it/
+│       │   │   ├── assets/
+│       │   │   ├── gmail/
+│       │   │   └── ticketing/
+│       │   ├── litigation/
+│       │   ├── marketing/
+│       │   └── partner/
+│       ├── landing/
+│       └── theme/
+├── docs/
+│   └── modules/
+├── stlaf-draft/
+│   ├── public/
+│   └── src/
+│       ├── auth/
+│       ├── common/
+│       │   ├── api/
+│       │   ├── components/
+│       │   │   ├── Loader/
+│       │   │   └── ThemeToggle/
+│       │   └── layout/
+│       ├── dashboard/
+│       ├── landing/
+│       ├── portal/
+│       ├── services-catalog/
+│       ├── submissions/
+│       │   └── DynamicForm/
+│       │       └── fields/
+│       ├── subscription/
+│       ├── theme/
+│       └── types/
+└── stlaf-intake/
+    ├── public/
+    └── src/
+        ├── api/
+        ├── assets/
+        ├── components/
+        ├── data/
+        └── types/

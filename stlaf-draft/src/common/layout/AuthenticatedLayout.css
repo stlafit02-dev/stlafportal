@@ -12,7 +12,6 @@
   text-decoration: none;
 }
 
-/* ---------- Sidebar ---------- */
 
 .sidebar {
   width: 260px;
@@ -165,7 +164,6 @@
   background: rgba(232, 135, 122, 0.12);
 }
 
-/* ---------- Mobile top bar ---------- */
 
 .mobile-topbar {
   display: none;
@@ -197,7 +195,6 @@
   display: none;
 }
 
-/* ---------- Main content ---------- */
 
 .portal-main {
   flex: 1;

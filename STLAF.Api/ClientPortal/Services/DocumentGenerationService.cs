@@ -11,14 +11,6 @@ using STLAF.Api.Data;
 
 namespace STLAF.Api.ClientPortal.Services;
 
-// Merges a submission's responses into its service's document template and stores the
-// result in Backblaze B2. Two template kinds are supported, picked by the stored file's
-// extension: a real fillable PDF form (AcroForm field names matched against response
-// keys), or a Word .docx with {{field_key}} text placeholders (filled via OpenXML, then
-// rendered to PDF through LibreOffice headless). Free-plan documents leave fields flagged
-// "blur on free" genuinely blank (the value is never written in) plus a watermark; the
-// plan check reads the submission's own client's subscription row, never a value the
-// caller supplies.
 public class DocumentGenerationService : IDocumentGenerationService
 {
     private readonly AppDbContext _db;
@@ -45,31 +37,13 @@ public class DocumentGenerationService : IDocumentGenerationService
 
         try
         {
-            var template = await _db.ClientPortalDocumentTemplates
-                .Where(t => t.ServiceId == submission.ServiceId)
-                .OrderByDescending(t => t.CreatedAt)
-                .FirstOrDefaultAsync();
-
-            if (template is null)
-            {
-                throw new InvalidOperationException("No document template configured for this service.");
-            }
-
             var subscription = await _db.ClientPortalSubscriptions
                 .FirstOrDefaultAsync(sub => sub.ClientAccountId == submission.ClientAccountId);
             var isPremium = subscription is { Plan: "premium", Status: "active" };
-
-            using var templateStream = await _fileStorage.DownloadFileAsync(template.TemplateFileKey)
-                ?? throw new InvalidOperationException("Could not download the document template.");
-
-            var fieldConfig = JsonSerializer.Deserialize<List<TemplateFieldConfigDto>>(template.FieldConfigJson, JsonOptions) ?? new();
             var responses = JsonSerializer.Deserialize<Dictionary<string, object?>>(submission.ResponsesJson, JsonOptions) ?? new();
-            var blurredKeys = fieldConfig.Where(f => f.BlurOnFree).Select(f => f.FieldKey).ToHashSet();
 
-            var isDocx = template.TemplateFileKey.EndsWith(".docx", StringComparison.OrdinalIgnoreCase);
-            using var outputStream = isDocx
-                ? await RenderFromDocxAsync(templateStream, responses, blurredKeys, isPremium)
-                : RenderFromPdf(templateStream, responses, blurredKeys, isPremium);
+            using var outputStream = await RenderDocumentAsync(submission.ServiceId, responses, isPremium)
+                ?? throw new InvalidOperationException("No document template configured for this service.");
 
             var uploadResult = await _fileStorage.UploadFileAsync(outputStream, $"{submissionId}.pdf", "application/pdf", DocumentFolder)
                 ?? throw new InvalidOperationException("Could not store the generated document.");
@@ -92,11 +66,49 @@ public class DocumentGenerationService : IDocumentGenerationService
         await _db.SaveChangesAsync();
     }
 
+    public async Task<byte[]?> RenderPreviewAsync(Guid clientId, Guid serviceId, Dictionary<string, object?> responses)
+    {
+        var subscription = await _db.ClientPortalSubscriptions
+            .FirstOrDefaultAsync(sub => sub.ClientAccountId == clientId);
+        var isPremium = subscription is { Plan: "premium", Status: "active" };
+
+        using var outputStream = await RenderDocumentAsync(serviceId, responses, isPremium);
+        return outputStream?.ToArray();
+    }
+
+    private async Task<MemoryStream?> RenderDocumentAsync(Guid serviceId, Dictionary<string, object?> responses, bool isPremium)
+    {
+        var template = await _db.ClientPortalDocumentTemplates
+            .Where(t => t.ServiceId == serviceId)
+            .OrderByDescending(t => t.CreatedAt)
+            .FirstOrDefaultAsync();
+        if (template is null) return null;
+
+        using var templateStream = await _fileStorage.DownloadFileAsync(template.TemplateFileKey)
+            ?? throw new InvalidOperationException("Could not download the document template.");
+
+        var fieldConfig = JsonSerializer.Deserialize<List<TemplateFieldConfigDto>>(template.FieldConfigJson, JsonOptions) ?? new();
+        var blurredKeys = fieldConfig.Where(f => f.BlurOnFree).Select(f => f.FieldKey).ToHashSet();
+
+        var formSchema = await _db.ClientPortalFormSchemas
+            .FirstOrDefaultAsync(f => f.DocumentTemplateId == template.Id);
+        var fieldsByKey = (formSchema is null
+                ? new List<FieldDefinitionDto>()
+                : JsonSerializer.Deserialize<List<FieldDefinitionDto>>(formSchema.FieldsJson, JsonOptions) ?? new())
+            .ToDictionary(f => f.Key);
+
+        var isDocx = template.TemplateFileKey.EndsWith(".docx", StringComparison.OrdinalIgnoreCase);
+        return isDocx
+            ? await RenderFromDocxAsync(templateStream, responses, blurredKeys, isPremium, fieldsByKey)
+            : RenderFromPdf(templateStream, responses, blurredKeys, isPremium, fieldsByKey);
+    }
+
     private static MemoryStream RenderFromPdf(
         Stream templateStream,
         Dictionary<string, object?> responses,
         HashSet<string> blurredKeys,
-        bool isPremium)
+        bool isPremium,
+        Dictionary<string, FieldDefinitionDto> fieldsByKey)
     {
         var document = PdfReader.Open(templateStream, PdfDocumentOpenMode.Modify);
 
@@ -108,22 +120,16 @@ public class DocumentGenerationService : IDocumentGenerationService
                 var key = textField.Name;
                 if (string.IsNullOrEmpty(key)) continue;
 
-                // Real redaction: for a free-plan client, the value is never written into
-                // the field at all — leaving it blank, not just visually covered.
                 if (blurredKeys.Contains(key) && !isPremium) continue;
 
                 if (responses.TryGetValue(key, out var value) && value is not null)
                 {
-                    var formatted = DocxTemplateProcessor.FormatValue(value, key, blurredKeys, isPremium);
+                    var formatted = DocxTemplateProcessor.FormatValue(value, key, blurredKeys, isPremium, fieldsByKey);
                     textField.Value = new PdfString(formatted);
-                    // A "list" field formats as multiple numbered lines — the field must be
-                    // flagged multiline or the viewer collapses it back to a single line.
                     if (formatted.Contains('\n')) textField.MultiLine = true;
                 }
             }
 
-            // Tells PDF viewers to regenerate each field's on-page appearance from its
-            // Value rather than trusting a (nonexistent) cached appearance stream.
             document.AcroForm.Elements.SetBoolean("/NeedAppearances", true);
         }
 
@@ -135,9 +141,10 @@ public class DocumentGenerationService : IDocumentGenerationService
         Stream templateStream,
         Dictionary<string, object?> responses,
         HashSet<string> blurredKeys,
-        bool isPremium)
+        bool isPremium,
+        Dictionary<string, FieldDefinitionDto> fieldsByKey)
     {
-        using var filledDocx = DocxTemplateProcessor.Fill(templateStream, responses, blurredKeys, isPremium);
+        using var filledDocx = DocxTemplateProcessor.Fill(templateStream, responses, blurredKeys, isPremium, fieldsByKey);
         var pdfBytes = await DocxToPdfConverter.ConvertAsync(filledDocx.ToArray());
 
         using var pdfStream = new MemoryStream(pdfBytes);

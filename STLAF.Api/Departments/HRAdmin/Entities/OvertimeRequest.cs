@@ -13,7 +13,6 @@ public class OvertimeRequest : BaseEntity
     public double Hours { get; set; }
     public string Reason { get; set; } = string.Empty;
 
-    // Pending -> PendingPartnerApproval -> Approved / Rejected
     public string Status { get; set; } = "Pending";
 
     public Guid? DeptDecidedByEmployeeId { get; set; }

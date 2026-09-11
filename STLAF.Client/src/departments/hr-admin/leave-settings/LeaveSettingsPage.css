@@ -114,7 +114,6 @@
   cursor: not-allowed;
 }
 
-/* ---------- Leave Type cards ---------- */
 .ls-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -184,7 +183,6 @@
   cursor: pointer;
 }
 
-/* ---------- Approver cards ---------- */
 .ls-approver-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -275,7 +273,6 @@
   border-color: var(--accent-gold);
 }
 
-/* ---------- SMTP Senders ---------- */
 .ls-empty {
   background: var(--bg-card);
   border: 1px dashed var(--border-color-strong);

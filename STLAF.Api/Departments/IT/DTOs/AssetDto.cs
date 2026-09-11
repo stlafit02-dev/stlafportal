@@ -51,8 +51,6 @@ public class CreateAssetDto
     public string? Remarks { get; set; }
     public DateTime? PurchaseDate { get; set; }
 
-    // When the person checks "already has an Asset ID", this carries the existing tag.
-    // Null/empty means: auto-generate one.
     public string? ManualAssetTag { get; set; }
 }
 

@@ -17,7 +17,6 @@ public class AnnouncementsController : ControllerBase
         _service = service;
     }
 
-    // Public — landing page needs this without login
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll()
@@ -26,7 +25,6 @@ public class AnnouncementsController : ControllerBase
         return Ok(announcements);
     }
 
-    // Only authenticated users can post; refine to DeptAdmin/SuperAdmin later
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Create(CreateAnnouncementDto dto)

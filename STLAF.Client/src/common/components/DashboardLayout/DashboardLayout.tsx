@@ -183,7 +183,6 @@ export function DashboardLayout({
 
   return (
     <div className="dashboard-shell">
-      {/* Mobile/tablet top bar */}
       <div className="mobile-topbar">
         <button
           className="hamburger-btn"
@@ -206,7 +205,6 @@ export function DashboardLayout({
         <span className="mobile-topbar-spacer" />
       </div>
 
-      {/* Backdrop for mobile sidebar */}
       {isSidebarOpen && (
         <div
           className="sidebar-backdrop"
@@ -214,7 +212,6 @@ export function DashboardLayout({
         />
       )}
 
-      {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-header">
           <img src={logoSrc} alt="STLAF" className="sidebar-logo" />
@@ -339,7 +336,6 @@ export function DashboardLayout({
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="dashboard-content">{children}</main>
 
       <SettingsModal

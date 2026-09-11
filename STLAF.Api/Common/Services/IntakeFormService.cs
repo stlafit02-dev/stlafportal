@@ -139,8 +139,6 @@ public class IntakeFormService : IIntakeFormService
             .Where(s => selectedServiceIds.Contains(s.Id))
             .ToListAsync();
 
-        // Group the selected services by recipient email so each person gets ONE email
-        // listing every service they're responsible for in this submission, not one email per service.
         var recipientToServices = new Dictionary<string, List<string>>();
 
         foreach (var service in services)
@@ -320,7 +318,7 @@ public class IntakeFormService : IIntakeFormService
         if (employee is null) return null;
 
         var hasFullAccess = await _db.IntakeFullAccessGrants.AnyAsync(g => g.CompanyId == employee.CompanyId);
-        if (hasFullAccess) return null; // null = no restriction, include everything
+        if (hasFullAccess) return null;
 
         if (string.IsNullOrWhiteSpace(employee.CompanyEmail)) return new HashSet<Guid>();
         var myEmail = NormalizeEmail(employee.CompanyEmail);

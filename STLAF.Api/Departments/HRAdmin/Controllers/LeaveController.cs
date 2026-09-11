@@ -21,7 +21,6 @@ public class LeaveController : ControllerBase
 
     private Guid CurrentUserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
 
-    // ---------- Any authenticated employee ----------
 
     [HttpGet("my-profile")]
     public async Task<IActionResult> GetMyProfile()
@@ -67,7 +66,6 @@ public class LeaveController : ControllerBase
         return Ok(result);
     }
 
-    // ---------- HR-only settings ----------
 
     [HttpPost("types")]
     [Authorize(Policy = "hr-leave-settings")]
@@ -158,7 +156,7 @@ public class LeaveController : ControllerBase
     {
         if (file is null || file.Length == 0) return BadRequest(new { message = "No file provided." });
 
-        const long maxSizeBytes = 3_670_016; // 3.5 MB
+        const long maxSizeBytes = 3_670_016;
         if (file.Length > maxSizeBytes)
             return BadRequest(new { message = "File is too large. Maximum size is 3.5 MB." });
 

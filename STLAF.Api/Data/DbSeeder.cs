@@ -9,7 +9,6 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(AppDbContext db)
     {
-        // Stage 1: Departments
         if (!await db.Departments.AnyAsync())
         {
             db.Departments.AddRange(
@@ -24,7 +23,6 @@ public static class DbSeeder
             await db.SaveChangesAsync();
         }
 
-        // Stage 2: Roles
         if (!await db.Roles.AnyAsync())
         {
             db.Roles.AddRange(
@@ -35,7 +33,6 @@ public static class DbSeeder
             await db.SaveChangesAsync();
         }
 
-        // Stage 3: Test users (depends on Departments + Roles already existing in DB)
         if (!await db.Users.AnyAsync())
         {
             var departments = await db.Departments.ToListAsync();

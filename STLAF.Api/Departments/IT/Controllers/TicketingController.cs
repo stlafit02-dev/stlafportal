@@ -20,7 +20,6 @@ public class TicketingController : ControllerBase
 
     private Guid CurrentUserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
 
-    // Public — anyone in the firm can submit a ticket without logging in
     [HttpPost]
     [AllowAnonymous]
     [EnableRateLimiting("public-submission")]
@@ -30,7 +29,6 @@ public class TicketingController : ControllerBase
         return CreatedAtAction(nameof(GetQueue), result);
     }
 
-    // Public — live queue of non-closed tickets
     [HttpGet("queue")]
     [AllowAnonymous]
     public async Task<IActionResult> GetQueue()
@@ -39,7 +37,6 @@ public class TicketingController : ControllerBase
         return Ok(tickets);
     }
 
-    // Public — status counts for the summary cards
     [HttpGet("summary")]
     [AllowAnonymous]
     public async Task<IActionResult> GetSummary()
@@ -48,7 +45,6 @@ public class TicketingController : ControllerBase
         return Ok(summary);
     }
 
-    // IT-only — full ticket list including closed
     [HttpGet]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> GetAll()
@@ -57,7 +53,6 @@ public class TicketingController : ControllerBase
         return Ok(tickets);
     }
 
-    // IT-only — export tickets to Excel, honoring the current status/search filters
     [HttpGet("export")]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Export([FromQuery] string? status, [FromQuery] string? search, [FromQuery] string? month)
@@ -69,7 +64,6 @@ public class TicketingController : ControllerBase
         return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
-    // IT-only — list of IT staff for the assignee dropdown
     [HttpGet("staff")]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> GetStaff()
@@ -78,7 +72,6 @@ public class TicketingController : ControllerBase
         return Ok(staff);
     }
 
-    // IT-only — change status
     [HttpPatch("{id}/status")]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> UpdateStatus(Guid id, UpdateTicketStatusDto dto)
@@ -97,7 +90,6 @@ public class TicketingController : ControllerBase
         return Ok(result);
     }
 
-    // IT-only — assign/reassign
     [HttpPatch("{id}/assign")]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Assign(Guid id, AssignTicketDto dto)
@@ -116,7 +108,6 @@ public class TicketingController : ControllerBase
         return NoContent();
     }
 
-    // ---------- Portal (employee self-service) ----------
 
     [HttpGet("my-profile")]
     [Authorize]

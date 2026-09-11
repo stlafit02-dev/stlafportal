@@ -23,6 +23,7 @@ export interface FieldDefinition {
   required: boolean;
   options?: FieldOption[];
   helpText?: string;
+  section?: string;
 }
 
 export interface FormSchema {
@@ -42,6 +43,8 @@ export interface DocumentTemplate {
   serviceId: string;
   templateFileKey: string;
   fieldConfig: TemplateFieldConfig[];
+  formSchemaVersion: number;
+  fields: FieldDefinition[];
 }
 
 export interface AdminGeneratedDocument {

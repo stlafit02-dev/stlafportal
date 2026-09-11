@@ -177,9 +177,6 @@ public class EmployeeService : IEmployeeService
 
         if (employee.User is not null)
         {
-            // User.Email/Username stay permanently as the Company ID and are never
-            // touched here — Company Email is purely informational and lives only
-            // on Employee.CompanyEmail.
             employee.User.FullName = string.Join(" ", new[] { dto.FirstName, dto.MiddleName, dto.LastName }.Where(s => !string.IsNullOrWhiteSpace(s)));
             employee.User.IsActive = dto.Status == "Active";
 

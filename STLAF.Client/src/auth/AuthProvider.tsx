@@ -21,8 +21,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function logout() {
     setIsLoggingOut(true);
 
-    // Run the API call and the minimum UI-visible delay concurrently rather
-    // than back-to-back — best-effort, so a failed request still logs out locally.
     await Promise.all([
       logoutApi().catch(() => {}),
       new Promise((resolve) => setTimeout(resolve, 400)),

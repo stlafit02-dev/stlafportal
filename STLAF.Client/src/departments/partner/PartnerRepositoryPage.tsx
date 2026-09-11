@@ -14,7 +14,6 @@ export function PartnerRepositoryPage() {
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Debounce the search box, then reset back to page 1 for the new query.
   useEffect(() => {
     const handle = setTimeout(() => {
       setSearch(searchInput.trim());

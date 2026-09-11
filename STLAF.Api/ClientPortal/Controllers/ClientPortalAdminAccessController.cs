@@ -16,10 +16,6 @@ public class ClientPortalAdminAccessController : ControllerBase
         _db = db;
     }
 
-    // Every logged-in employee calls this (from the sidebar nav builder) to decide
-    // whether to show the admin module. Like IntakeFullAccessGrant, ClientPortalAdminGrant
-    // rows are managed directly in the database, not through a CRUD API. Always 200 —
-    // "not allowed" is a normal outcome for most callers, not an HTTP error.
     [HttpGet("mine")]
     [Authorize]
     public async Task<IActionResult> Mine()

@@ -4,17 +4,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace STLAF.Api.Migrations
 {
-    /// <inheritdoc />
     public partial class EnableRlsDefaultDeny : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Deny-by-default defense in depth: enable RLS with zero policies on every
-            // public table. The API connects as the Supabase "postgres" role, which has
-            // BYPASSRLS (confirmed via `SELECT rolbypassrls FROM pg_roles`), so this has
-            // no effect on the API itself — it only blocks any other, non-bypassing role
-            // (e.g. anon/authenticated via PostgREST, or a slip in the SQL editor).
             migrationBuilder.Sql(@"
                 DO $$
                 DECLARE r RECORD;
@@ -30,7 +23,6 @@ namespace STLAF.Api.Migrations
             ");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"

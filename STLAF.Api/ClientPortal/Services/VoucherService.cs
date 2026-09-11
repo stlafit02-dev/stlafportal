@@ -32,9 +32,6 @@ public class VoucherService : IVoucherService
 
         await using var transaction = await _db.Database.BeginTransactionAsync();
 
-        // The WHERE clause is itself the concurrency guard: this UPDATE only affects a row
-        // that is still unused, so a racing second redemption of the same code matches zero
-        // rows once the first commits.
         var affected = await _db.ClientPortalVoucherCodes
             .Where(v => v.Code == normalizedCode
                 && !v.IsUsed

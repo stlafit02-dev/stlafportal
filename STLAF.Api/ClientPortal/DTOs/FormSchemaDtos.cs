@@ -19,7 +19,7 @@ public class FieldValidationDto
 public class FieldConditionalDto
 {
     public string Field { get; set; } = string.Empty;
-    public string Operator { get; set; } = string.Empty; // eq | neq | in | notEmpty
+    public string Operator { get; set; } = string.Empty;
     public object? Value { get; set; }
 }
 
@@ -34,6 +34,7 @@ public class FieldDefinitionDto
     public FieldConditionalDto? Conditional { get; set; }
     public string? HelpText { get; set; }
     public string? Placeholder { get; set; }
+    public string? Section { get; set; }
 }
 
 public class FormSchemaDto
@@ -41,10 +42,5 @@ public class FormSchemaDto
     public Guid Id { get; set; }
     public Guid ServiceId { get; set; }
     public int Version { get; set; }
-    public List<FieldDefinitionDto> Fields { get; set; } = new();
-}
-
-public class SaveFormSchemaDto
-{
     public List<FieldDefinitionDto> Fields { get; set; } = new();
 }
