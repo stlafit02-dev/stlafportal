@@ -64,11 +64,11 @@ export function RequestOvertimeModal({ isOpen, profile, onClose, onCreated }: Re
 
           <div className="gmail-grid">
             <div className="gmail-field">
-              <label className="gmail-label">Time In</label>
+              <label className="gmail-label">Overtime Start</label>
               <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required className="gmail-input" />
             </div>
             <div className="gmail-field">
-              <label className="gmail-label">Time Out</label>
+              <label className="gmail-label">Overtime End</label>
               <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required className="gmail-input" />
             </div>
           </div>

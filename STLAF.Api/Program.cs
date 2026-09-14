@@ -33,19 +33,16 @@ var options = new WebApplicationOptions
 
 var builder = WebApplication.CreateBuilder(options);
 
-// Controllers + OpenAPI
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 
-// Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("Default")
     ));
 
 
-// App services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
@@ -54,6 +51,7 @@ builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<IGmailService, GmailService>();
 builder.Services.AddHostedService<AppPasswordCleanupService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<STLAF.Api.Departments.IT.Services.IInternAccountService, STLAF.Api.Departments.IT.Services.InternAccountService>();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<ILeaveService, LeaveService>();
 builder.Services.AddScoped<IOvertimeService, OvertimeService>();
@@ -75,12 +73,7 @@ builder.Services.AddHostedService<SubscriptionExpiryService>();
 builder.Services.AddHostedService<LibreOfficeWarmupService>();
 
 
-// Forwarded headers — restore the real client IP from X-Forwarded-For behind
-// Render's own edge and, when a request comes via the Vercel /api proxy, Vercel's
-// edge too. Neither platform publishes a fixed proxy IP range, so KnownNetworks/
-// KnownProxies are cleared to accept the header from any immediate upstream;
-// ForwardLimit caps how many hops are peeled off so a client can't pad the header
-// to spoof an IP further back than that.
+
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -90,14 +83,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 
-//Rate limiter
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    // Global default: authenticated requests are partitioned by user ID (each
-    // logged-in employee gets their own bucket, regardless of shared office IP);
-    // unauthenticated requests fall back to IP address.
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
     {
         var userId = httpContext.User.Identity?.IsAuthenticated == true
@@ -117,8 +106,6 @@ builder.Services.AddRateLimiter(options =>
         });
     });
 
-    // Stricter policy for login — always IP-based, since there's no logged-in
-    // user yet when this endpoint is called. Protects against brute-force attempts.
     options.AddPolicy("login", httpContext =>
     {
         var key = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -130,8 +117,6 @@ builder.Services.AddRateLimiter(options =>
         });
     });
 
-    // Stricter policy for public, unauthenticated form submissions (tickets, intake) —
-    // always IP-based, since these have no login gate at all.
     options.AddPolicy("public-submission", httpContext =>
     {
         var key = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -144,7 +129,6 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-// Authentication (JWT)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -186,7 +170,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 
-// Authorization
 builder.Services.AddScoped<IAuthorizationHandler, DepartmentAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ModuleAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ClientAccountAuthorizationHandler>();
@@ -212,20 +195,7 @@ builder.Services.AddAuthorization(options =>
                 new DepartmentRequirement(dept)
             ));
     }
-    var modules = new[]
-    {
-        "hr-employees",
-        "hr-leave-settings",
-        "hr-medical-certificates",
-        "hr-reports",
-        "it-ticketing",
-        "it-assets",
-        "it-gmail",
-        "document-ea-review",
-        "document-partner-review"
-    };
-
-    foreach (var module in modules)
+    foreach (var module in STLAF.Api.Common.ModuleCatalog.Keys)
     {
         options.AddPolicy(module, policy =>
             policy.Requirements.Add(new ModuleRequirement(module)));
@@ -239,7 +209,6 @@ builder.Services.AddAuthorization(options =>
 });
 
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -260,7 +229,6 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 
-// Seed database
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -269,7 +237,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 
-// Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

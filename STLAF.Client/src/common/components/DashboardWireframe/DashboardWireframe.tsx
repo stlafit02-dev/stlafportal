@@ -12,7 +12,6 @@ function WireframeStatBlock() {
 }
 
 interface DashboardWireframeProps {
-  /** Real widget rendered in the bottom-right slot, e.g. <LastTicketCard />. */
   side: ReactNode;
 }
 

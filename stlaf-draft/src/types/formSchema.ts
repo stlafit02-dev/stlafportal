@@ -40,6 +40,7 @@ export interface FieldDefinition {
   conditional?: FieldConditionalRule;
   helpText?: string;
   placeholder?: string;
+  section?: string;
 }
 
 export interface FormSchema {

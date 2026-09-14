@@ -31,7 +31,6 @@ public class DocumentRequestService : IDocumentRequestService
     private static readonly string[] RejectedStatuses = { "RejectedByEA", "RejectedByPartner" };
     private static readonly string[] PartnerArchivableStatuses = { "Approved", "RejectedByPartner", "ReturnedToEA" };
 
-    // ---------- Employee-facing ----------
 
     public async Task<List<DocumentRequestDto>> GetMyRequestsAsync(Guid userId)
     {
@@ -217,7 +216,6 @@ public class DocumentRequestService : IDocumentRequestService
         return true;
     }
 
-    // ---------- Executive Assistant ----------
 
     public async Task<bool> IsExecutiveAssistantAsync(Guid userId)
     {
@@ -290,7 +288,6 @@ public class DocumentRequestService : IDocumentRequestService
         return (await ToDtoListAsync(new List<DocumentRequest> { request }))[0];
     }
 
-    // ---------- Partner ----------
 
     public async Task<bool> IsPartnerReviewerAsync(Guid userId)
     {
@@ -339,7 +336,6 @@ public class DocumentRequestService : IDocumentRequestService
         return (await ToDtoListAsync(new List<DocumentRequest> { request }))[0];
     }
 
-    // ---------- Notifications ----------
 
     private async Task NotifyExecutiveAssistantsAsync(DocumentRequest request, Employee submitter)
     {
@@ -445,7 +441,6 @@ public class DocumentRequestService : IDocumentRequestService
         await _emailSender.SendAsync(setting.SmtpSender.Email, setting.SmtpSender.AppPasswordValue, email, subject, html);
     }
 
-    // ---------- DTO mapping ----------
 
     private async Task<List<DocumentRequestDto>> ToDtoListAsync(List<DocumentRequest> requests)
     {
@@ -500,8 +495,6 @@ public class DocumentRequestService : IDocumentRequestService
     }
     public async Task<List<DocumentRequestDto>> GetPartnerDashboardAsync()
     {
-        // Approved requests move to the Repository instead of staying on the
-        // working dashboard, which is meant for things still needing attention.
         var relevantStatuses = new[] { "PendingPartner", "RejectedByPartner", "ReturnedToEA" };
         var requests = await _db.DocumentRequests
             .Where(r => relevantStatuses.Contains(r.Status) && !r.IsArchivedByPartner)

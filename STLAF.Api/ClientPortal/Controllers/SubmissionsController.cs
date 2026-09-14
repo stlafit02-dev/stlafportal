@@ -12,10 +12,12 @@ namespace STLAF.Api.ClientPortal.Controllers;
 public class SubmissionsController : ControllerBase
 {
     private readonly ISubmissionService _service;
+    private readonly IDocumentGenerationService _generation;
 
-    public SubmissionsController(ISubmissionService service)
+    public SubmissionsController(ISubmissionService service, IDocumentGenerationService generation)
     {
         _service = service;
+        _generation = generation;
     }
 
     private Guid CurrentClientId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
@@ -26,6 +28,14 @@ public class SubmissionsController : ControllerBase
         var outcome = await _service.CreateAsync(CurrentClientId, dto);
         if (outcome.Result is null) return BadRequest(new { message = outcome.ErrorMessage });
         return Ok(outcome.Result);
+    }
+
+    [HttpPost("preview")]
+    public async Task<IActionResult> Preview(PreviewDocumentDto dto)
+    {
+        var bytes = await _generation.RenderPreviewAsync(CurrentClientId, dto.ServiceId, dto.Responses);
+        if (bytes is null) return NotFound(new { message = "No document template configured for this service." });
+        return File(bytes, "application/pdf");
     }
 
     [HttpGet("mine")]

@@ -25,8 +25,6 @@ public class DocumentsService : IDocumentsService
             select new { doc.Id, doc.SubmissionId, sub.ServiceId, doc.FileKey, doc.CreatedAt }
         ).ToListAsync();
 
-        // A submission can have multiple generated documents if generation was retried —
-        // only the most recent one per submission is worth showing.
         var latestPerSubmission = rows
             .GroupBy(r => r.SubmissionId)
             .Select(g => g.OrderByDescending(r => r.CreatedAt).First())
@@ -125,11 +123,6 @@ public class DocumentsService : IDocumentsService
         var document = await _db.ClientPortalGeneratedDocuments.FirstOrDefaultAsync(d => d.Id == documentId);
         if (document is null) return false;
 
-        // Deleting just the GeneratedDocument row would leave its parent Submission behind —
-        // Submission is FK-restricted against Service specifically so a service can't be
-        // deleted while client history still references it, so removing the whole submission
-        // (its other generated documents, if generation was ever retried, cascade with it) is
-        // what actually lets a service get deleted afterward.
         var submission = await _db.ClientPortalSubmissions.FirstOrDefaultAsync(s => s.Id == document.SubmissionId);
         if (submission is null) return false;
 

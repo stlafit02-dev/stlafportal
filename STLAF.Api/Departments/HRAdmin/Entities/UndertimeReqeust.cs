@@ -13,7 +13,7 @@ public class UndertimeRequest : BaseEntity
     public double Hours { get; set; }
     public string Reason { get; set; } = string.Empty;
 
-    public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected
+    public string Status { get; set; } = "Pending";
 
     public Guid? DecidedByEmployeeId { get; set; }
     public Employee? DecidedByEmployee { get; set; }

@@ -105,7 +105,6 @@ public class DocumentRequestsController : ControllerBase
         return NoContent();
     }
 
-    // ---------- Executive Assistant (module: document-ea-review) ----------
 
     [HttpGet("pending-ea")]
     [Authorize(Policy = "document-ea-review")]
@@ -133,7 +132,6 @@ public class DocumentRequestsController : ControllerBase
         return Ok(result);
     }
 
-    // ---------- Partner (module: document-partner-review) ----------
 
     [HttpGet("pending-partner")]
     [Authorize(Policy = "document-partner-review")]

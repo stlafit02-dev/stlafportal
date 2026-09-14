@@ -76,7 +76,7 @@ public class AppPasswordDto
     public int Month { get; set; }
     public int Year { get; set; }
     public string? Notes { get; set; }
-    public string Status { get; set; } = string.Empty; // "Active" | "Expired"
+    public string Status { get; set; } = string.Empty;
     public DateTime ExpiresAt { get; set; }
     public DateTime CreatedAt { get; set; }
 }

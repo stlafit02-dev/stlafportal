@@ -18,9 +18,21 @@ public class TicketingController : ControllerBase
         _service = service;
     }
 
+    private static readonly string[] CategoryRestrictedPositions = { "Junior Full Stack Developer" };
+    private const string CategoryRestrictedCategory = "Website Development";
+
     private Guid CurrentUserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
 
-    // Public — anyone in the firm can submit a ticket without logging in
+    private string? OfficePosition => User.FindFirst("officePosition")?.Value;
+
+    private bool IsIntern => OfficePosition?.StartsWith("Intern-") == true;
+
+    private bool IsCategoryRestricted => OfficePosition is not null && CategoryRestrictedPositions.Contains(OfficePosition);
+
+    private bool CannotExport => IsIntern || IsCategoryRestricted;
+
+    private bool CannotReassign => IsIntern;
+
     [HttpPost]
     [AllowAnonymous]
     [EnableRateLimiting("public-submission")]
@@ -30,7 +42,6 @@ public class TicketingController : ControllerBase
         return CreatedAtAction(nameof(GetQueue), result);
     }
 
-    // Public — live queue of non-closed tickets
     [HttpGet("queue")]
     [AllowAnonymous]
     public async Task<IActionResult> GetQueue()
@@ -39,7 +50,6 @@ public class TicketingController : ControllerBase
         return Ok(tickets);
     }
 
-    // Public — status counts for the summary cards
     [HttpGet("summary")]
     [AllowAnonymous]
     public async Task<IActionResult> GetSummary()
@@ -48,20 +58,32 @@ public class TicketingController : ControllerBase
         return Ok(summary);
     }
 
-    // IT-only — full ticket list including closed
     [HttpGet]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> GetAll()
     {
-        var tickets = await _service.GetAllAsync();
+        List<TicketDto> tickets;
+        if (IsIntern)
+        {
+            tickets = await _service.GetAssignedToAsync(CurrentUserId);
+        }
+        else if (IsCategoryRestricted)
+        {
+            tickets = await _service.GetByCategoryAsync(CategoryRestrictedCategory);
+        }
+        else
+        {
+            tickets = await _service.GetAllAsync();
+        }
         return Ok(tickets);
     }
 
-    // IT-only — export tickets to Excel, honoring the current status/search filters
     [HttpGet("export")]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Export([FromQuery] string? status, [FromQuery] string? search, [FromQuery] string? month)
     {
+        if (CannotExport) return Forbid();
+
         var fileBytes = await _service.ExportTicketsAsync(status, search, month);
         var fileName = string.IsNullOrWhiteSpace(month)
             ? $"Tickets-Export-{DateTime.UtcNow:yyyy-MM-dd}.xlsx"
@@ -69,7 +91,6 @@ public class TicketingController : ControllerBase
         return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
-    // IT-only — list of IT staff for the assignee dropdown
     [HttpGet("staff")]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> GetStaff()
@@ -78,7 +99,6 @@ public class TicketingController : ControllerBase
         return Ok(staff);
     }
 
-    // IT-only — change status
     [HttpPatch("{id}/status")]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> UpdateStatus(Guid id, UpdateTicketStatusDto dto)
@@ -97,11 +117,12 @@ public class TicketingController : ControllerBase
         return Ok(result);
     }
 
-    // IT-only — assign/reassign
     [HttpPatch("{id}/assign")]
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Assign(Guid id, AssignTicketDto dto)
     {
+        if (CannotReassign) return Forbid();
+
         var result = await _service.AssignAsync(id, dto.AssignedToId);
         if (result is null) return NotFound();
         return Ok(result);
@@ -116,7 +137,6 @@ public class TicketingController : ControllerBase
         return NoContent();
     }
 
-    // ---------- Portal (employee self-service) ----------
 
     [HttpGet("my-profile")]
     [Authorize]

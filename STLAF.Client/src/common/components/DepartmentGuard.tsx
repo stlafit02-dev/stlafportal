@@ -10,7 +10,6 @@ interface DepartmentGuardProps {
 export function DepartmentGuard({ department, children }: DepartmentGuardProps) {
   const { user } = useAuth();
 
-  // SuperAdmin can view any department; everyone else must match exactly
   const allowed = user?.role === "SuperAdmin" || user?.department === department;
 
   if (!allowed) {

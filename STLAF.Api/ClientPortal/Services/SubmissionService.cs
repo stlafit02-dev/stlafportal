@@ -38,7 +38,7 @@ public class SubmissionService : ISubmissionService
         }
 
         var schema = await _db.ClientPortalFormSchemas
-            .FirstOrDefaultAsync(f => f.ServiceId == dto.ServiceId && f.Version == dto.FormSchemaVersion);
+            .FirstOrDefaultAsync(f => f.DocumentTemplate.ServiceId == dto.ServiceId && f.Version == dto.FormSchemaVersion);
         if (schema is null)
         {
             return new SubmissionOutcome { ErrorMessage = "This form is out of date. Please reload and try again." };
@@ -71,11 +71,6 @@ public class SubmissionService : ISubmissionService
         return new SubmissionOutcome { Result = Map(submission) };
     }
 
-    // Rendering a docx template (LibreOffice conversion) can take a while, so it must not
-    // block the request — the client gets the submission back immediately (status
-    // "submitted"), shows its own instant draft, and polls GetByIdAsync/the documents
-    // endpoint for the real PDF. Runs in its own DI scope since the request's scope (and
-    // its AppDbContext) is disposed as soon as this method returns.
     private void RunGenerationInBackground(Guid submissionId)
     {
         _ = Task.Run(async () =>
@@ -86,8 +81,6 @@ public class SubmissionService : ISubmissionService
         });
     }
 
-    // A "list" field's answer is a JSON string array, not a scalar — an empty array or one
-    // containing only blank strings must count as missing, same as an empty text field.
     private static bool HasMeaningfulValue(object? value)
     {
         if (value is null) return false;

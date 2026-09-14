@@ -134,7 +134,6 @@ export function AppPasswordModal({
             <span className="char-count">
               {countLetters(appPasswordValue)}/16
             </span>
-            {/* <span className="char-count">{appPasswordValue.length}/16</span> */}
           </div>
 
           <div className="gmail-grid">

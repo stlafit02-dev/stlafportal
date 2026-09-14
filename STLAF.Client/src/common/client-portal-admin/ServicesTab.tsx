@@ -22,7 +22,6 @@ export function ServicesTab() {
   const [selected, setSelected] = useState<Service | null>(null);
   const [form, setForm] = useState({ name: "", description: "", category: "", isActive: true });
   const [fields, setFields] = useState<FieldDefinition[]>([]);
-  const [schemaRefreshKey, setSchemaRefreshKey] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Service | null>(null);
@@ -188,15 +187,8 @@ export function ServicesTab() {
 
           {selected.id && (
             <>
-              <TemplateUpload
-                serviceId={selected.id}
-                fields={fields}
-                onFieldsGenerated={(generated) => {
-                  setFields(generated);
-                  setSchemaRefreshKey((k) => k + 1);
-                }}
-              />
-              <FormSchemaEditor serviceId={selected.id} onSaved={setFields} refreshKey={schemaRefreshKey} />
+              <TemplateUpload serviceId={selected.id} fields={fields} onFieldsChange={setFields} />
+              <FormSchemaEditor fields={fields} onChange={setFields} />
             </>
           )}
         </section>

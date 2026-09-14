@@ -3,12 +3,10 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using STLAF.Api.ClientPortal.DTOs;
 
 namespace STLAF.Api.ClientPortal.Services;
 
-// Word templates use plain {{field_key}} text placeholders instead of PDF AcroForm fields.
-// Word frequently splits a single {{field_key}} across multiple <w:r> runs (autocorrect/spellcheck),
-// so placeholders must be matched against each paragraph's concatenated text, not raw run text.
 public static class DocxTemplateProcessor
 {
     private static readonly Regex TokenPattern = new(@"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}", RegexOptions.Compiled);
@@ -34,7 +32,12 @@ public static class DocxTemplateProcessor
         return keys;
     }
 
-    public static MemoryStream Fill(Stream docxStream, Dictionary<string, object?> responses, HashSet<string> blurredKeys, bool isPremium)
+    public static MemoryStream Fill(
+        Stream docxStream,
+        Dictionary<string, object?> responses,
+        HashSet<string> blurredKeys,
+        bool isPremium,
+        Dictionary<string, FieldDefinitionDto> fieldsByKey)
     {
         var output = new MemoryStream();
         docxStream.CopyTo(output);
@@ -47,7 +50,7 @@ public static class DocxTemplateProcessor
             {
                 foreach (var paragraph in body.Descendants<Paragraph>().ToList())
                 {
-                    FillParagraph(paragraph, responses, blurredKeys, isPremium);
+                    FillParagraph(paragraph, responses, blurredKeys, isPremium, fieldsByKey);
                 }
             }
         }
@@ -56,7 +59,12 @@ public static class DocxTemplateProcessor
         return output;
     }
 
-    private static void FillParagraph(Paragraph paragraph, Dictionary<string, object?> responses, HashSet<string> blurredKeys, bool isPremium)
+    private static void FillParagraph(
+        Paragraph paragraph,
+        Dictionary<string, object?> responses,
+        HashSet<string> blurredKeys,
+        bool isPremium,
+        Dictionary<string, FieldDefinitionDto> fieldsByKey)
     {
         var text = GetParagraphText(paragraph);
         if (!text.Contains("{{")) return;
@@ -65,7 +73,7 @@ public static class DocxTemplateProcessor
         {
             var key = match.Groups[1].Value;
             var value = responses.TryGetValue(key, out var v) ? v : null;
-            return FormatValue(value, key, blurredKeys, isPremium);
+            return FormatValue(value, key, blurredKeys, isPremium, fieldsByKey);
         });
 
         var runs = paragraph.Elements<Run>().ToList();
@@ -76,8 +84,6 @@ public static class DocxTemplateProcessor
         firstRun.RemoveAllChildren<TabChar>();
         firstRun.RemoveAllChildren<Break>();
 
-        // A "list" field's value renders as a numbered list, one item per line — Word only
-        // shows a soft line break for an explicit <w:br/>, not an embedded "\n" character.
         var lines = replaced.Split('\n');
         for (var i = 0; i < lines.Length; i++)
         {
@@ -88,30 +94,38 @@ public static class DocxTemplateProcessor
         for (var i = 1; i < runs.Count; i++) runs[i].Remove();
     }
 
-    // A "list" field submits its answer as a JSON string array; every other field type
-    // submits a scalar. Shared with the fillable-PDF path (DocumentGenerationService) so
-    // both template kinds render a list the same way: a numbered "1. ...\n2. ..." block.
-    internal static string FormatValue(object? value, string key, HashSet<string> blurredKeys, bool isPremium)
+    internal static string FormatValue(
+        object? value,
+        string key,
+        HashSet<string> blurredKeys,
+        bool isPremium,
+        Dictionary<string, FieldDefinitionDto> fieldsByKey)
     {
         if (blurredKeys.Contains(key) && !isPremium) return string.Empty;
         if (value is null) return string.Empty;
+
+        fieldsByKey.TryGetValue(key, out var field);
 
         if (value is JsonElement { ValueKind: JsonValueKind.Array } arrayElement)
         {
             var items = arrayElement.EnumerateArray()
                 .Select(e => e.ValueKind == JsonValueKind.String ? e.GetString() : e.ToString())
                 .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(s => ResolveLabel(field, s!))
                 .ToList();
             return string.Join("\n", items.Select((item, i) => $"{i + 1}. {item}"));
         }
 
         if (value is JsonElement { ValueKind: JsonValueKind.String } stringElement)
         {
-            return stringElement.GetString() ?? string.Empty;
+            return ResolveLabel(field, stringElement.GetString() ?? string.Empty);
         }
 
         return value.ToString() ?? string.Empty;
     }
+
+    private static string ResolveLabel(FieldDefinitionDto? field, string rawValue) =>
+        field?.Options?.FirstOrDefault(o => o.Value == rawValue)?.Label ?? rawValue;
 
     private static string GetParagraphText(Paragraph paragraph)
     {

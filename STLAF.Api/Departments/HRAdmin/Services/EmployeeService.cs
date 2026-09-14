@@ -14,6 +14,7 @@ public class EmployeeService : IEmployeeService
     private readonly AppDbContext _db;
     private readonly ITicketingService _ticketingService;
     private const string PasswordChars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+    private const string InternCategoryName = "Intern";
 
     public EmployeeService(AppDbContext db, ITicketingService ticketingService)
     {
@@ -24,6 +25,7 @@ public class EmployeeService : IEmployeeService
     public async Task<List<EmployeeCategoryDto>> GetCategoriesAsync()
     {
         return await _db.EmployeeCategories
+            .Where(c => c.Name != InternCategoryName)
             .OrderBy(c => c.Code)
             .Select(c => new EmployeeCategoryDto { Id = c.Id, Name = c.Name, Code = c.Code })
             .ToListAsync();
@@ -42,6 +44,7 @@ public class EmployeeService : IEmployeeService
         var employees = await _db.Employees
             .Include(e => e.Category)
             .Include(e => e.User)
+            .Where(e => e.Category.Name != InternCategoryName)
             .OrderByDescending(e => e.CreatedAt)
             .ToListAsync();
 
@@ -177,9 +180,6 @@ public class EmployeeService : IEmployeeService
 
         if (employee.User is not null)
         {
-            // User.Email/Username stay permanently as the Company ID and are never
-            // touched here — Company Email is purely informational and lives only
-            // on Employee.CompanyEmail.
             employee.User.FullName = string.Join(" ", new[] { dto.FirstName, dto.MiddleName, dto.LastName }.Where(s => !string.IsNullOrWhiteSpace(s)));
             employee.User.IsActive = dto.Status == "Active";
 

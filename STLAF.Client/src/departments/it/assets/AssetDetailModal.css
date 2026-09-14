@@ -17,7 +17,6 @@
   color: var(--accent-gold);
 }
 
-/* ---------- View mode ---------- */
 
 .asset-view-header {
   display: flex;
@@ -194,7 +193,6 @@
   white-space: pre-wrap;
 }
 
-/* ---------- Edit mode ---------- */
 
 .asset-detail-header {
   display: flex;
@@ -310,7 +308,6 @@
   gap: 8px;
 }
 
-/* ---------- Repair / replacement history timeline ---------- */
 
 .history-loading {
   padding: 12px 0;

@@ -12,8 +12,8 @@ public class Ticket : BaseEntity
     public string Category { get; set; } = string.Empty;
     public string Priority { get; set; } = string.Empty;
     public string Status { get; set; } = "Open";
-    public string Department { get; set; } = string.Empty; // requester's department
-    public Guid? AssignedTo { get; set; } // IT staff user, nullable — wired up in Phase 3b
+    public string Department { get; set; } = string.Empty;
+    public Guid? AssignedTo { get; set; }
     public Guid? SubmittedByEmployeeId { get; set; }
     public DateTime DateSubmitted { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedDate { get; set; } = DateTime.UtcNow;

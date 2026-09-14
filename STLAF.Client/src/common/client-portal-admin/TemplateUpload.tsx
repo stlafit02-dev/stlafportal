@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from "react";
-import { fetchDocumentTemplate, saveFormSchema, uploadDocumentTemplate } from "./clientPortalAdminApi";
+import { fetchDocumentTemplate, uploadDocumentTemplate } from "./clientPortalAdminApi";
 import type { DocumentTemplate, TemplateFieldConfig, FieldDefinition } from "./types";
 
 const TemplateFieldMatcher = lazy(() =>
@@ -18,10 +18,10 @@ function humanizeKey(key: string): string {
 interface TemplateUploadProps {
   serviceId: string;
   fields: FieldDefinition[];
-  onFieldsGenerated?: (fields: FieldDefinition[]) => void;
+  onFieldsChange: (fields: FieldDefinition[]) => void;
 }
 
-export function TemplateUpload({ serviceId, fields, onFieldsGenerated }: TemplateUploadProps) {
+export function TemplateUpload({ serviceId, fields, onFieldsChange }: TemplateUploadProps) {
   const [current, setCurrent] = useState<DocumentTemplate | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [fieldConfig, setFieldConfig] = useState<TemplateFieldConfig[]>([]);
@@ -32,15 +32,15 @@ export function TemplateUpload({ serviceId, fields, onFieldsGenerated }: Templat
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generateError, setGenerateError] = useState<string | null>(null);
-  const [generateSuccess, setGenerateSuccess] = useState(false);
 
   useEffect(() => {
     fetchDocumentTemplate(serviceId).then((template) => {
       if (template) {
         setCurrent(template);
         setFieldConfig(template.fieldConfig);
+        onFieldsChange(template.fields);
+      } else {
+        onFieldsChange([]);
       }
     });
   }, [serviceId]);
@@ -68,8 +68,9 @@ export function TemplateUpload({ serviceId, fields, onFieldsGenerated }: Templat
 
     setIsSaving(true);
     try {
-      const saved = await uploadDocumentTemplate(serviceId, file, fieldConfig);
+      const saved = await uploadDocumentTemplate(serviceId, file, fieldConfig, fields);
       setCurrent(saved);
+      onFieldsChange(saved.fields);
       setSuccess(true);
     } catch {
       setError("Could not upload the template.");
@@ -78,32 +79,23 @@ export function TemplateUpload({ serviceId, fields, onFieldsGenerated }: Templat
     }
   }
 
-  async function handleGenerateFields() {
-    setGenerateError(null);
-    setGenerateSuccess(false);
-    setIsGenerating(true);
-    try {
-      const definitions: FieldDefinition[] = detectedNames.map((key) => ({
-        key,
-        label: humanizeKey(key),
-        type: "text",
-        required: false,
-      }));
-      const saved = await saveFormSchema(serviceId, definitions);
-      onFieldsGenerated?.(saved.fields);
-      setGenerateSuccess(true);
-    } catch {
-      setGenerateError("Could not generate form fields from this template.");
-    } finally {
-      setIsGenerating(false);
-    }
+  function handleGenerateFields() {
+    const definitions: FieldDefinition[] = detectedNames.map((key) => ({
+      key,
+      label: humanizeKey(key),
+      type: "text",
+      required: false,
+    }));
+    onFieldsChange(definitions);
   }
 
   return (
     <div style={{ marginTop: 32 }}>
       <h2 className="gmail-section-title">Document template</h2>
       <p className="page-subtitle">
-        {current ? `Current template key: ${current.templateFileKey.split("/").pop()}` : "No template uploaded yet."}
+        {current
+          ? `Current template key: ${current.templateFileKey.split("/").pop()} (form v${current.formSchemaVersion})`
+          : "No template uploaded yet."}
         {" "}Upload either a real fillable PDF form (field names matching your form field Keys), or a Word .docx
         with {"{{field_key}}"} placeholders typed directly in the document text.
       </p>
@@ -124,8 +116,6 @@ export function TemplateUpload({ serviceId, fields, onFieldsGenerated }: Templat
               const selected = e.target.files?.[0] ?? null;
               setFile(selected);
               setDetectedNames([]);
-              setGenerateError(null);
-              setGenerateSuccess(false);
               if (selected && current === null) setFieldConfig([]);
             }}
           />
@@ -145,22 +135,18 @@ export function TemplateUpload({ serviceId, fields, onFieldsGenerated }: Templat
 
         {file && detectedNames.length > 0 && (
           <div className="gmail-field" style={{ maxWidth: 520 }}>
-            <button type="button" className="gmail-secondary-btn" onClick={handleGenerateFields} disabled={isGenerating}>
-              {isGenerating
-                ? "Generating…"
-                : fields.length > 0
-                  ? "Regenerate form fields from this template"
-                  : "Generate form fields from this template"}
+            <button type="button" className="gmail-secondary-btn" onClick={handleGenerateFields}>
+              {fields.length > 0
+                ? "Regenerate form fields from this template"
+                : "Generate form fields from this template"}
             </button>
             {fields.length > 0 && (
               <p className="tfm-warning" style={{ marginTop: 6 }}>
-                This replaces the current form fields with ones generated from this template's {detectedNames.length}{" "}
-                detected field{detectedNames.length === 1 ? "" : "s"}. Any manual labels, types, or options you've
-                set will be lost.
+                This replaces the current form fields (below) with ones generated from this template's{" "}
+                {detectedNames.length} detected field{detectedNames.length === 1 ? "" : "s"}. Any manual labels,
+                types, or options you've set will be lost until you upload the template.
               </p>
             )}
-            {generateError && <p className="gmail-error">{generateError}</p>}
-            {generateSuccess && <p style={{ color: "#4fcb84", fontSize: 13 }}>Form fields generated.</p>}
           </div>
         )}
 
@@ -195,11 +181,11 @@ export function TemplateUpload({ serviceId, fields, onFieldsGenerated }: Templat
         )}
 
         {error && <p className="gmail-error">{error}</p>}
-        {success && <p style={{ color: "#4fcb84", fontSize: 13 }}>Template uploaded.</p>}
+        {success && <p style={{ color: "#4fcb84", fontSize: 13 }}>Template and form fields uploaded.</p>}
 
         <div className="gmail-actions" style={{ borderTop: "none", paddingTop: 0, justifyContent: "flex-start" }}>
           <button type="submit" className="gmail-submit-btn" disabled={isSaving}>
-            {isSaving ? "Uploading…" : "Upload template"}
+            {isSaving ? "Uploading…" : "Upload template and form fields"}
           </button>
         </div>
       </form>

@@ -16,7 +16,6 @@ public class IntakeGroupOptionDto
 
 public class CreateIntakeSubmissionDto
 {
-    // Step 1 — Client Info
     public string ClientType { get; set; } = string.Empty;
     public string ClientName { get; set; } = string.Empty;
     public string? Industry { get; set; }
@@ -26,13 +25,11 @@ public class CreateIntakeSubmissionDto
     public string ContactPerson { get; set; } = string.Empty;
     public string Designation { get; set; } = string.Empty;
 
-    // Step 2 — Services Wanted
     public List<Guid> SelectedServiceIds { get; set; } = new();
 
     public string? ContactEmail { get; set; }
     public string? ContactPhone { get; set; }
 
-    // Step 3 — Details & Booking
     public string ConsultationPreference { get; set; } = string.Empty;
     public DateTime ConsultationDate { get; set; }
     public List<string> PreferredTimeSlots { get; set; } = new();
@@ -64,6 +61,6 @@ public class IntakeSubmissionSummaryDto
     public DateTime CreatedAt { get; set; }
     public DateTime ConsultationDate { get; set; }
     public string ConsultationPreference { get; set; } = string.Empty;
-    public List<string> MatchedServices { get; set; } = new(); // only the services relevant to this viewer
-    public List<string> Categories { get; set; } = new(); // distinct categories among matched services
+    public List<string> MatchedServices { get; set; } = new();
+    public List<string> Categories { get; set; } = new();
 }

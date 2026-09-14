@@ -42,6 +42,7 @@ export function ItOverviewPage() {
   const { positions, isLoaded } = useModuleAccessPositions();
 
   const isBypassed = user?.role === "SuperAdmin" || user?.role === "DeptAdmin";
+  const canSeeOverview = isBypassed || user?.officePosition === "IT Support Specialist";
   function hasModule(module: string): boolean {
     return (
       isBypassed ||
@@ -151,6 +152,16 @@ export function ItOverviewPage() {
   });
 
   const showSidePanel = canAssets || canGmail;
+
+  if (!canSeeOverview) {
+    return (
+      <div className="gmail-page">
+        <div className="gmail-empty" style={{ marginTop: 40 }}>
+          You don't have access to this section. Contact your department admin if you believe this is a mistake.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="gmail-page">

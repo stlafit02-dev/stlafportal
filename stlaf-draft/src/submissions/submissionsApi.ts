@@ -17,6 +17,15 @@ function isNotFound(err: unknown): boolean {
     && (err as { response?: { status?: number } }).response?.status === 404;
 }
 
+export async function previewSubmission(serviceId: string, responses: FormValues): Promise<Blob> {
+  const response = await apiClient.post(
+    "/client-portal/submissions/preview",
+    { serviceId, responses },
+    { responseType: "blob" },
+  );
+  return response.data;
+}
+
 export async function createSubmission(
   serviceId: string,
   formSchemaVersion: number,

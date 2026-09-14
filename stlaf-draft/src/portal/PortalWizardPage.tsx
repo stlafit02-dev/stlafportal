@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { fetchServices } from "../services-catalog/servicesApi";
-import { fetchLatestFormSchema, createSubmission, fetchSubmission, retryGeneration } from "../submissions/submissionsApi";
-import { fetchMyDocuments, fetchDocumentForSubmission, downloadDocument, triggerDownload } from "../dashboard/documentsApi";
+import { fetchLatestFormSchema, previewSubmission, createSubmission } from "../submissions/submissionsApi";
+import { fetchMyDocuments, downloadDocument, triggerDownload } from "../dashboard/documentsApi";
 import { DynamicForm } from "../submissions/DynamicForm/DynamicForm";
 import { DraftPreview } from "../submissions/DraftPreview";
 import { SubscriptionStatusBadge } from "../subscription/SubscriptionStatusBadge";
-import { Spinner, PageLoader } from "../common/components/Loader/Loader";
-import type { Service, Submission, MyDocument } from "../types/domain";
+import { PageLoader } from "../common/components/Loader/Loader";
+import type { Service, MyDocument } from "../types/domain";
 import type { FormSchema, FormValues } from "../types/formSchema";
 import "./PortalWizardPage.css";
 
-type Step = "select" | "form" | "draft" | "done" | "failed";
+type Step = "select" | "form" | "draft" | "done";
 
 const STEP_LABELS: { key: Step; label: string }[] = [
   { key: "select", label: "Select service" },
@@ -19,10 +19,7 @@ const STEP_LABELS: { key: Step; label: string }[] = [
   { key: "done", label: "Download" },
 ];
 
-const POLL_INTERVAL_MS = 1800;
-
 function stepIndex(step: Step): number {
-  if (step === "failed") return 2;
   return STEP_LABELS.findIndex((s) => s.key === step);
 }
 
@@ -31,11 +28,14 @@ export function PortalWizardPage() {
   const [services, setServices] = useState<Service[] | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [schema, setSchema] = useState<FormSchema | null | undefined>(undefined);
-  const [submission, setSubmission] = useState<Submission | null>(null);
-  const [document, setDocument] = useState<MyDocument | null>(null);
   const [formValues, setFormValues] = useState<FormValues | null>(null);
   const [recentDocuments, setRecentDocuments] = useState<MyDocument[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isPreviewing, setIsPreviewing] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
 
   function loadRecentDocuments() {
@@ -51,45 +51,13 @@ export function PortalWizardPage() {
     loadRecentDocuments();
   }, []);
 
-  // The real document renders in the background (docx templates go through a slow
-  // LibreOffice conversion server-side) — while on the "draft" step, poll until it's ready
-  // or generation fails, instead of blocking the whole UI on one long request.
-  useEffect(() => {
-    if (step !== "draft" || !submission) return;
-
-    let cancelled = false;
-    let timeoutId: number;
-
-    async function poll() {
-      try {
-        const latest = await fetchSubmission(submission!.id);
-        if (cancelled) return;
-
-        if (latest.status === "completed") {
-          const doc = await fetchDocumentForSubmission(latest.id);
-          if (cancelled) return;
-          if (doc) {
-            setDocument(doc);
-            setStep("done");
-            return;
-          }
-        } else if (latest.status === "failed") {
-          setStep("failed");
-          return;
-        }
-      } catch {
-        // transient network hiccup — keep polling
-      }
-
-      if (!cancelled) timeoutId = window.setTimeout(poll, POLL_INTERVAL_MS);
-    }
-
-    timeoutId = window.setTimeout(poll, POLL_INTERVAL_MS);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
-    };
-  }, [step, submission]);
+  function setPreview(blob: Blob | null) {
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return blob ? URL.createObjectURL(blob) : null;
+    });
+    setPreviewBlob(blob);
+  }
 
   async function selectService(service: Service) {
     setSelectedService(service);
@@ -102,29 +70,39 @@ export function PortalWizardPage() {
   }
 
   async function handleFormSubmit(values: FormValues) {
-    if (!selectedService || !schema) return;
     setError(null);
     setFormValues(values);
+    setStep("draft");
+  }
+
+  async function handleGeneratePreview() {
+    if (!selectedService || !formValues) return;
+    setError(null);
+    setIsPreviewing(true);
+    setHasSaved(false);
 
     try {
-      const created = await createSubmission(selectedService.id, schema.version, values);
-      setDocument(null);
-      setSubmission(created);
-      setStep("draft");
+      const blob = await previewSubmission(selectedService.id, formValues);
+      setPreview(blob);
+      setStep("done");
     } catch {
-      setError("Could not submit your request. Please try again.");
-      setStep("form");
+      setError("Could not render a preview of this document. Please try again.");
+    } finally {
+      setIsPreviewing(false);
     }
   }
 
-  async function handleRetry() {
-    if (!submission) return;
+  async function handleDownloadPreview() {
+    if (!previewBlob) return;
+    triggerDownload(previewBlob, `${selectedService?.name ?? "document"}.pdf`.replace(/\s+/g, "-").toLowerCase());
+
+    if (hasSaved || !selectedService || !schema || !formValues) return;
     try {
-      await retryGeneration(submission.id);
-      setDocument(null);
-      setStep("draft");
+      await createSubmission(selectedService.id, schema.version, formValues);
+      setHasSaved(true);
+      loadRecentDocuments();
     } catch {
-      setStep("failed");
+      setError("Your document downloaded, but we couldn't save this request to your account. You can try downloading again.");
     }
   }
 
@@ -132,19 +110,17 @@ export function PortalWizardPage() {
     setStep("select");
     setSelectedService(null);
     setSchema(undefined);
-    setSubmission(null);
-    setDocument(null);
     setFormValues(null);
+    setPreview(null);
+    setHasSaved(false);
     setError(null);
     loadRecentDocuments();
   }
 
-  // Keeps the selected service/schema and the answers already typed in, so the client can
-  // tweak them against the document they just previewed instead of starting from scratch.
   function editAnswers() {
     setStep("form");
-    setSubmission(null);
-    setDocument(null);
+    setPreview(null);
+    setHasSaved(false);
     setError(null);
   }
 
@@ -244,7 +220,7 @@ export function PortalWizardPage() {
               <DynamicForm
                 schema={schema}
                 onSubmit={handleFormSubmit}
-                submitLabel="Generate PDF"
+                submitLabel="Review answers"
                 defaultValues={formValues ?? undefined}
               />
             )}
@@ -256,18 +232,22 @@ export function PortalWizardPage() {
 
       {step === "draft" && selectedService && (
         <div>
-          <div className="wizard-draft-header">
-            <h2 className="wizard-section-title">{selectedService.name}</h2>
-            <span className="wizard-draft-status">
-              <Spinner size="sm" /> Preparing your document…
-            </span>
-          </div>
+          <h2 className="wizard-section-title">{selectedService.name}</h2>
           <p className="page-subtitle">
-            Here's what you entered. The formatted document will appear automatically when it's ready.
+            Here's what you entered. Nothing is saved yet — generate a preview of the actual document, then
+            download it when you're ready.
           </p>
 
           <div className="form-card">
             {schema && <DraftPreview schema={schema} values={formValues ?? {}} />}
+          </div>
+
+          {error && <p className="form-error">{error}</p>}
+
+          <div className="wizard-done-actions" style={{ marginTop: 20 }}>
+            <button className="wizard-cta-primary" onClick={handleGeneratePreview} disabled={isPreviewing}>
+              {isPreviewing ? "Rendering…" : "Generate PDF preview"}
+            </button>
           </div>
 
           <button className="wizard-back-btn" onClick={editAnswers}>
@@ -276,34 +256,21 @@ export function PortalWizardPage() {
         </div>
       )}
 
-      {step === "done" && document && (
+      {step === "done" && selectedService && previewUrl && (
         <div className="wizard-done">
-          <p className="wizard-done-message">Your request has been saved, and your document is ready. Review it below before downloading.</p>
-
-          <iframe src={document.downloadUrl} className="pdf-preview-frame" title="Document preview" />
-
-          <div className="wizard-done-actions">
-            <button className="wizard-cta-primary" onClick={() => handleDownload(document)} disabled={!!isDownloading}>
-              {isDownloading ? "Downloading…" : "Download document"}
-            </button>
-            <button className="wizard-secondary-btn" onClick={editAnswers}>
-              ← Edit answers
-            </button>
-          </div>
-          <button className="wizard-back-btn" onClick={startOver}>
-            Start another request
-          </button>
-        </div>
-      )}
-
-      {step === "failed" && (
-        <div className="wizard-done">
-          <p className="form-error">
-            Your request was saved, but document generation hasn't finished yet. You can retry now.
+          <p className="wizard-done-message">
+            {hasSaved
+              ? "Saved to your account. You can download it again below."
+              : "This is the actual document — nothing is saved yet. Download it to save this request."}
           </p>
+
+          <iframe src={previewUrl} className="pdf-preview-frame" title="Document preview" />
+
+          {error && <p className="form-error">{error}</p>}
+
           <div className="wizard-done-actions">
-            <button className="wizard-cta-primary" onClick={handleRetry}>
-              Retry generation
+            <button className="wizard-cta-primary" onClick={handleDownloadPreview}>
+              Download document
             </button>
             <button className="wizard-secondary-btn" onClick={editAnswers}>
               ← Edit answers

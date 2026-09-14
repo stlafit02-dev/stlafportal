@@ -76,7 +76,6 @@ export function AppPasswordPage() {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 1500);
     } catch {
-      // clipboard write failed silently — no toast infra wired to this page currently
     }
   }
   async function loadAll() {

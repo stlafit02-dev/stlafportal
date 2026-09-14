@@ -64,7 +64,6 @@ public class DecideDocumentRequestDto
 
 public class ForwardRejectionDto
 {
-    // EA confirms they've informed the submitter; no extra fields needed for now.
 }
 
 public class PagedResult<T>

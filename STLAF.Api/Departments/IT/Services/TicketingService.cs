@@ -35,6 +35,26 @@ public class TicketingService : ITicketingService
         return await ToDtoListAsync(tickets);
     }
 
+    public async Task<List<TicketDto>> GetAssignedToAsync(Guid userId)
+    {
+        var tickets = await _db.Tickets
+            .Where(t => t.AssignedTo == userId)
+            .OrderByDescending(t => t.DateSubmitted)
+            .ToListAsync();
+
+        return await ToDtoListAsync(tickets);
+    }
+
+    public async Task<List<TicketDto>> GetByCategoryAsync(string category)
+    {
+        var tickets = await _db.Tickets
+            .Where(t => t.Category == category)
+            .OrderByDescending(t => t.DateSubmitted)
+            .ToListAsync();
+
+        return await ToDtoListAsync(tickets);
+    }
+
     public async Task<byte[]> ExportTicketsAsync(string? status, string? search, string? month)
     {
         var query = _db.Tickets.AsQueryable();
@@ -211,7 +231,6 @@ public class TicketingService : ITicketingService
         return true;
     }
 
-    // ---------- Portal (employee self-service) ----------
 
     public async Task<EmployeeTicketProfileDto?> GetMyProfileAsync(Guid userId)
     {
@@ -286,7 +305,6 @@ public class TicketingService : ITicketingService
         return list[0];
     }
 
-    // ---------- Helpers ----------
 
     private async Task<string> GenerateTicketNumberAsync()
     {

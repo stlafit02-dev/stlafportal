@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import { IdleLogoutModal } from "./IdleLogoutModal";
 
-const INACTIVITY_LIMIT_MS = 900000; //15 mins for 900000
+const INACTIVITY_LIMIT_MS = 900000;
 const ACTIVITY_EVENTS = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
 
 const PUBLIC_PATH_PREFIXES = ["/it-helpdesk", "/assets/", "/"];
@@ -21,8 +21,6 @@ export function IdleLogoutWatcher() {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    // Never run the inactivity timer on public, unauthenticated pages —
-    // regardless of whether a stale token happens to still be in localStorage.
     if (!isAuthenticated || isPublicPath(location.pathname)) {
       if (timerRef.current) clearTimeout(timerRef.current);
       return;

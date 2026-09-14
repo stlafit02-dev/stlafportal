@@ -116,9 +116,6 @@
   align-items: center;
 }
 
-/* Self-contained equivalents of the landing page's CTA buttons — this page can be reached
-   directly (a logged-in user is redirected straight past the landing page), so it can't
-   rely on LandingPage.css happening to already be loaded. */
 .wizard-cta-primary {
   font-family: "Inter", sans-serif;
   font-size: 14px;
@@ -178,7 +175,6 @@
   margin-top: 40px;
 }
 
-/* Services grid (also used for the "select service" step) */
 .services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -238,7 +234,6 @@
   font-size: 13px;
 }
 
-/* Recent documents table */
 .data-table {
   width: 100%;
   border-collapse: collapse;

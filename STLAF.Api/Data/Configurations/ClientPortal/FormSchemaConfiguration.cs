@@ -10,17 +10,17 @@ public class FormSchemaConfiguration : IEntityTypeConfiguration<FormSchema>
     {
         builder.ToTable("client_portal_form_schemas");
         builder.Property(x => x.Id).HasColumnName("id");
-        builder.Property(x => x.ServiceId).HasColumnName("service_id");
+        builder.Property(x => x.DocumentTemplateId).HasColumnName("document_template_id");
         builder.Property(x => x.Version).HasColumnName("version");
         builder.Property(x => x.FieldsJson).HasColumnName("fields_json").HasColumnType("jsonb").IsRequired();
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
 
-        builder.HasIndex(x => new { x.ServiceId, x.Version }).IsUnique();
+        builder.HasIndex(x => new { x.DocumentTemplateId, x.Version }).IsUnique();
 
-        builder.HasOne(x => x.Service)
+        builder.HasOne(x => x.DocumentTemplate)
             .WithMany()
-            .HasForeignKey(x => x.ServiceId)
+            .HasForeignKey(x => x.DocumentTemplateId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

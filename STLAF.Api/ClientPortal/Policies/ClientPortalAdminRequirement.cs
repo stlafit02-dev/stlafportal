@@ -5,8 +5,6 @@ using STLAF.Api.Data;
 
 namespace STLAF.Api.ClientPortal.Policies;
 
-// Staff-only: SuperAdmin/DeptAdmin always pass; everyone else needs a
-// ClientPortalAdminGrant row for their own User.Id.
 public class ClientPortalAdminRequirement : IAuthorizationRequirement
 {
 }

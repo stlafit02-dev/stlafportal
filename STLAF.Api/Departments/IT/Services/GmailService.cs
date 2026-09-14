@@ -15,7 +15,6 @@ public class GmailService : IGmailService
         _db = db;
     }
 
-    // ---------- GWS Accounts ----------
 
     public async Task<List<GwsAccountDto>> GetGwsAccountsAsync()
     {
@@ -86,7 +85,6 @@ public class GmailService : IGmailService
         };
     }
 
-    // ---------- Email Accounts (table: it_email_accounts) ----------
 
     public async Task<List<EmailAccountDto>> GetEmailAccountsAsync()
     {
@@ -119,7 +117,6 @@ public class GmailService : IGmailService
 
         await _db.Entry(account).Reference(e => e.GwsAccount).LoadAsync();
 
-        // Sync the newly assigned STLAF email back onto the matching employee's HR record.
         await SyncEmployeeCompanyEmailByNameAsync(dto.FullName, dto.StlafEmail);
 
         return ToEmailDto(account);
@@ -159,15 +156,12 @@ public class GmailService : IGmailService
         account.UpdatedBy = updatedBy;
         await _db.SaveChangesAsync();
 
-        // Clear the old owner's CompanyEmail (matched by the email address they're losing,
-        // not by name, since the old employee record may not have had a matching name entry).
         var previousOwner = await _db.Employees.FirstOrDefaultAsync(e => e.CompanyEmail == oldStlafEmail);
         if (previousOwner is not null)
         {
             previousOwner.CompanyEmail = null;
         }
 
-        // Assign the recycled email to the new owner, matched by name.
         await SyncEmployeeCompanyEmailByNameAsync(dto.NewFullName, dto.NewStlafEmail);
 
         if (previousOwner is not null)
@@ -190,7 +184,6 @@ public class GmailService : IGmailService
         return true;
     }
 
-    // ---------- App Passwords ----------
 
     public async Task<List<AppPasswordDto>> GetAppPasswordsAsync()
     {
@@ -261,7 +254,6 @@ public class GmailService : IGmailService
         };
     }
 
-    // ---------- Employee sync (one-off usage) ----------
 
     public async Task<int> BackfillEmployeeCompanyEmailsAsync()
     {
@@ -287,7 +279,6 @@ public class GmailService : IGmailService
         return updated;
     }
 
-    // ---------- Helpers ----------
 
     private static string NormalizeName(string name) =>
         System.Text.RegularExpressions.Regex.Replace(name.Trim(), @"\s+", " ");

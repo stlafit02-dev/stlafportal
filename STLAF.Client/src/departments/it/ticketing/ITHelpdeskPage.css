@@ -80,7 +80,6 @@
   color: var(--text-secondary);
 }
 
-/* ---------- Two-column body: form + queue, stretched to match height ---------- */
 .helpdesk-body {
   display: grid;
   grid-template-columns: 380px 1fr;
@@ -211,7 +210,6 @@
   gap: 8px;
 }
 
-/* ---------- Queue panel: empty state / loading / table all fill remaining height ---------- */
 .queue-empty {
   flex: 1;
   display: flex;

@@ -45,10 +45,6 @@ interface FloatingSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export function FloatingSelect({ label, value, className, children, ...props }: FloatingSelectProps) {
-  // A <select> always renders visible content (a real option or its
-  // placeholder), unlike a text input that's truly blank when empty — so
-  // the label stays floated up instead of resting where it would overlap
-  // an unselected placeholder option.
   return (
     <div className={`floating-field ${className ?? ""}`}>
       <select

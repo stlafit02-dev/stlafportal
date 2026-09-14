@@ -69,6 +69,11 @@ function deptModuleNav(department: string): ModuleNavItem[] {
             },
           ],
         },
+        {
+          label: "Intern Accounts",
+          to: "/it/interns",
+          module: "intern-accounts",
+        },
       ];
     case "HRAdmin":
       return [
@@ -120,6 +125,7 @@ export function buildNavItems(
 ): NavItem[] {
   const deptSlug = departmentSlug(department);
   const isBypassed = role === "SuperAdmin" || role === "DeptAdmin";
+  const isIntern = !!officePosition?.startsWith("Intern-");
 
   const isModuleAllowed = (module?: string): boolean => {
     if (!module) return true;
@@ -132,6 +138,11 @@ export function buildNavItems(
     );
   };
 
+  const commonAllowed = (module: string): boolean =>
+    !isIntern || isModuleAllowed(module);
+
+  const canSeeItOverview = isBypassed || officePosition === "IT Support Specialist";
+
   const managementApprovalChildren: ModuleChildItem[] = (
     [
       { label: "Submit Document", action: "submitDocument" as const },
@@ -142,19 +153,26 @@ export function buildNavItems(
         module: "document-ea-review",
       },
     ] satisfies ModuleChildItem[]
-  ).filter((c) => isModuleAllowed(c.module));
+  ).filter((c) =>
+    c.module ? isModuleAllowed(c.module) : commonAllowed("documents-submit"),
+  );
 
   const isPartner = department === "Partner";
 
+  const deptNavItems = deptModuleNav(department).filter(
+    (item) => !(department === "IT" && item.label === "Overview" && !canSeeItOverview),
+  );
+
   const rawItems: ModuleNavItem[] = [
-    ...deptModuleNav(department),
-    { label: "Submit Ticket", action: "submitTicket" },
+    ...deptNavItems,
+    ...(commonAllowed("tickets-submit")
+      ? [{ label: "Submit Ticket", action: "submitTicket" as const }]
+      : []),
     ...(showMyInquiries
       ? [{ label: "Inquiries", to: `/${deptSlug}/my-inquiries` }]
       : []),
-    ...(isPartner
-      ? []
-      : [
+    ...(!isPartner && commonAllowed("leave-overtime")
+      ? [
           {
             label: "Leave & Overtime",
             children: leaveChildren(
@@ -163,7 +181,8 @@ export function buildNavItems(
               showFinalApprovals,
             ),
           },
-        ]),
+        ]
+      : []),
     ...(!isPartner && managementApprovalChildren.length > 0
       ? [{ label: "Management Approval", children: managementApprovalChildren }]
       : []),

@@ -10,7 +10,7 @@ public class MedicalCertificate : BaseEntity
     public Guid LeaveRequestId { get; set; }
     public LeaveRequest LeaveRequest { get; set; } = null!;
 
-    public string Status { get; set; } = "PendingUpload"; // PendingUpload, PendingVerification, Verified, Rejected
+    public string Status { get; set; } = "PendingUpload";
 
     public string? DriveFileId { get; set; }
     public string? DriveFileUrl { get; set; }

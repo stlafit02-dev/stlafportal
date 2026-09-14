@@ -64,7 +64,6 @@ export function TemplateFieldMatcher({ file, fields, fieldConfig, onChange, onDe
         () => setError("Could not read this PDF."),
       );
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file]);
 
   function toggleBlur(fieldKey: string, blurOnFree: boolean) {

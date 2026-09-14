@@ -17,7 +17,6 @@ export interface IntakeFormOptions {
 }
 
 export interface IntakeFormData {
-  // Step 1 — Client Info
   clientType: string;
   clientName: string;
   industry: string;
@@ -29,10 +28,8 @@ export interface IntakeFormData {
   contactEmail: string;
   contactPhone: string;
 
-  // Step 2 — Services Wanted
   selectedServiceIds: string[];
 
-  // Step 3 — Details & Booking
   consultationPreference: string;
   consultationDate: string;
   preferredTimeSlots: string[];

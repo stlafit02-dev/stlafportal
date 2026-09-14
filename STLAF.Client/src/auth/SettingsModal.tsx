@@ -20,8 +20,6 @@ function formatDepartment(department: string | undefined): string | undefined {
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { user } = useAuth();
 
-  // hr_employees.company_email — falls back to the login identity's email if this
-  // account has no linked employee record.
   const [companyEmail, setCompanyEmail] = useState<string | null>(null);
 
   useEffect(() => {

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using STLAF.Api.ClientPortal.DTOs;
 using STLAF.Api.ClientPortal.Services;
 
 namespace STLAF.Api.ClientPortal.Controllers;
@@ -16,9 +15,6 @@ public class FormSchemasController : ControllerBase
         _service = service;
     }
 
-    // Any authenticated caller (client or staff admin) can read the current field
-    // definitions — they aren't sensitive, and both the client form and the admin
-    // editor need this.
     [HttpGet("{serviceId}/latest")]
     [Authorize]
     public async Task<IActionResult> GetLatest(Guid serviceId)
@@ -27,9 +23,4 @@ public class FormSchemasController : ControllerBase
         if (schema is null) return NotFound();
         return Ok(schema);
     }
-
-    [HttpPost("{serviceId}")]
-    [Authorize(Policy = "client-portal-admin")]
-    public async Task<IActionResult> SaveNewVersion(Guid serviceId, SaveFormSchemaDto dto)
-        => Ok(await _service.SaveNewVersionAsync(serviceId, dto));
 }

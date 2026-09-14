@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace STLAF.Api.ClientPortal.Policies;
 
-// Marks an endpoint as callable only with a JWT issued to a ClientAccount
-// (accountType=Client claim), never a staff token.
 public class ClientAccountRequirement : IAuthorizationRequirement
 {
 }

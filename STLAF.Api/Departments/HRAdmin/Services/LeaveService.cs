@@ -31,7 +31,6 @@ public class LeaveService : ILeaveService
     private static string DepartmentSlug(string department) =>
         department == "HRAdmin" ? "hr-admin" : department.ToLowerInvariant();
 
-    // ---------- Leave Types ----------
 
     public async Task<List<LeaveTypeDto>> GetLeaveTypesAsync()
     {
@@ -61,7 +60,6 @@ public class LeaveService : ILeaveService
         return new LeaveTypeDto { Id = type.Id, Name = type.Name, DefaultCredits = type.DefaultCredits, RequiresMedicalAfterDays = type.RequiresMedicalAfterDays };
     }
 
-    // ---------- Approvers ----------
 
     public async Task<List<LeaveApproverDto>> GetApproversAsync()
     {
@@ -105,7 +103,6 @@ public class LeaveService : ILeaveService
         };
     }
 
-    // ---------- SMTP Senders ----------
 
     public async Task<List<SmtpSenderDto>> GetSmtpSendersAsync()
     {
@@ -155,7 +152,6 @@ public class LeaveService : ILeaveService
         return true;
     }
 
-    // ---------- Notification Setting ----------
 
     public async Task<LeaveNotificationSettingDto?> GetNotificationSettingAsync()
     {
@@ -199,7 +195,6 @@ public class LeaveService : ILeaveService
         };
     }
 
-    // ---------- Employee Leave Credit overrides ----------
 
     public async Task<List<EmployeeLeaveCreditDto>> GetEmployeeLeaveCreditsAsync(Guid employeeId)
     {
@@ -254,7 +249,6 @@ public class LeaveService : ILeaveService
         return await GetEmployeeLeaveCreditsAsync(employeeId);
     }
 
-    // ---------- Employee-facing ----------
 
     public async Task<EmployeeProfileDto?> GetMyProfileAsync(Guid userId)
     {
@@ -341,8 +335,6 @@ public class LeaveService : ILeaveService
 
         if (days < 0.5m) throw new InvalidOperationException("Invalid date range.");
 
-        // A pending/unverified medical certificate no longer blocks submission —
-        // it just forces this leave to be unpaid, regardless of the employee's checkbox choice.
         var isPaid = hasBlocker ? false : dto.IsPaid;
 
         var request = new LeaveRequest
@@ -368,7 +360,6 @@ public class LeaveService : ILeaveService
         return ToDto(request);
     }
 
-    // ---------- Approver-facing ----------
 
     public async Task<bool> IsApproverAsync(Guid userId)
     {
@@ -512,7 +503,6 @@ public class LeaveService : ILeaveService
         return ToDto(request);
     }
 
-    // ---------- Medical Certificates ----------
 
     public async Task<bool> HasBlockingMedicalCertificateAsync(Guid userId)
     {
@@ -599,7 +589,6 @@ public class LeaveService : ILeaveService
         return ToMedicalDto(cert);
     }
 
-    // ---------- Notifications ----------
 
     private async Task NotifyApproverAsync(LeaveRequest request)
     {
@@ -737,7 +726,6 @@ public class LeaveService : ILeaveService
         }
     }
 
-    // ---------- DTO mapping ----------
 
     private async Task<List<MedicalCertificateDto>> ToMedicalDtoListAsync(List<MedicalCertificate> certs)
     {

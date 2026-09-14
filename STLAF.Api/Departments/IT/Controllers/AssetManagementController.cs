@@ -43,7 +43,6 @@ public class AssetManagementController : ControllerBase
         return Ok(result);
     }
 
-    // Public — this is what the QR code links to, no login required
     [HttpGet("tag/{assetTag}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetByTag(string assetTag)

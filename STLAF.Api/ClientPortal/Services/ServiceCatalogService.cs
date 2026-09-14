@@ -81,10 +81,6 @@ public class ServiceCatalogService : IServiceCatalogService
             return new DeleteServiceOutcome { Success = false, ErrorMessage = "Service not found." };
         }
 
-        // Submission is FK-restricted against Service at the DB level, so deleting a service
-        // that clients have already used means explicitly clearing its submission history
-        // first — B2 files for each generated document are deleted here since the DB cascade
-        // (Submission -> GeneratedDocument) only cleans up rows, not the actual files.
         var submissions = await _db.ClientPortalSubmissions.Where(s => s.ServiceId == id).ToListAsync();
         if (submissions.Count > 0)
         {
