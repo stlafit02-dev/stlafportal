@@ -14,10 +14,13 @@ import { Toast } from "../../../common/components/Toast/Toast";
 import { TicketDetailModal } from "./TicketDetailModal";
 import { deleteTicket } from "./ticketingApi";
 import { ConfirmDialog } from "../../../common/components/ConfirmDialog/ConfirmDialog";
+import { useAuth } from "../../../auth/useAuth";
 import "../gmail/GmailForms.css";
 import "./TicketingPage.css";
 
 const PAGE_SIZE = 20;
+
+const CATEGORY_RESTRICTED_POSITIONS = ["Junior Full Stack Developer"];
 
 function currentMonthValue() {
   const now = new Date();
@@ -57,6 +60,13 @@ const PRIORITY_CLASS: Record<string, string> = {
 };
 
 export function TicketingPage() {
+  const { user } = useAuth();
+  const isIntern = !!user?.officePosition?.startsWith("Intern-");
+  const isCategoryRestricted = CATEGORY_RESTRICTED_POSITIONS.includes(
+    user?.officePosition ?? "",
+  );
+  const cannotExport = isIntern || isCategoryRestricted;
+  const cannotReassign = isIntern;
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [staff, setStaff] = useState<ItStaff[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -209,7 +219,11 @@ export function TicketingPage() {
     <div className="ticketing-page">
       <h1 className="page-title">Ticketing</h1>
       <p className="page-subtitle">
-        All tickets, including closed. Click a row to view details and update.
+        {isIntern
+          ? "Tickets assigned to you, including closed. Click a row to view details and update."
+          : isCategoryRestricted
+            ? "Website Development tickets, including closed. Click a row to view details and update."
+            : "All tickets, including closed. Click a row to view details and update."}
       </p>
       <div className="ticketing-toolbar">
         <div className="search-box">
@@ -246,28 +260,30 @@ export function TicketingPage() {
         </div>
 
         <div className="ticketing-export-wrap" ref={exportPopoverRef}>
-          <button
-            className="gmail-submit-btn ticketing-export-btn"
-            onClick={() => setIsExportModalOpen((prev) => !prev)}
-            disabled={isLoading}
-          >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              style={{ marginRight: 8 }}
+          {!cannotExport && (
+            <button
+              className="gmail-submit-btn ticketing-export-btn"
+              onClick={() => setIsExportModalOpen((prev) => !prev)}
+              disabled={isLoading}
             >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Export to Excel
-          </button>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                style={{ marginRight: 8 }}
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Export to Excel
+            </button>
+          )}
 
-          {isExportModalOpen && (
+          {!cannotExport && isExportModalOpen && (
             <div className="ticketing-export-popover">
               <form onSubmit={handleExport} className="ticketing-export-popover-form">
                 <label className="gmail-label" htmlFor="export-month">
@@ -486,6 +502,7 @@ export function TicketingPage() {
       <TicketDetailModal
         ticket={selectedTicket}
         staff={staff}
+        canReassign={!cannotReassign}
         onClose={() => setSelectedTicketId(null)}
         onStatusChange={handleStatusChange}
         onAssignChange={handleAssignChange}

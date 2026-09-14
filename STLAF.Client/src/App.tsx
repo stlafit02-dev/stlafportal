@@ -24,6 +24,7 @@ import { AssetManagementPage } from "./departments/it/assets/AssetManagementPage
 import { GwsAccountPage } from "./departments/it/gmail/GwsAccountPage";
 import { EmailAccountPage } from "./departments/it/gmail/EmailAccountPage";
 import { AppPasswordPage } from "./departments/it/gmail/AppPasswordPage";
+import { InternAccountsPage } from "./departments/it/interns/InternAccountsPage";
 import { EmployeesPage } from "./departments/hr-admin/employees/EmployeesPage";
 import { LeaveSettingsPage } from "./departments/hr-admin/leave-settings/LeaveSettingsPage";
 import { ReportsPage } from "./departments/hr-admin/reports/ReportsPage";
@@ -136,10 +137,18 @@ function App() {
                         </ModuleGuard>
                       }
                     />
+                    <Route
+                      path="interns"
+                      element={
+                        <ModuleGuard module="intern-accounts">
+                          <InternAccountsPage />
+                        </ModuleGuard>
+                      }
+                    />
                     <Route path="leave/*" element={<LeaveRoutes />} />
                     <Route path="my-inquiries" element={<MyInquiriesPage />} />
                   </Route>
-  
+
                   <Route
                     path="/hr-admin"
                     element={

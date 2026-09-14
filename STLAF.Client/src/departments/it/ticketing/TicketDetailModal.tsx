@@ -40,6 +40,7 @@ function formatDuration(startIso: string, endIso: string): string {
 interface TicketDetailModalProps {
   ticket: Ticket | null;
   staff: ItStaff[];
+  canReassign?: boolean;
   onClose: () => void;
   onStatusChange: (ticketId: string, status: string) => void;
   onAssignChange: (ticketId: string, assignedToId: string) => void;
@@ -50,6 +51,7 @@ interface TicketDetailModalProps {
 export function TicketDetailModal({
   ticket,
   staff,
+  canReassign = true,
   onClose,
   onStatusChange,
   onAssignChange,
@@ -234,7 +236,7 @@ export function TicketDetailModal({
               className="modal-select"
               value={ticket.assignedToId ?? ""}
               onChange={(e) => onAssignChange(ticket.id, e.target.value)}
-              disabled={isClosed}
+              disabled={isClosed || !canReassign}
             >
               <option value="">Unassigned</option>
               {staff.map((s) => (

@@ -61,6 +61,15 @@ public static class DbSeeder
             );
             await db.SaveChangesAsync();
         }
+        if (!await db.ModuleAccessPositions.AnyAsync(m => m.Module == "intern-accounts"))
+        {
+            db.ModuleAccessPositions.Add(new ModuleAccessPosition
+            {
+                Module = "intern-accounts",
+                OfficePosition = "IT Support Specialist"
+            });
+            await db.SaveChangesAsync();
+        }
         if (!await db.LeaveTypes.AnyAsync())
         {
             db.LeaveTypes.AddRange(

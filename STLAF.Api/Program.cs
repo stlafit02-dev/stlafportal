@@ -51,6 +51,7 @@ builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<IGmailService, GmailService>();
 builder.Services.AddHostedService<AppPasswordCleanupService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<STLAF.Api.Departments.IT.Services.IInternAccountService, STLAF.Api.Departments.IT.Services.InternAccountService>();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<ILeaveService, LeaveService>();
 builder.Services.AddScoped<IOvertimeService, OvertimeService>();
@@ -194,20 +195,7 @@ builder.Services.AddAuthorization(options =>
                 new DepartmentRequirement(dept)
             ));
     }
-    var modules = new[]
-    {
-        "hr-employees",
-        "hr-leave-settings",
-        "hr-medical-certificates",
-        "hr-reports",
-        "it-ticketing",
-        "it-assets",
-        "it-gmail",
-        "document-ea-review",
-        "document-partner-review"
-    };
-
-    foreach (var module in modules)
+    foreach (var module in STLAF.Api.Common.ModuleCatalog.Keys)
     {
         options.AddPolicy(module, policy =>
             policy.Requirements.Add(new ModuleRequirement(module)));

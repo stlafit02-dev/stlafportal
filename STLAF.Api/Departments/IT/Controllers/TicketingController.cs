@@ -18,7 +18,20 @@ public class TicketingController : ControllerBase
         _service = service;
     }
 
+    private static readonly string[] CategoryRestrictedPositions = { "Junior Full Stack Developer" };
+    private const string CategoryRestrictedCategory = "Website Development";
+
     private Guid CurrentUserId => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")!.Value);
+
+    private string? OfficePosition => User.FindFirst("officePosition")?.Value;
+
+    private bool IsIntern => OfficePosition?.StartsWith("Intern-") == true;
+
+    private bool IsCategoryRestricted => OfficePosition is not null && CategoryRestrictedPositions.Contains(OfficePosition);
+
+    private bool CannotExport => IsIntern || IsCategoryRestricted;
+
+    private bool CannotReassign => IsIntern;
 
     [HttpPost]
     [AllowAnonymous]
@@ -49,7 +62,19 @@ public class TicketingController : ControllerBase
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> GetAll()
     {
-        var tickets = await _service.GetAllAsync();
+        List<TicketDto> tickets;
+        if (IsIntern)
+        {
+            tickets = await _service.GetAssignedToAsync(CurrentUserId);
+        }
+        else if (IsCategoryRestricted)
+        {
+            tickets = await _service.GetByCategoryAsync(CategoryRestrictedCategory);
+        }
+        else
+        {
+            tickets = await _service.GetAllAsync();
+        }
         return Ok(tickets);
     }
 
@@ -57,6 +82,8 @@ public class TicketingController : ControllerBase
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Export([FromQuery] string? status, [FromQuery] string? search, [FromQuery] string? month)
     {
+        if (CannotExport) return Forbid();
+
         var fileBytes = await _service.ExportTicketsAsync(status, search, month);
         var fileName = string.IsNullOrWhiteSpace(month)
             ? $"Tickets-Export-{DateTime.UtcNow:yyyy-MM-dd}.xlsx"
@@ -94,6 +121,8 @@ public class TicketingController : ControllerBase
     [Authorize(Policy = "it-ticketing")]
     public async Task<IActionResult> Assign(Guid id, AssignTicketDto dto)
     {
+        if (CannotReassign) return Forbid();
+
         var result = await _service.AssignAsync(id, dto.AssignedToId);
         if (result is null) return NotFound();
         return Ok(result);
